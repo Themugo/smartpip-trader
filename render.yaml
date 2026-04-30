@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: smartpip-trader
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DERIV_API_TOKEN
+        sync: false
+      - key: DERIV_APP_ID
+        value: 1089
+      - key: BASE_TRADE_AMOUNT
+        value: 1
+      - key: MAX_DAILY_TRADES
+        value: 30
+      - key: TRADE_DURATION
+        value: 2
+      - key: PORT
+        value: 8000
