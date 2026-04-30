@@ -1,4 +1,4 @@
-# main.py - Fully Integrated Professional Trading Platform with Real Deriv Data
+# main.py - Complete Professional Trading Platform with Real Deriv Integration
 import os
 import json
 import asyncio
@@ -10,45 +10,30 @@ import logging
 from typing import Dict, List, Optional
 import websockets
 from collections import deque
-import math
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class RealDerivTradingPlatform:
     def __init__(self):
-        # Deriv connection
         self.websocket = None
         self.connected = False
         self.api_token = os.getenv("DERIV_API_TOKEN")
         self.app_id = os.getenv("DERIV_APP_ID", "1089")
         
-        # Account type selection (demo is default Deriv demo account)
-        self.account_mode = "demo"  # "demo" or "real"
-        self.demo_balance = 10000.00
-        self.real_balance = 0.00
-        self.current_balance = 10000.00
+        self.account_mode = "demo"
+        self.current_balance = 0.00
         self.currency = "USD"
         
-        # Bot status
         self.bot_status = "STOPPED"
-        self.bot_running = False
+        self.bot_running = True
         
-        # Trading symbols (Deriv Volatility Indices)
-        self.symbols = {
-            "1HZ10V": {"name": "1HZ10V", "active": True},
-            "R_10": {"name": "Volatility 10 Index", "active": True},
-            "R_25": {"name": "Volatility 25 Index", "active": True},
-            "R_50": {"name": "Volatility 50 Index", "active": True},
-            "R_75": {"name": "Volatility 75 Index", "active": True},
-            "R_100": {"name": "Volatility 100 Index", "active": True}
-        }
+        self.symbols = ["1HZ10V", "R_10", "R_25", "R_50", "R_75", "R_100"]
         self.current_symbol = "1HZ10V"
         self.current_price = 0
         self.price_history = deque(maxlen=200)
         self.ticks_collected = 0
         
-        # Trading settings
         self.settings = {
             "profit_target": 2.00,
             "stop_loss": 10.00,
@@ -61,7 +46,6 @@ class RealDerivTradingPlatform:
             "trade_duration": 2
         }
         
-        # Trading statistics
         self.stats = {
             "session_pnl": 0.00,
             "total_trades": 0,
@@ -72,12 +56,9 @@ class RealDerivTradingPlatform:
             "consecutive_losses": 0,
             "profit_factor": 0,
             "avg_win": 0.00,
-            "avg_loss": 0.00,
-            "best_trade": 0.00,
-            "worst_trade": 0.00
+            "avg_loss": 0.00
         }
         
-        # Strategy performance
         self.strategies = {
             "even_odd": {"wins": 0, "losses": 0, "roi": 1.00},
             "over_under": {"wins": 0, "losses": 0, "roi": 1.00},
@@ -85,249 +66,94 @@ class RealDerivTradingPlatform:
             "rise_fall": {"wins": 0, "losses": 0, "roi": 1.00}
         }
         
-        # Market analysis
         self.market_score = 50
         self.need_score = 85
-        self.market_conditions = {
-            "rsi": 50.0,
-            "macd": "→",
-            "volatility": 0.00,
-            "trend": "neutral"
-        }
-        
-        # Pattern analysis
+        self.market_conditions = {"rsi": 50.0, "macd": "→", "volatility": 0.00, "trend": "neutral"}
         self.last_10_digits = ["4", "U", "0", "U", "7", "O", "9", "O", "5", "O"]
         self.even_odd_pattern = {"even": 3, "odd": 7, "signal": "EVEN"}
         self.over_under_pattern = {"over": 4, "under": 6, "edge": False}
         
-        # Active trades
         self.active_trades = {}
         self.trade_log = []
-        
-        # Market score factors
-        self.market_factors = {
-            "trend_strength": 0,
-            "volatility_score": 0,
-            "momentum": 0,
-            "pattern_match": 0
-        }
     
     async def connect_deriv(self):
-        """Connect to Deriv WebSocket with real API"""
         if not self.api_token:
-            logger.error("No API token found! Set DERIV_API_TOKEN environment variable")
+            logger.error("No API token found!")
             return False
         
-        # Always use wss://ws.binaryws.com/websockets/v3
-        # For demo accounts, app_id=1089 works
-        # For real accounts, you need your registered app_id
         url = f"wss://ws.binaryws.com/websockets/v3?app_id={self.app_id}"
         
         try:
             self.websocket = await websockets.connect(url)
-            logger.info(f"WebSocket connected to {url}")
-            
-            # Authorize with token
             auth_msg = {"authorize": self.api_token}
             await self.websocket.send(json.dumps(auth_msg))
             response = await self.websocket.recv()
             auth_data = json.loads(response)
             
             if auth_data.get("error"):
-                logger.error(f"Authorization failed: {auth_data['error']['message']}")
+                logger.error(f"Auth failed: {auth_data['error']['message']}")
                 return False
             
-            logger.info(f"Authorization successful! Account: {auth_data.get('authorize', {}).get('loginid', 'Unknown')}")
+            # Get balance
+            await self.websocket.send(json.dumps({"balance": 1}))
+            balance_response = await self.websocket.recv()
+            balance_data = json.loads(balance_response)
             
-            # Get account balance
-            await self.get_balance()
-            
-            # Get available symbols
-            await self.get_available_symbols()
+            if "balance" in balance_data:
+                self.current_balance = float(balance_data["balance"].get("balance", 0))
+                self.currency = balance_data["balance"].get("currency", "USD")
+                loginid = balance_data["balance"].get("loginid", "")
+                self.account_mode = "demo" if loginid.startswith("VRTC") else "real"
+                logger.info(f"Connected! Account: {loginid}, Balance: {self.currency} {self.current_balance:,.2f}")
             
             self.connected = True
             return True
-            
         except Exception as e:
             logger.error(f"Connection failed: {e}")
             return False
     
-    async def get_balance(self):
-        """Fetch real account balance from Deriv"""
-        try:
-            balance_msg = {"balance": 1}
-            await self.websocket.send(json.dumps(balance_msg))
-            response = await self.websocket.recv()
-            balance_data = json.loads(response)
-            
-            if "balance" in balance_data:
-                balance_info = balance_data["balance"]
-                self.current_balance = float(balance_info.get("balance", 0))
-                self.currency = balance_info.get("currency", "USD")
-                
-                # Determine if this is demo or real based on loginid
-                loginid = balance_info.get("loginid", "")
-                if loginid.startswith("VRTC") or loginid.startswith("VRT"):
-                    self.account_mode = "demo"
-                    self.demo_balance = self.current_balance
-                else:
-                    self.account_mode = "real"
-                    self.real_balance = self.current_balance
-                
-                logger.info(f"Balance: {self.currency} {self.current_balance:,.2f} (Account: {loginid})")
-                return True
-        except Exception as e:
-            logger.error(f"Failed to get balance: {e}")
-        
-        return False
-    
-    async def get_available_symbols(self):
-        """Get active symbols from Deriv"""
-        try:
-            active_symbols_msg = {"active_symbols": "brief"}
-            await self.websocket.send(json.dumps(active_symbols_msg))
-            response = await self.websocket.recv()
-            symbols_data = json.loads(response)
-            
-            if "active_symbols" in symbols_data:
-                for symbol in symbols_data["active_symbols"]:
-                    if symbol.get("market") == "volatility":
-                        logger.info(f"Available symbol: {symbol.get('symbol')} - {symbol.get('display_name')}")
-        except Exception as e:
-            logger.error(f"Failed to get symbols: {e}")
-    
     async def subscribe_to_symbol(self):
-        """Subscribe to price ticks for current symbol"""
-        if not self.connected:
-            return
-        
-        subscribe_msg = {
-            "ticks": self.current_symbol,
-            "subscribe": 1
-        }
+        subscribe_msg = {"ticks": self.current_symbol, "subscribe": 1}
         await self.websocket.send(json.dumps(subscribe_msg))
         logger.info(f"Subscribed to {self.current_symbol}")
     
-    async def get_candles(self, symbol: str = None, count: int = 100):
-        """Get historical candles for analysis"""
-        if not self.connected:
-            return None
-        
-        symbol = symbol or self.current_symbol
-        candles_msg = {
-            "ticks_history": symbol,
-            "adjust_start_time": 1,
-            "count": count,
-            "end": "latest",
-            "start": 1,
-            "style": "candles"
-        }
-        await self.websocket.send(json.dumps(candles_msg))
-        response = await self.websocket.recv()
-        return json.loads(response)
-    
     def calculate_market_score(self):
-        """Calculate comprehensive market score based on real data"""
         score = 50
-        
-        # RSI factor
         if self.market_conditions["rsi"] < 30 or self.market_conditions["rsi"] > 70:
             score += 15
         elif self.market_conditions["rsi"] < 40 or self.market_conditions["rsi"] > 60:
             score += 8
-        
-        # Trend factor
-        if self.market_conditions["trend"] == "up":
-            score += 10
-        elif self.market_conditions["trend"] == "down":
-            score += 5
-        
-        # Volatility factor
-        if 0.001 < self.market_conditions["volatility"] < 0.005:
-            score += 10
-        
-        # Pattern factor
         if self.over_under_pattern.get("edge", False):
             score += 15
-        
-        if self.even_odd_pattern.get("signal") == "EVEN":
-            score += 5
-        
         self.market_score = min(max(score, 0), 100)
         return self.market_score
     
     def generate_signal(self):
-        """Generate trading signal based on analysis"""
         if not self.settings["auto_trading"] or self.bot_status != "RUNNING":
             return None
-        
-        # Check if market score meets threshold
         if self.market_score < self.settings["min_confidence"]:
             return None
-        
-        # Check trade limits
         if len(self.active_trades) >= self.settings["max_trades_per_session"]:
             return None
         
-        # Check consecutive losses
-        if self.stats["consecutive_losses"] >= self.settings["max_consecutive_losses"]:
-            return None
-        
-        # Check stop loss
-        if self.stats["session_pnl"] <= -self.settings["stop_loss"]:
-            self.stop_bot("Stop loss hit")
-            return None
-        
-        # Check profit target
-        if self.stats["session_pnl"] >= self.settings["profit_target"]:
-            self.stop_bot("Profit target achieved")
-            return None
-        
-        # Generate signal based on patterns
-        if self.even_odd_pattern.get("signal") == "EVEN" and self.even_odd_pattern.get("odd", 0) >= 7:
-            return {
-                "type": "even_odd",
-                "direction": "CALL",
-                "confidence": min(70 + (self.market_score - 50), 95),
-                "reason": "Strong even/odd edge detected"
-            }
-        
-        # Technical signal based on RSI
         if self.market_conditions["rsi"] < 35:
-            return {
-                "type": "rise_fall",
-                "direction": "CALL",
-                "confidence": 70 + (35 - self.market_conditions["rsi"]) / 2,
-                "reason": f"Oversold RSI: {self.market_conditions['rsi']:.1f}"
-            }
-        
+            return {"type": "rise_fall", "direction": "CALL", "confidence": 70, "reason": "Oversold RSI"}
         if self.market_conditions["rsi"] > 65:
-            return {
-                "type": "rise_fall",
-                "direction": "PUT",
-                "confidence": 70 + (self.market_conditions["rsi"] - 65) / 2,
-                "reason": f"Overbought RSI: {self.market_conditions['rsi']:.1f}"
-            }
-        
+            return {"type": "rise_fall", "direction": "PUT", "confidence": 70, "reason": "Overbought RSI"}
         return None
     
-    async def execute_trade(self, signal: Dict):
-        """Execute trade on Deriv"""
+    async def execute_trade(self, signal):
         if not self.connected:
-            logger.error("Not connected to Deriv")
             return None
-        
-        amount = self.settings["base_trade_amount"]
-        duration = self.settings["trade_duration"]
         
         trade_msg = {
             "buy": 1,
             "parameters": {
-                "amount": amount,
+                "amount": self.settings["base_trade_amount"],
                 "basis": "stake",
                 "contract_type": signal["direction"].lower(),
                 "currency": self.currency,
-                "duration": duration,
+                "duration": self.settings["trade_duration"],
                 "duration_unit": "m",
                 "symbol": self.current_symbol
             }
@@ -344,38 +170,25 @@ class RealDerivTradingPlatform:
                     "id": contract_id,
                     "symbol": self.current_symbol,
                     "direction": signal["direction"],
-                    "amount": amount,
+                    "amount": self.settings["base_trade_amount"],
                     "confidence": signal["confidence"],
                     "strategy": signal["type"],
                     "entry_price": self.current_price,
                     "entry_time": datetime.now().isoformat(),
-                    "status": "open",
-                    "reason": signal["reason"]
+                    "status": "open"
                 }
                 self.active_trades[contract_id] = trade
-                self.trade_log.append(trade)
-                
-                logger.info(f"🎯 TRADE: {signal['direction']} {self.current_symbol} | ${amount} | {signal['confidence']:.0f}%")
-                
-                # Auto-close after duration
-                asyncio.create_task(self.close_trade(contract_id, duration * 60))
+                logger.info(f"🎯 TRADE: {signal['direction']} {self.current_symbol}")
+                asyncio.create_task(self.close_trade(contract_id, self.settings["trade_duration"] * 60))
                 return contract_id
-            else:
-                logger.error(f"Trade failed: {data}")
-                
         except Exception as e:
-            logger.error(f"Trade execution error: {e}")
-        
+            logger.error(f"Trade error: {e}")
         return None
     
-    async def close_trade(self, contract_id: int, seconds: int):
-        """Close trade and record result"""
+    async def close_trade(self, contract_id, seconds):
         await asyncio.sleep(seconds)
-        
         try:
-            # Get contract status
-            portfolio_msg = {"portfolio": 1}
-            await self.websocket.send(json.dumps(portfolio_msg))
+            await self.websocket.send(json.dumps({"portfolio": 1}))
             response = await self.websocket.recv()
             data = json.loads(response)
             
@@ -386,7 +199,6 @@ class RealDerivTradingPlatform:
                         profit = float(contract.get("profit", 0))
                         break
             
-            # Update statistics
             self.stats["total_trades"] += 1
             self.stats["session_pnl"] += profit
             self.current_balance += profit
@@ -395,69 +207,28 @@ class RealDerivTradingPlatform:
                 self.stats["wins"] += 1
                 self.stats["consecutive_wins"] += 1
                 self.stats["consecutive_losses"] = 0
-                if profit > self.stats["best_trade"]:
-                    self.stats["best_trade"] = profit
-                
-                # Update strategy performance
-                if contract_id in self.active_trades:
-                    strategy = self.active_trades[contract_id].get("strategy", "rise_fall")
-                    if strategy in self.strategies:
-                        self.strategies[strategy]["wins"] += 1
             else:
                 self.stats["losses"] += 1
                 self.stats["consecutive_losses"] += 1
                 self.stats["consecutive_wins"] = 0
-                if profit < self.stats["worst_trade"]:
-                    self.stats["worst_trade"] = profit
-                
-                # Update strategy performance
-                if contract_id in self.active_trades:
-                    strategy = self.active_trades[contract_id].get("strategy", "rise_fall")
-                    if strategy in self.strategies:
-                        self.strategies[strategy]["losses"] += 1
             
-            # Update win rate
             if self.stats["total_trades"] > 0:
                 self.stats["win_rate"] = (self.stats["wins"] / self.stats["total_trades"]) * 100
             
-            # Update profit factor
-            total_wins = sum(t.get("profit", 0) for t in self.trade_log if t.get("profit", 0) > 0)
-            total_losses = abs(sum(t.get("profit", 0) for t in self.trade_log if t.get("profit", 0) < 0))
-            self.stats["profit_factor"] = total_wins / total_losses if total_losses > 0 else 0
-            
-            # Update averages
-            wins_list = [t.get("profit", 0) for t in self.trade_log if t.get("profit", 0) > 0]
-            losses_list = [t.get("profit", 0) for t in self.trade_log if t.get("profit", 0) < 0]
-            self.stats["avg_win"] = sum(wins_list) / len(wins_list) if wins_list else 0
-            self.stats["avg_loss"] = sum(losses_list) / len(losses_list) if losses_list else 0
-            
-            # Update trade record
             if contract_id in self.active_trades:
                 trade = self.active_trades[contract_id]
                 trade["profit"] = profit
                 trade["exit_time"] = datetime.now().isoformat()
-                trade["status"] = "closed"
+                self.trade_log.append(trade)
                 del self.active_trades[contract_id]
             
-            logger.info(f"{'✅ WIN' if profit > 0 else '❌ LOSS'}: ${profit:.2f} | Session: ${self.stats['session_pnl']:.2f}")
-            
-            # Check kill switch conditions
-            if self.settings["kill_switch_armed"]:
-                if self.stats["session_pnl"] <= -self.settings["stop_loss"]:
-                    self.stop_bot(f"Stop loss triggered (${abs(self.stats['session_pnl']):.2f})")
-                elif self.stats["session_pnl"] >= self.settings["profit_target"]:
-                    self.stop_bot(f"Profit target achieved (${self.stats['session_pnl']:.2f})")
-                elif self.stats["consecutive_losses"] >= self.settings["max_consecutive_losses"]:
-                    self.stop_bot(f"Max consecutive losses: {self.stats['consecutive_losses']}")
-            
+            logger.info(f"{'✅ WIN' if profit > 0 else '❌ LOSS'}: ${profit:.2f}")
         except Exception as e:
-            logger.error(f"Close trade error: {e}")
+            logger.error(f"Close error: {e}")
     
-    async def process_tick(self, tick_data: Dict):
-        """Process incoming price tick"""
+    async def process_tick(self, tick_data):
         symbol = tick_data.get("symbol")
         price = tick_data.get("quote")
-        
         if not symbol or symbol != self.current_symbol:
             return
         
@@ -465,11 +236,8 @@ class RealDerivTradingPlatform:
         self.price_history.append(self.current_price)
         self.ticks_collected += 1
         
-        # Update market analysis
         if len(self.price_history) >= 20:
             prices = list(self.price_history)
-            
-            # Calculate RSI
             gains = []
             losses = []
             for i in range(1, min(15, len(prices))):
@@ -485,149 +253,47 @@ class RealDerivTradingPlatform:
                 rs = avg_gain / avg_loss
                 self.market_conditions["rsi"] = min(100 - (100 / (1 + rs)), 100)
             
-            # Calculate trend
-            sma_short = sum(prices[-20:]) / 20
-            sma_long = sum(prices[-50:]) / 50 if len(prices) >= 50 else sma_short
-            self.market_conditions["trend"] = "up" if sma_short > sma_long else "down"
-            self.market_conditions["macd"] = "↑" if sma_short > sma_long else "↓"
-            
-            # Calculate volatility
-            returns = [prices[i] - prices[i-1] for i in range(1, len(prices))]
-            self.market_conditions["volatility"] = sum(abs(r) for r in returns[-20:]) / 20 if returns else 0
-            
-            # Update market score
             self.calculate_market_score()
-            
-            # Update pattern analysis (simplified tick-based)
-            last_price = prices[-1]
-            last_change = (prices[-1] - prices[-2]) / prices[-2] * 100 if len(prices) > 1 else 0
-            self.even_odd_pattern = {
-                "even": sum(1 for p in prices[-10:] if int(p * 100) % 2 == 0),
-                "odd": sum(1 for p in prices[-10:] if int(p * 100) % 2 == 1),
-                "signal": "EVEN" if sum(1 for p in prices[-10:] if int(p * 100) % 2 == 0) > 
-                                 sum(1 for p in prices[-10:] if int(p * 100) % 2 == 1) else "ODD"
-            }
-            
-            self.over_under_pattern = {
-                "over": sum(1 for p in prices[-10:] if p > sum(prices[-10:])/10),
-                "under": sum(1 for p in prices[-10:] if p < sum(prices[-10:])/10),
-                "edge": abs(sum(1 for p in prices[-10:] if p > sum(prices[-10:])/10) - 
-                           sum(1 for p in prices[-10:] if p < sum(prices[-10:])/10)) >= 3
-            }
-            
-            # Update last 10 digits for display
-            self.last_10_digits = [str(int(p * 100) % 10) for p in prices[-10:]]
-            
-            # Generate and execute signal
             signal = self.generate_signal()
             if signal:
                 await self.execute_trade(signal)
         
-        logger.info(f"{symbol}: ${self.current_price:.4f} | Score: {self.market_score} | RSI: {self.market_conditions['rsi']:.1f}")
+        logger.info(f"{symbol}: ${self.current_price:.4f} | Score: {self.market_score}")
     
     async def listen_for_prices(self):
-        """Main listening loop"""
-        logger.info("Listening for price ticks...")
-        
         while self.connected and self.bot_running:
             try:
                 message = await self.websocket.recv()
                 data = json.loads(message)
-                
                 if "tick" in data:
                     await self.process_tick(data["tick"])
-                elif "error" in data:
-                    logger.error(f"Deriv error: {data['error']['message']}")
-                elif "balance" in data:
-                    # Update balance when changed
-                    self.current_balance = float(data["balance"]["balance"])
-                    
-            except websockets.exceptions.ConnectionClosed:
-                logger.warning("Connection closed, reconnecting...")
-                await self.reconnect()
-                break
             except Exception as e:
                 logger.error(f"Listen error: {e}")
                 await asyncio.sleep(1)
     
-    async def reconnect(self):
-        """Reconnect to Deriv"""
-        self.connected = False
-        await asyncio.sleep(5)
-        await self.connect_deriv()
-        if self.connected:
-            await self.subscribe_to_symbol()
-            await self.listen_for_prices()
-    
     async def run(self):
-        """Main bot entry point"""
-        logger.info("Starting SmartPip Trading Platform...")
-        self.bot_running = True
-        
         if await self.connect_deriv():
             await self.subscribe_to_symbol()
             await self.listen_for_prices()
     
     def start_bot(self):
-        """Start auto-trading"""
         self.bot_status = "RUNNING"
         self.settings["auto_trading"] = True
-        logger.info("Bot started - Auto-trading enabled")
     
-    def stop_bot(self, reason: str = "Manual stop"):
-        """Stop auto-trading"""
+    def stop_bot(self):
         self.bot_status = "STOPPED"
         self.settings["auto_trading"] = False
-        logger.info(f"Bot stopped: {reason}")
     
-    def reset_session(self):
-        """Reset session statistics"""
-        self.stats = {
-            "session_pnl": 0.00,
-            "total_trades": 0,
-            "win_rate": 0,
-            "wins": 0,
-            "losses": 0,
-            "consecutive_wins": 0,
-            "consecutive_losses": 0,
-            "profit_factor": 0,
-            "avg_win": 0.00,
-            "avg_loss": 0.00,
-            "best_trade": 0.00,
-            "worst_trade": 0.00
-        }
-        self.trade_log = []
-        self.active_trades = {}
-        
-        for strategy in self.strategies:
-            self.strategies[strategy] = {"wins": 0, "losses": 0, "roi": 1.00}
-    
-    async def manual_trade_order(self, direction: str, amount: float, duration: int):
-        """Execute manual trade"""
-        signal = {
-            "type": "manual",
-            "direction": direction,
-            "confidence": 100,
-            "reason": "Manual trade"
-        }
-        self.settings["base_trade_amount"] = amount
-        self.settings["trade_duration"] = duration
-        return await self.execute_trade(signal)
-    
-    def get_full_state(self) -> Dict:
-        """Get complete platform state for frontend"""
+    def get_full_state(self):
         return {
             "connected": self.connected,
             "bot_status": self.bot_status,
             "account_mode": self.account_mode,
             "current_balance": self.current_balance,
-            "demo_balance": self.demo_balance,
-            "real_balance": self.real_balance,
             "currency": self.currency,
             "session_pnl": self.stats["session_pnl"],
             "current_symbol": self.current_symbol,
             "current_price": self.current_price,
-            "ticks_collected": self.ticks_collected,
             "market_score": self.market_score,
             "need_score": self.need_score,
             "settings": self.settings,
@@ -637,13 +303,11 @@ class RealDerivTradingPlatform:
             "last_10_digits": self.last_10_digits,
             "even_odd_pattern": self.even_odd_pattern,
             "over_under_pattern": self.over_under_pattern,
-            "active_trades_count": len(self.active_trades),
             "active_trades": list(self.active_trades.values()),
-            "trade_log": self.trade_log[-30:],
-            "symbols": list(self.symbols.keys())
+            "trade_log": self.trade_log[-20:],
+            "ticks_collected": self.ticks_collected
         }
 
-# Initialize platform
 platform = RealDerivTradingPlatform()
 
 @asynccontextmanager
@@ -656,15 +320,178 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Serve the same professional HTML dashboard (keeping the same HTML from previous response)
-# The HTML remains the same - it will now display REAL data from Deriv
+# Complete HTML Dashboard
+HTML = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPip Trader - Professional Trading Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0c15; color: #e5e7eb; }
+        .header { background: linear-gradient(135deg, #0f111a 0%, #1a1f2e 100%); border-bottom: 1px solid #2d3748; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 28px; }
+        .logo-text { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-display { background: rgba(16, 185, 129, 0.1); padding: 8px 20px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center; }
+        .balance-label { font-size: 11px; color: #94a3b8; }
+        .balance-value { font-size: 20px; font-weight: bold; color: #10b981; }
+        .main-container { display: grid; grid-template-columns: 320px 1fr 360px; gap: 16px; padding: 20px; max-width: 1600px; margin: 0 auto; }
+        .panel { background: #0f111a; border-radius: 16px; border: 1px solid #2d3748; overflow: hidden; }
+        .panel-header { padding: 16px 20px; border-bottom: 1px solid #2d3748; background: #0a0c15; font-weight: 600; font-size: 12px; text-transform: uppercase; color: #94a3b8; }
+        .panel-content { padding: 20px; }
+        .market-card { background: linear-gradient(135deg, #1a1f2e, #0f111a); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; border: 1px solid #2d3748; }
+        .market-symbol { font-size: 18px; font-weight: bold; color: #667eea; margin-bottom: 8px; }
+        .market-price { font-size: 32px; font-weight: bold; margin: 10px 0; }
+        .market-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-RUNNING { background: #10b981; color: white; }
+        .status-STOPPED { background: #ef4444; color: white; }
+        .market-score { background: #1a1f2e; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px; }
+        .score-value { font-size: 48px; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .control-buttons { display: flex; gap: 12px; margin-bottom: 20px; }
+        .btn-start { flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-stop { flex: 1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-item { background: #1a1f2e; padding: 12px; border-radius: 10px; text-align: center; }
+        .stat-label { font-size: 11px; color: #94a3b8; margin-bottom: 5px; }
+        .stat-value { font-size: 20px; font-weight: bold; }
+        .digits-container { background: #1a1f2e; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .digits-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .digit-box { width: 40px; height: 40px; background: #0f111a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #2d3748; }
+        .trade-log { max-height: 300px; overflow-y: auto; }
+        .trade-entry { background: #1a1f2e; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; border-left: 3px solid; }
+        .trade-win { border-left-color: #10b981; }
+        .trade-loss { border-left-color: #ef4444; }
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        .symbol-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .symbol-btn { background: #1a1f2e; border: 1px solid #2d3748; color: #94a3b8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .symbol-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1f2e; }
+        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo"><div class="logo-icon">🤖</div><div class="logo-text">SMARTPIP TRADER</div></div>
+        <div class="balance-display"><div class="balance-label">Balance</div><div class="balance-value" id="balance">$0.00</div></div>
+    </div>
+    <div class="main-container">
+        <div class="panel">
+            <div class="panel-header">Live Trade</div>
+            <div class="panel-content">
+                <div class="market-card">
+                    <div class="market-symbol" id="symbol">1HZ10V</div>
+                    <div class="market-price" id="price">$0.00</div>
+                    <div class="market-status" id="botStatus">STOPPED</div>
+                </div>
+                <div class="symbol-selector" id="symbolSelector"></div>
+                <div class="market-score"><div class="score-value" id="marketScore">50</div><div class="score-need">Need ≥85 to trade</div></div>
+                <div class="control-buttons"><button class="btn-start" onclick="startBot()">START</button><button class="btn-stop" onclick="stopBot()">STOP</button></div>
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="stat-label">Balance</div><div class="stat-value" id="balance2">$0.00</div></div>
+                    <div class="stat-item"><div class="stat-label">Session P/L</div><div class="stat-value" id="sessionPnl">$0.00</div></div>
+                    <div class="stat-item"><div class="stat-label">Trades</div><div class="stat-value" id="tradeCount">0 / 3</div></div>
+                    <div class="stat-item"><div class="stat-label">Win Rate</div><div class="stat-value" id="winRate">0%</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Market Board</div>
+            <div class="panel-content">
+                <div class="digits-container">
+                    <div class="digits-title">Last 10 Digits</div>
+                    <div class="digits-row" id="digitsRow"></div>
+                    <div>Even/Odd: <strong id="evenOdd">0E / 0O</strong> → <span id="evenOddSignal">-</span></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="stat-label">RSI</div><div class="stat-value" id="rsi">50.0</div></div>
+                    <div class="stat-item"><div class="stat-label">MACD</div><div class="stat-value" id="macd">→</div></div>
+                    <div class="stat-item"><div class="stat-label">Win Rate</div><div class="stat-value" id="winRate2">0%</div></div>
+                    <div class="stat-item"><div class="stat-label">Profit Factor</div><div class="stat-value" id="profitFactor">0</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Trade Log</div>
+            <div class="panel-content">
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="stat-label">Wins</div><div class="stat-value" id="wins">0</div></div>
+                    <div class="stat-item"><div class="stat-label">Losses</div><div class="stat-value" id="losses">0</div></div>
+                </div>
+                <div class="trade-log" id="tradeLog"><div style="text-align:center;color:#94a3b8;padding:20px;">No trades yet</div></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let ws = null;
+        function connectWebSocket() {
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${location.host}/ws`);
+            ws.onmessage = (event) => { const data = JSON.parse(event.data); updateDashboard(data); };
+            ws.onclose = () => setTimeout(connectWebSocket, 3000);
+        }
+        
+        function updateDashboard(data) {
+            document.getElementById('balance').innerHTML = `${data.currency || '$'}${(data.current_balance || 0).toFixed(2)}`;
+            document.getElementById('balance2').innerHTML = `${data.currency || '$'}${(data.current_balance || 0).toFixed(2)}`;
+            document.getElementById('price').innerHTML = `${data.currency || '$'}${(data.current_price || 0).toFixed(4)}`;
+            document.getElementById('marketScore').innerHTML = data.market_score || 50;
+            document.getElementById('sessionPnl').innerHTML = `${(data.session_pnl || 0) >= 0 ? '+' : ''}${data.currency || '$'}${(data.session_pnl || 0).toFixed(2)}`;
+            document.getElementById('tradeCount').innerHTML = `${data.stats?.total_trades || 0} / 3`;
+            document.getElementById('winRate').innerHTML = `${data.stats?.win_rate || 0}%`;
+            document.getElementById('winRate2').innerHTML = `${data.stats?.win_rate || 0}%`;
+            document.getElementById('profitFactor').innerHTML = (data.stats?.profit_factor || 0).toFixed(2);
+            document.getElementById('wins').innerHTML = data.stats?.wins || 0;
+            document.getElementById('losses').innerHTML = data.stats?.losses || 0;
+            document.getElementById('rsi').innerHTML = (data.market_conditions?.rsi || 50).toFixed(1);
+            document.getElementById('macd').innerHTML = data.market_conditions?.macd || '→';
+            
+            const statusElem = document.getElementById('botStatus');
+            statusElem.innerHTML = data.bot_status || 'STOPPED';
+            statusElem.className = `market-status status-${data.bot_status || 'STOPPED'}`;
+            
+            if (data.even_odd_pattern) {
+                document.getElementById('evenOdd').innerHTML = `${data.even_odd_pattern.even || 0}E / ${data.even_odd_pattern.odd || 0}O`;
+                document.getElementById('evenOddSignal').innerHTML = data.even_odd_pattern.signal || '-';
+            }
+            
+            if (data.last_10_digits) {
+                const digitsRow = document.getElementById('digitsRow');
+                digitsRow.innerHTML = data.last_10_digits.slice(-10).map(d => `<div class="digit-box">${d}</div>`).join('');
+            }
+            
+            if (data.trade_log && data.trade_log.length > 0) {
+                const logContainer = document.getElementById('tradeLog');
+                logContainer.innerHTML = data.trade_log.slice().reverse().map(t => `
+                    <div class="trade-entry ${t.profit > 0 ? 'trade-win' : t.profit < 0 ? 'trade-loss' : ''}">
+                        <div>${new Date(t.entry_time).toLocaleTimeString()} - ${t.symbol} - ${t.direction}</div>
+                        <div>Amount: ${data.currency || '$'}${t.amount} | ${t.profit > 0 ? '+' : ''}${data.currency || '$'}${(t.profit || 0).toFixed(2)}</div>
+                    </div>
+                `).join('');
+            }
+            
+            if (data.symbols) {
+                const selector = document.getElementById('symbolSelector');
+                selector.innerHTML = data.symbols.map(s => `<button class="symbol-btn ${s === data.current_symbol ? 'active' : ''}" onclick="switchSymbol('${s}')">${s}</button>`).join('');
+            }
+        }
+        
+        function startBot() { fetch('/api/start', { method: 'POST' }); }
+        function stopBot() { fetch('/api/stop', { method: 'POST' }); }
+        function switchSymbol(symbol) { fetch('/api/switch_symbol', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ symbol }) }); }
+        
+        connectWebSocket();
+        setInterval(() => { fetch('/api/status').then(res => res.json()).then(data => updateDashboard(data)); }, 2000);
+    </script>
+</body>
+</html>'''
 
-# API Endpoints
 @app.get("/")
 async def root():
-    # Use the professional HTML from the previous response
-    HTML_DASHBOARD = """[The complete HTML from the previous response goes here]"""
-    return HTMLResponse(HTML_DASHBOARD)
+    return HTMLResponse(HTML)
 
 @app.get("/api/status")
 async def get_status():
@@ -680,46 +507,16 @@ async def stop_bot():
     platform.stop_bot()
     return JSONResponse({"success": True})
 
-@app.post("/api/manual_trade")
-async def manual_trade(request: Request):
-    try:
-        data = await request.json()
-        result = await platform.manual_trade_order(
-            direction=data.get("direction", "CALL"),
-            amount=float(data.get("amount", 1)),
-            duration=int(data.get("duration", 2))
-        )
-        return JSONResponse({"success": result is not None})
-    except Exception as e:
-        return JSONResponse({"success": False, "error": str(e)})
-
 @app.post("/api/switch_symbol")
 async def switch_symbol(request: Request):
     try:
         data = await request.json()
         platform.current_symbol = data.get("symbol")
         platform.price_history.clear()
-        platform.ticks_collected = 0
         await platform.subscribe_to_symbol()
         return JSONResponse({"success": True})
     except Exception as e:
         return JSONResponse({"success": False, "error": str(e)})
-
-@app.post("/api/update_settings")
-async def update_settings(request: Request):
-    try:
-        data = await request.json()
-        for key, value in data.items():
-            if key in platform.settings:
-                platform.settings[key] = value
-        return JSONResponse({"success": True})
-    except Exception as e:
-        return JSONResponse({"success": False, "error": str(e)})
-
-@app.post("/api/reset_session")
-async def reset_session():
-    platform.reset_session()
-    return JSONResponse({"success": True})
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
