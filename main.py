@@ -1,4 +1,4 @@
-# main.py - SmartPip Deriv AI Trading Bot
+# main.py - SmartPip Deriv AI Trading Bot with REAL Market Data
 import os
 import json
 import asyncio
@@ -11,7 +11,6 @@ from typing import Dict, List
 import websockets
 import random
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -19,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class SmartPipTradingBot:
-    """Main trading bot class"""
+    """Main trading bot class with real market data"""
     
     def __init__(self):
         self.connected = False
@@ -32,13 +31,23 @@ class SmartPipTradingBot:
         self.symbols = ["R_10", "R_25", "R_50", "R_75", "R_100"]
         self.running = True
         
+        # Store real market data
+        self.market_data = {
+            "R_10": {"price": 0, "change": 0, "spread": 0, "last_update": None},
+            "R_25": {"price": 0, "change": 0, "spread": 0, "last_update": None},
+            "R_50": {"price": 0, "change": 0, "spread": 0, "last_update": None},
+            "R_75": {"price": 0, "change": 0, "spread": 0, "last_update": None},
+            "R_100": {"price": 0, "change": 0, "spread": 0, "last_update": None}
+        }
+        self.price_history = {symbol: [] for symbol in self.symbols}
+        
     async def connect_deriv(self):
         """Connect to Deriv WebSocket"""
         api_token = os.getenv("DERIV_API_TOKEN")
         app_id = os.getenv("DERIV_APP_ID", "1089")
         
         if not api_token:
-            logger.error("❌ No API token found! Set DERIV_API_TOKEN environment variable")
+            logger.error("❌ No API token found!")
             return False
             
         url = f"wss://ws.binaryws.com/websockets/v3?app_id={app_id}"
@@ -75,33 +84,27 @@ class SmartPipTradingBot:
             logger.info(f"📡 Subscribed to {symbol}")
     
     async def get_ai_signal(self, symbol: str, price: float) -> Dict:
-        """
-        AI Trading Signal Generator
-        Replace this with your actual AI model
-        """
-        # Simulated AI analysis - Replace with your real AI
-        # This is just for demonstration
-        
-        # Calculate some indicators (simplified)
-        # In production, use your UltimateTradingSystem
-        
-        # Random confidence between 80-98% for demo
-        confidence = random.uniform(80, 98)
+        """AI Trading Signal Generator - Replace with your actual AI"""
+        # Get recent prices for analysis
+        recent_prices = self.price_history.get(symbol, [])[-20:]
         
         # Simple trend detection (replace with your AI)
-        if len(self.trades) > 10:
-            recent_wins = len([t for t in self.trades[-10:] if t.get('profit', 0) > 0])
-            win_rate = recent_wins / 10
-            confidence = confidence * (0.8 + win_rate * 0.2)
+        confidence = 85.0  # Base confidence
         
-        # Determine direction based on price action (simplified)
-        direction = "CALL" if random.random() > 0.5 else "PUT"
+        if len(recent_prices) > 5:
+            # Calculate short-term momentum
+            momentum = (price - recent_prices[-5]) / recent_prices[-5] * 100
+            if abs(momentum) > 0.1:
+                confidence += min(abs(momentum) * 10, 10)
+        
+        # Determine direction based on price action
+        direction = "CALL" if price > recent_prices[-1] if recent_prices else True else "PUT"
         
         return {
             "should_trade": confidence > 85,
             "direction": direction,
             "confidence": round(confidence, 1),
-            "reason": f"AI Confidence: {confidence:.1f}%",
+            "reason": f"AI Analysis: {direction} signal",
             "price": price,
             "timestamp": datetime.now().isoformat()
         }
@@ -140,13 +143,10 @@ class SmartPipTradingBot:
                 "duration": duration
             }
             
-            logger.info(f"🎯 TRADE EXECUTED: {signal['direction']} {symbol}")
+            logger.info(f"🎯 TRADE EXECUTED: {signal['direction']} {symbol} at ${signal['price']}")
             logger.info(f"   Amount: ${amount} | Confidence: {signal['confidence']}%")
-            logger.info(f"   Contract ID: {contract_id}")
             
-            # Auto close after duration
             asyncio.create_task(self.auto_close_trade(contract_id, duration * 60))
-            
             return contract_id
         
         return None
@@ -158,25 +158,18 @@ class SmartPipTradingBot:
         if contract_id not in self.active_trades:
             return
             
-        # Get contract status
         portfolio_msg = {"portfolio": 1}
         await self.websocket.send(json.dumps(portfolio_msg))
         response = await self.websocket.recv()
         data = json.loads(response)
         
         profit = 0
-        buy_price = 0
-        sell_price = 0
-        
         if "portfolio" in data:
             for contract in data["portfolio"].get("contracts", []):
                 if contract["contract_id"] == contract_id:
                     profit = contract.get("profit", 0)
-                    buy_price = contract.get("buy_price", 0)
-                    sell_price = contract.get("sell_price", 0)
                     break
         
-        # Update stats
         self.total_profit += profit
         if profit > 0:
             self.win_count += 1
@@ -185,33 +178,46 @@ class SmartPipTradingBot:
             self.loss_count += 1
             logger.info(f"❌ TRADE LOST: ${profit:.2f}")
         
-        # Record trade
         if contract_id in self.active_trades:
             trade = self.active_trades[contract_id]
             trade["profit"] = profit
-            trade["buy_price"] = buy_price
-            trade["sell_price"] = sell_price
             trade["exit_time"] = datetime.now().isoformat()
             self.trades.append(trade)
             del self.active_trades[contract_id]
     
     async def process_tick(self, tick_data: Dict):
-        """Process incoming price tick"""
+        """Process incoming price tick and update market data"""
         symbol = tick_data.get("symbol")
         price = tick_data.get("quote")
         
         if not symbol or not price:
             return
         
-        # Check if we should trade based on limits
+        # Update market data
+        old_price = self.market_data[symbol]["price"]
+        self.market_data[symbol]["price"] = price
+        self.market_data[symbol]["change"] = ((price - old_price) / old_price * 100) if old_price > 0 else 0
+        self.market_data[symbol]["last_update"] = datetime.now().isoformat()
+        
+        # Update price history
+        self.price_history[symbol].append(price)
+        if len(self.price_history[symbol]) > 100:
+            self.price_history[symbol] = self.price_history[symbol][-100:]
+        
+        # Calculate spread (simulated - Deriv doesn't provide direct spread in ticks)
+        self.market_data[symbol]["spread"] = abs(price * 0.0001)  # Estimated 0.01% spread
+        
+        logger.info(f"📊 {symbol}: ${price:.4f} | Change: {self.market_data[symbol]['change']:+.2f}%")
+        
+        # Check trading conditions
         if len(self.active_trades) >= 3:
-            return  # Max 3 concurrent trades
+            return
             
         if len(self.trades) >= int(os.getenv("MAX_DAILY_TRADES", "30")):
-            return  # Daily limit reached
+            return
         
         # Get AI signal
-        signal = await self.get_ai_signal(symbol, float(price))
+        signal = await self.get_ai_signal(symbol, price)
         
         if signal['should_trade']:
             await self.execute_trade(symbol, signal)
@@ -264,7 +270,6 @@ class SmartPipTradingBot:
         total_trades = self.win_count + self.loss_count
         win_rate = (self.win_count / total_trades * 100) if total_trades > 0 else 0
         
-        # Calculate profit factor
         gross_profit = sum(t.get('profit', 0) for t in self.trades if t.get('profit', 0) > 0)
         gross_loss = abs(sum(t.get('profit', 0) for t in self.trades if t.get('profit', 0) < 0))
         profit_factor = gross_profit / gross_loss if gross_loss > 0 else 0
@@ -278,7 +283,8 @@ class SmartPipTradingBot:
             "wins": self.win_count,
             "losses": self.loss_count,
             "profit_factor": round(profit_factor, 2),
-            "uptime": datetime.now().isoformat()
+            "uptime": datetime.now().isoformat(),
+            "market_data": self.market_data
         }
     
     def stop(self):
@@ -291,32 +297,22 @@ class SmartPipTradingBot:
 # Initialize bot
 bot = SmartPipTradingBot()
 
-# FastAPI app with lifespan management
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    logger.info("🚀 FastAPI starting up...")
     asyncio.create_task(bot.run())
     yield
-    # Shutdown
-    logger.info("👋 Shutting down...")
     bot.stop()
 
-app = FastAPI(
-    title="SmartPip AI Trading System",
-    description="Advanced AI Trading Bot for Deriv Volatility Indices",
-    version="2.0.0",
-    lifespan=lifespan
-)
+app = FastAPI(lifespan=lifespan)
 
-# HTML Dashboard
+# HTML Dashboard with REAL Market Data
 DASHBOARD_HTML = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPip AI Trader</title>
+    <title>SmartPip AI Trader - Real Market Data</title>
     <style>
         * {
             margin: 0;
@@ -325,176 +321,165 @@ DASHBOARD_HTML = """
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
             padding: 20px;
+            color: #fff;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
         
         .header {
             text-align: center;
-            color: white;
             margin-bottom: 30px;
         }
         
         .header h1 {
-            font-size: 3em;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
         
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .market-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .market-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .price {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .change {
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+        
+        .positive {
+            color: #10b981;
+        }
+        
+        .negative {
+            color: #ef4444;
+        }
+        
+        .spread {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+        
+        .update-time {
+            font-size: 0.8em;
+            opacity: 0.5;
+            margin-top: 10px;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
         
         .stat-card {
-            background: white;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
         }
         
         .stat-label {
-            font-size: 14px;
-            text-transform: uppercase;
-            color: #666;
-            letter-spacing: 1px;
+            font-size: 0.9em;
+            opacity: 0.7;
             margin-bottom: 10px;
         }
         
         .stat-value {
-            font-size: 36px;
+            font-size: 1.8em;
             font-weight: bold;
-            color: #333;
-        }
-        
-        .profit {
-            color: #10b981;
-        }
-        
-        .loss {
-            color: #ef4444;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        
-        .status-online {
-            background: #10b981;
-            color: white;
-        }
-        
-        .status-offline {
-            background: #ef4444;
-            color: white;
         }
         
         .trades-section {
-            background: white;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .trades-section h2 {
-            margin-bottom: 20px;
-            color: #333;
+            padding: 20px;
+            margin-top: 20px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 15px;
         }
         
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
         th {
-            background: #f9fafb;
+            background: rgba(102,126,234,0.3);
             font-weight: 600;
-            color: #374151;
         }
         
-        tr:hover {
-            background: #f9fafb;
+        .live-badge {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            margin-right: 10px;
         }
         
-        .trade-win {
-            color: #10b981;
-            font-weight: bold;
-        }
-        
-        .trade-loss {
-            color: #ef4444;
-            font-weight: bold;
-        }
-        
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 0 5px;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: #5a67d8;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
         
         .websocket-status {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: white;
+            background: rgba(0,0,0,0.8);
             padding: 10px 15px;
             border-radius: 10px;
             font-size: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .live {
-            animation: pulse 2s infinite;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -502,10 +487,14 @@ DASHBOARD_HTML = """
     <div class="container">
         <div class="header">
             <h1>🤖 SmartPip AI Trader</h1>
-            <p>Advanced AI-powered trading for Deriv Volatility Indices</p>
+            <p>Real-time Deriv Volatility Index Market Data</p>
         </div>
         
-        <div class="stats-grid">
+        <div class="market-grid" id="marketGrid">
+            <div style="text-align: center; grid-column: 1/-1;">Loading market data...</div>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <div class="stat-label">Active Trades</div>
                 <div class="stat-value" id="activeTrades">0</div>
@@ -522,14 +511,6 @@ DASHBOARD_HTML = """
                 <div class="stat-label">Total Trades</div>
                 <div class="stat-value" id="totalTrades">0</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Wins / Losses</div>
-                <div class="stat-value" id="wlRatio">0/0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Profit Factor</div>
-                <div class="stat-value" id="profitFactor">0</div>
-            </div>
         </div>
         
         <div class="trades-section">
@@ -537,37 +518,31 @@ DASHBOARD_HTML = """
             <div style="overflow-x: auto;">
                 <table id="tradesTable">
                     <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Symbol</th>
-                            <th>Direction</th>
-                            <th>Amount</th>
-                            <th>Entry Price</th>
-                            <th>Exit Price</th>
-                            <th>Profit/Loss</th>
-                            <th>Confidence</th>
-                        </tr>
+                        <tr><th>Time</th><th>Symbol</th><th>Direction</th><th>Entry Price</th><th>Profit</th><th>Confidence</th></tr>
                     </thead>
                     <tbody id="tradesBody">
-                        <tr><td colspan="8" style="text-align: center;">Loading trades...</td></tr>
+                        <tr><td colspan="6" style="text-align: center;">No trades yet</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        
-        <div class="button-group">
-            <button onclick="refreshData()">🔄 Refresh</button>
-            <button onclick="viewAPI()">📡 API Status</button>
-            <button onclick="clearData()">🗑️ Clear History</button>
-        </div>
     </div>
     
     <div class="websocket-status" id="wsStatus">
-        📡 WebSocket: Connecting...
+        <span class="live-badge"></span> WebSocket: Connecting...
     </div>
     
     <script>
         let ws = null;
+        
+        const symbols = ['R_10', 'R_25', 'R_50', 'R_75', 'R_100'];
+        const symbolNames = {
+            'R_10': 'Volatility 10',
+            'R_25': 'Volatility 25', 
+            'R_50': 'Volatility 50',
+            'R_75': 'Volatility 75',
+            'R_100': 'Volatility 100'
+        };
         
         function connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -576,9 +551,8 @@ DASHBOARD_HTML = """
             ws = new WebSocket(wsUrl);
             
             ws.onopen = function() {
-                document.getElementById('wsStatus').innerHTML = '✅ WebSocket: Connected';
-                document.getElementById('wsStatus').style.background = '#10b981';
-                document.getElementById('wsStatus').style.color = 'white';
+                document.getElementById('wsStatus').innerHTML = '<span class="live-badge"></span> WebSocket: Connected ✅';
+                document.getElementById('wsStatus').style.background = 'rgba(16,185,129,0.9)';
             };
             
             ws.onmessage = function(event) {
@@ -587,17 +561,39 @@ DASHBOARD_HTML = """
             };
             
             ws.onclose = function() {
-                document.getElementById('wsStatus').innerHTML = '❌ WebSocket: Disconnected';
-                document.getElementById('wsStatus').style.background = '#ef4444';
+                document.getElementById('wsStatus').innerHTML = '<span class="live-badge"></span> WebSocket: Disconnected ❌';
+                document.getElementById('wsStatus').style.background = 'rgba(239,68,68,0.9)';
                 setTimeout(connectWebSocket, 3000);
-            };
-            
-            ws.onerror = function(error) {
-                console.error('WebSocket error:', error);
             };
         }
         
         function updateDashboard(data) {
+            // Update market data grid
+            if (data.market_data) {
+                const marketGrid = document.getElementById('marketGrid');
+                marketGrid.innerHTML = '';
+                
+                for (const symbol of symbols) {
+                    const market = data.market_data[symbol];
+                    if (market && market.price > 0) {
+                        const changeClass = market.change >= 0 ? 'positive' : 'negative';
+                        const changeSign = market.change >= 0 ? '+' : '';
+                        
+                        const card = document.createElement('div');
+                        card.className = 'market-card';
+                        card.innerHTML = `
+                            <div class="symbol">${symbolNames[symbol]} (${symbol})</div>
+                            <div class="price">$${market.price.toFixed(4)}</div>
+                            <div class="change ${changeClass}">Change: ${changeSign}${market.change.toFixed(2)}%</div>
+                            <div class="spread">Spread: $${market.spread.toFixed(4)}</div>
+                            <div class="update-time">Updated: ${market.last_update ? new Date(market.last_update).toLocaleTimeString() : 'Never'}</div>
+                        `;
+                        marketGrid.appendChild(card);
+                    }
+                }
+            }
+            
+            // Update stats
             if (data.active_trades !== undefined) {
                 document.getElementById('activeTrades').innerText = data.active_trades;
             }
@@ -607,71 +603,46 @@ DASHBOARD_HTML = """
             if (data.total_profit !== undefined) {
                 const pnlElem = document.getElementById('totalPnl');
                 pnlElem.innerText = '$' + data.total_profit.toFixed(2);
-                pnlElem.className = 'stat-value ' + (data.total_profit > 0 ? 'profit' : data.total_profit < 0 ? 'loss' : '');
+                pnlElem.style.color = data.total_profit >= 0 ? '#10b981' : '#ef4444';
             }
             if (data.total_trades !== undefined) {
                 document.getElementById('totalTrades').innerText = data.total_trades;
-                document.getElementById('wlRatio').innerText = `${data.wins || 0}/${data.losses || 0}`;
-            }
-            if (data.profit_factor !== undefined) {
-                document.getElementById('profitFactor').innerText = data.profit_factor;
             }
         }
         
-        async function refreshData() {
+        async function loadTrades() {
             try {
-                const response = await fetch('/api/status');
-                const data = await response.json();
-                updateDashboard(data);
+                const response = await fetch('/api/trades');
+                const trades = await response.json();
+                const tbody = document.getElementById('tradesBody');
+                tbody.innerHTML = '';
                 
-                const tradesResponse = await fetch('/api/trades');
-                const trades = await tradesResponse.json();
-                updateTradesTable(trades);
+                if (trades.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No trades yet</td></tr>';
+                    return;
+                }
+                
+                trades.slice().reverse().forEach(trade => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).innerText = new Date(trade.entry_time).toLocaleTimeString();
+                    row.insertCell(1).innerText = trade.symbol;
+                    row.insertCell(2).innerHTML = trade.direction === 'CALL' ? '📈 CALL' : '📉 PUT';
+                    row.insertCell(3).innerText = '$' + (trade.entry_price || 0);
+                    const profitCell = row.insertCell(4);
+                    const profit = trade.profit || 0;
+                    profitCell.innerHTML = profit >= 0 ? `+$${profit.toFixed(2)}` : `-$${Math.abs(profit).toFixed(2)}`;
+                    profitCell.style.color = profit >= 0 ? '#10b981' : '#ef4444';
+                    row.insertCell(5).innerHTML = `${trade.confidence || 0}%`;
+                });
             } catch(e) {
-                console.error('Refresh error:', e);
-            }
-        }
-        
-        function updateTradesTable(trades) {
-            const tbody = document.getElementById('tradesBody');
-            tbody.innerHTML = '';
-            
-            if (trades.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No trades yet</td></tr>';
-                return;
-            }
-            
-            trades.slice().reverse().forEach(trade => {
-                const row = tbody.insertRow();
-                row.insertCell(0).innerText = new Date(trade.entry_time).toLocaleString();
-                row.insertCell(1).innerText = trade.symbol;
-                row.insertCell(2).innerHTML = trade.direction === 'CALL' ? '📈 CALL' : '📉 PUT';
-                row.insertCell(3).innerText = '$' + trade.amount;
-                row.insertCell(4).innerText = '$' + (trade.entry_price || 0);
-                row.insertCell(5).innerText = '$' + (trade.sell_price || 0);
-                const profitCell = row.insertCell(6);
-                const profit = trade.profit || 0;
-                profitCell.innerHTML = profit > 0 ? `+$${profit.toFixed(2)}` : `$${profit.toFixed(2)}`;
-                profitCell.className = profit > 0 ? 'trade-win' : profit < 0 ? 'trade-loss' : '';
-                row.insertCell(7).innerHTML = `${trade.confidence || 0}%`;
-            });
-        }
-        
-        function viewAPI() {
-            window.open('/api/status', '_blank');
-        }
-        
-        async function clearData() {
-            if (confirm('Are you sure? This will only clear local display.')) {
-                document.getElementById('tradesBody').innerHTML = '<tr><td colspan="8" style="text-align: center;">Loading...</td></tr>';
-                await refreshData();
+                console.error('Error loading trades:', e);
             }
         }
         
         // Initial load
         connectWebSocket();
-        refreshData();
-        setInterval(refreshData, 5000);
+        loadTrades();
+        setInterval(loadTrades, 10000);
     </script>
 </body>
 </html>
@@ -696,7 +667,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             stats = bot.get_stats()
             await websocket.send_json(stats)
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)  # Update every second for real-time
     except WebSocketDisconnect:
         pass
 
@@ -709,7 +680,6 @@ async def health():
         "active_trades": len(bot.active_trades)
     })
 
-# For local testing
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
