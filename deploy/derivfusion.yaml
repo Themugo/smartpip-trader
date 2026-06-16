@@ -1,0 +1,30 @@
+# Render deployment configuration for derivfusion.com
+services:
+  - type: web
+    name: smartpip-trader
+    env: docker
+    plan: starter
+    region: oregon
+    branch: main
+    dockerContext: .
+    dockerfilePath: deploy/Dockerfile
+    
+    envVars:
+      - key: DERIV_API_TOKEN
+        sync: false
+      - key: DERIV_APP_ID
+        value: "1089"
+      - key: PORT
+        value: "8000"
+      - key: NOTIFICATION_EMAIL
+        sync: false
+      - key: NOTIFICATION_EMAIL_PASSWORD
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.11"
