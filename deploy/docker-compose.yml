@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  smartpip-trader:
+    build: .
+    container_name: smartpip-trader
+    ports:
+      - "8000:8000"
+    environment:
+      - DERIV_API_TOKEN=${DERIV_API_TOKEN}
+      - DERIV_APP_ID=${DERIV_APP_ID:-1089}
+      - PORT=8000
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
+      - NOTIFICATION_EMAIL_PASSWORD=${NOTIFICATION_EMAIL_PASSWORD}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

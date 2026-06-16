@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "name": "smartpip-trader",
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ],
+  "env": {
+    "DERIV_API_TOKEN": "@deriv_api_token",
+    "DERIV_APP_ID": "1089",
+    "PORT": "8000"
+  }
+}
