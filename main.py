@@ -3,6 +3,7 @@ import os
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -26,6 +27,23 @@ app = FastAPI(
     description="Advanced AI-powered trading bot for Deriv Volatility Indices with technical analysis and backtesting",
     version="2.1.0",
     lifespan=lifespan
+)
+
+# CORS — allow custom domain and development origins
+site_domain = os.getenv("SITE_DOMAIN", "www.smartpip.site")
+root_domain = site_domain.removeprefix("www.")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        f"https://{site_domain}",
+        f"https://{root_domain}",
+        "http://localhost:8000",
+        "http://localhost:9876",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Setup all API routes

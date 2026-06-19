@@ -9,7 +9,7 @@ echo "🚀 Starting SmartPip Trading Site Deployment to smartpip.site"
 echo "================================================"
 
 # Configuration
-DOMAIN="smartpip.site"
+DOMAIN="www.smartpip.site"
 REPO="https://github.com/Themugo/smartpip-trader.git"
 DEPLOY_DIR="/var/www/smartpip"
 BACKUP_DIR="/var/www/backups/smartpip"

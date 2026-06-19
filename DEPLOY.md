@@ -1,4 +1,4 @@
-# Deployment Guide — smartpip.site
+# Deployment Guide — www.smartpip.site
 
 ## DNS Settings
 
@@ -6,7 +6,7 @@
 ```
 Type    Name    Value
 A       @       75.2.60.5
-CNAME   www     your-site.netlify.app
+CNAME   www     smartpip-trader.netlify.app
 ```
 
 ### For GitHub Pages:
