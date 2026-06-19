@@ -84,8 +84,9 @@ class TestTechnicalAnalyzer(unittest.TestCase):
     def test_analyze_with_sufficient_data(self):
         """Test technical analysis with sufficient data"""
         analyzer = TechnicalAnalyzer()
+        digits = [i % 10 for i in range(30)]
         data = {
-            "last_20_digits": [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+            "last_20_digits": digits,
             "price_history": list(range(100, 150))
         }
         
@@ -111,8 +112,9 @@ class TestTechnicalAnalyzer(unittest.TestCase):
     def test_indicator_calculation(self):
         """Test that indicators are calculated correctly"""
         analyzer = TechnicalAnalyzer()
+        digits = [i % 10 for i in range(30)]
         data = {
-            "last_20_digits": [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+            "last_20_digits": digits,
             "price_history": list(range(100, 150))
         }
         

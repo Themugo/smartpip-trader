@@ -134,12 +134,7 @@ def setup_routes(app: FastAPI, trading_system):
         trading_system.reset_session()
         return JSONResponse({"success": True})
     
-    @app.websocket(
-        "/ws",
-        tags=["System"],
-        summary="WebSocket connection",
-        description="Real-time WebSocket connection for live updates"
-    )
+    @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket):
         await websocket.accept()
         try:
