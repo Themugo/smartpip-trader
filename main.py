@@ -57,9 +57,14 @@ app.mount("/static", StaticFiles(directory="web"), name="static")
 async def serve_web_interface():
     return FileResponse("web/index.html")
 
-# Redirect root to web interface
+# Serve the sniper UI at root (primary interface)
 @app.get("/")
 async def root_redirect():
+    return FileResponse("index.html")
+
+# Backend dashboard at /dashboard
+@app.get("/dashboard")
+async def serve_dashboard():
     return FileResponse("web/index.html")
 
 def custom_openapi():
