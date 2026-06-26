@@ -1,4 +1,4 @@
-from .base_analyzer import BaseAnalyzer
+from .analysis_manager import AnalysisManager
 from .even_odd_analyzer import EvenOddAnalyzer
 from .rise_fall_analyzer import RiseFallAnalyzer
 from .over_under_analyzer import OverUnderAnalyzer
@@ -9,19 +9,12 @@ from .technical_analyzer import TechnicalAnalyzer
 from .ml_analyzer import MLAnalyzer
 from .multitimeframe_analyzer import MultiTimeframeAnalyzer
 from .adaptive_confidence import AdaptiveConfidence
-from .analysis_manager import AnalysisManager
+from .pattern_recognizer import PatternRecognizer
 
 __all__ = [
-    'BaseAnalyzer',
-    'EvenOddAnalyzer',
-    'RiseFallAnalyzer',
-    'OverUnderAnalyzer',
-    'MatchDiffAnalyzer',
-    'DigitAnalyzer',
-    'VolatilityAnalyzer',
-    'TechnicalAnalyzer',
-    'MLAnalyzer',
-    'MultiTimeframeAnalyzer',
-    'AdaptiveConfidence',
-    'AnalysisManager'
+    "AnalysisManager",
+    "EvenOddAnalyzer", "RiseFallAnalyzer", "OverUnderAnalyzer",
+    "MatchDiffAnalyzer", "DigitAnalyzer", "VolatilityAnalyzer",
+    "TechnicalAnalyzer", "MLAnalyzer", "MultiTimeframeAnalyzer",
+    "AdaptiveConfidence", "PatternRecognizer",
 ]

@@ -1,93 +1,104 @@
-# SmartPip Sniper — smartpip.site
+# SmartPip Trader v3.0
 
-**Hit and run. Fire only when all 6 conditions align. Then go dark.**
+**AI-powered sniper bot for Deriv volatility indices** — FastAPI backend, WebSocket real-time feed, ensemble ML, and a dark-themed browser UI.
 
----
+## What's new in v3.0
 
-## Quick start (3 steps)
+| Component | Upgrade |
+|-----------|---------|
+| **Ensemble ML** | RF + GBM + LR with calibrated probabilities, soft voting weighted by live-trade accuracy |
+| **PatternRecognizer** | Chi-squared test, Wald-Wolfowitz runs test, Shannon entropy, mean reversion scoring |
+| **Feature Engineering** | 33+ features: entropy, autocorrelation lags 1-3, MACD, Bollinger Band position, run-length encoding |
+| **Adaptive weights** | Per-analyzer weights tracked and updated each trade; entropy filter gates trades in random markets |
+| **UI: AI Brain panel** | Neural consensus visualization, entropy meter, signal strength bars for all 6 conditions |
+| **API** | New endpoints: `/api/signals`, `/api/patterns`, `/api/ml-status`, `/api/entropy`, `/api/analyzer-weights` |
 
-1. Open `index.html` in Chrome, Edge, or Firefox
-2. Get your token → [app.deriv.com/account/api-token](https://app.deriv.com/account/api-token)  
-   *(Needs Read + Trade permissions)*
-3. Paste token, select account, click **Launch Sniper**
+## Stack
 
----
+- **Backend**: Python 3.11, FastAPI 0.115, Uvicorn, WebSockets
+- **ML**: scikit-learn (RF, GBM, LR, CalibratedClassifierCV), XGBoost, SciPy
+- **Frontend**: Vanilla JS, Chart.js 4, Tabler Icons
+- **Exchange**: Deriv WSS API (`wss://ws.binaryws.com/websockets/v3`)
 
-## The 6 sniper conditions
+## Quick start
 
-All 6 must pass simultaneously. If even one fails — no shot.
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-| # | Condition | Edge it exploits |
-|---|-----------|-----------------|
-| 1 | **Streak exhaustion** | 6+ consecutive EVEN/ODD creates statistical reversal pressure |
-| 2 | **Chi-square deviation** | Digit frequency deviates beyond normal random distribution |
-| 3 | **RSI extreme** | RSI ≤25 (oversold→RISE) or ≥75 (overbought→FALL) |
-| 4 | **Momentum aligned** | MACD + price direction confirms signal |
-| 5 | **High payout only** | Rise/Fall 95% — only contract type ever traded |
-| 6 | **Cooldown clear** | Mandatory 15-tick rest between shots |
+# Start server
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
----
+# Open in browser
+open http://localhost:8000
+```
 
-## Guerrilla rules (non-negotiable)
+## Environment variables
 
-- **Flat stake only** — no martingale, ever
-- **Max 5 shots per session** — then log off
-- **Kill switch** auto-stops at daily loss limit
-- **Only Rise/Fall** — 95% payout, best math
-- **No chasing** — if 3 misses in a row, stop manually
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DERIV_API_TOKEN` | — | Deriv API token (Read + Trade) |
+| `DERIV_APP_ID` | 1089 | Deriv application ID |
+| `BASE_AMOUNT` | 1.0 | Default stake per trade ($) |
+| `MIN_CONFIDENCE` | 70 | Minimum ML confidence to trade |
+| `STOP_LOSS` | 50.0 | Daily stop loss ($) |
+| `TAKE_PROFIT` | 100.0 | Daily take profit ($) |
+| `MAX_CONSECUTIVE_LOSSES` | 3 | Kill-switch after N losses |
+| `DAILY_LOSS_LIMIT_PERCENT` | 5.0 | Max daily drawdown (%) |
+| `CHI_THRESHOLD` | 7.0 | Chi-sq stat for digit skew |
+| `MIN_STREAK` | 6 | Min streak for reversal signal |
 
----
+## API endpoints
 
-## Accounts
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/status` | GET | Full system state |
+| `/api/health` | GET | Health check |
+| `/api/start` | POST | Start auto-trading |
+| `/api/stop` | POST | Stop auto-trading |
+| `/api/settings` | GET/POST | Read/update settings |
+| `/api/market/{m}` | POST | Switch market |
+| `/api/signals` | GET | All AI signals + consensus |
+| `/api/patterns` | GET | Pattern analysis metrics |
+| `/api/ml-status` | GET | Ensemble ML status + feature importance |
+| `/api/entropy` | GET | Market entropy & randomness |
+| `/api/analyzer-weights` | GET | Adaptive analyzer weights |
+| `/api/trade` | POST | Execute manual trade |
+| `/api/history` | GET | Trade history |
+| `/api/backtest` | POST | Quick backtest on current data |
+| `/ws` | WS | Live data + signals stream |
 
-| | Account ID | Type |
-|--|------------|------|
-| Real | CR9553087 | Live USD |
-| Demo | VRTC14297314 | Virtual USD (test here first) |
+## Architecture
 
----
+```
+main.py
+├── core/deriv_api.py          # Deriv WebSocket connection
+├── analysis/
+│   ├── analysis_manager.py    # 10 analyzers, weighted consensus
+│   ├── pattern_recognizer.py  # Chi-sq, runs test, Shannon entropy
+│   ├── technical_analyzer.py  # RSI, MACD, BB
+│   └── ... (8 more analyzers)
+├── ml/
+│   ├── ml_predictor.py        # Primary predictor (delegates to ensemble)
+│   ├── ensemble_predictor.py  # RF + GBM + LR + ModelTracker
+│   └── feature_engineer.py   # 33+ features
+├── strategies/
+│   ├── unified_strategy.py    # Entropy-gated consensus strategy
+│   └── adaptive_strategy_manager.py
+├── api/routes.py              # FastAPI routes
+└── index.html                 # Sniper UI (dark theme, 3-column)
+```
 
-## Deploy to smartpip.site
+## Sniper UI features
 
-### Option 1 — Netlify (free, 30 seconds)
-1. Go to [netlify.com](https://netlify.com)
-2. Add new site → Deploy manually
-3. Drag this folder onto the page
-4. Site is live instantly
-5. Domain settings → Add custom domain → `smartpip.site`
+- **Score ring** — weighted 0-100 score; fires only at ≥85
+- **6 conditions** — all must align: streak, chi-sq, RSI, momentum, payout, cooldown
+- **AI Brain panel** — neural consensus bars, entropy meter, signal strength per analyzer
+- **Entropy meter** — Shannon entropy of last 30 digits; green = patterned (edge), amber = random (wait)
+- **Kill switch** — auto-stops at daily loss limit
+- **Telegram alerts** — shot fired + result notifications
+- **Flat stakes** — no martingale, ever
 
-### Option 2 — cPanel / any host
-1. Log into your host's File Manager
-2. Upload `index.html` to `public_html/`
-3. Done
+## Risk notice
 
-### Option 3 — GitHub Pages
-1. Push this folder to a GitHub repo
-2. Settings → Pages → Deploy from main branch
-3. Add custom domain: `smartpip.site`
-
----
-
-## Security
-
-- Tokens stored in browser `localStorage` only
-- Never transmitted to any external server
-- Only connects directly to `wss://ws.binaryws.com` (Deriv official endpoint)
-
----
-
-## Honest edge assessment
-
-Deriv synthetic indices are RNG-based. No system beats pure randomness consistently.
-What SmartPip Sniper does:
-- **Waits for statistical clusters** (streak exhaustion + chi-square skew) where probability briefly shifts
-- **Only fires when multiple independent signals agree** — reducing noise trades
-- **Strict loss protection** — the kill switch and session limits prevent ruin
-- **High payout selection** — Rise/Fall at 95% means you only need ~53% win rate to profit
-
-This is not a guaranteed win system. It is a disciplined, low-frequency, high-selectivity approach.
-
----
-
-SmartPip Sniper v5.0  
-smartpip.site · Not affiliated with Deriv Ltd
+This software is experimental. Trading binary options carries substantial risk. Never trade more than you can afford to lose. Past performance does not guarantee future results.

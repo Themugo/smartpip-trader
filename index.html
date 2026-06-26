@@ -243,6 +243,44 @@ input:focus,select:focus{border-color:var(--blue)}
 .eq-t{font-size:10px;color:var(--tx3);margin-bottom:4px;display:flex;justify-content:space-between}
 
 .tg-wrap{padding:7px 12px 10px}
+
+/* ════════════════════════════════
+   AI INTELLIGENCE PANEL  (v3)
+════════════════════════════════ */
+.ai-panel{padding:8px 14px;border-bottom:1px solid var(--bd)}
+.ai-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ai-title{font-size:11px;font-weight:500;display:flex;align-items:center;gap:5px;color:var(--purple)}
+.ai-score-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;border:1px solid var(--purple);color:var(--purple);background:#13093a;letter-spacing:.04em}
+.neural-bars{display:flex;flex-direction:column;gap:3px;margin-bottom:6px}
+.nb-row{display:flex;align-items:center;gap:6px}
+.nb-label{font-size:10px;color:var(--tx2);width:70px;flex-shrink:0;text-align:right}
+.nb-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.nb-fill{height:100%;border-radius:3px;transition:width .5s,background .3s}
+.nb-val{font-size:10px;width:36px;text-align:right;flex-shrink:0;color:var(--tx3);font-variant-numeric:tabular-nums}
+.nb-dir{font-size:10px;width:30px;text-align:left;flex-shrink:0;font-weight:500}
+.nb-dir.call{color:var(--green)}.nb-dir.put{color:var(--red)}.nb-dir.none{color:var(--tx3)}
+
+.entropy-section{padding:5px 14px 8px;border-bottom:1px solid var(--bd)}
+.entropy-hdr{display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-bottom:4px}
+.entropy-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:2px}
+.entropy-fill{height:100%;border-radius:3px;transition:width .6s,background .5s}
+.entropy-legend{display:flex;justify-content:space-between;font-size:9px;color:var(--tx3)}
+.entropy-status{font-size:10px;font-weight:500;margin-top:3px;text-align:center}
+
+.consensus-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-top:1px solid var(--bg3);margin-top:4px}
+.cons-dir{font-size:13px;font-weight:600;letter-spacing:.05em}
+.cons-call{color:var(--green)}.cons-put{color:var(--red)}.cons-none{color:var(--tx3)}
+.cons-conf{font-size:11px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.cons-agree{font-size:10px;color:var(--tx3)}
+
+/* entropy in right column */
+.entr-right{padding:6px 12px 8px;border-bottom:1px solid var(--bd)}
+.entr-row{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--tx3);margin-bottom:3px}
+.entr-val{font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+.entr-health{font-size:10px;padding:2px 7px;border-radius:9px;border:1px solid;font-weight:500}
+.eh-random{background:#1a0a00;color:var(--amber);border-color:#3a2800}
+.eh-pattern{background:#091206;color:var(--green);border-color:#1a3a18}
+.eh-moderate{background:#13093a;color:var(--purple);border-color:#2a1a5a}
 </style>
 </head>
 <body>
@@ -502,6 +540,48 @@ input:focus,select:focus{border-color:var(--blue)}
         </div>
       </div>
 
+
+      <!-- AI Neural Intelligence Panel -->
+      <div class="sh" style="display:flex;justify-content:space-between;align-items:center">
+        <span><i class="ti ti-brain" aria-hidden="true"></i> AI Neural Consensus</span>
+        <span id="aiEntropyBadge" class="entr-health eh-random" style="margin-right:2px">—</span>
+      </div>
+      <div class="ai-panel">
+        <div class="ai-hdr">
+          <div class="ai-title">
+            <i class="ti ti-circuit-cell" style="font-size:13px" aria-hidden="true"></i>
+            Analyzer signals
+          </div>
+          <div class="ai-score-badge" id="aiConsBadge">—</div>
+        </div>
+        <div class="neural-bars" id="neuralBars">
+          <div style="font-size:11px;color:var(--tx3)">Waiting for data...</div>
+        </div>
+        <div class="consensus-row">
+          <div>
+            <div class="cons-dir cons-none" id="consDir">WAIT</div>
+            <div class="cons-agree" id="consAgree">—</div>
+          </div>
+          <div style="text-align:right">
+            <div class="cons-conf" id="consConf">Confidence: —</div>
+            <div style="font-size:9px;color:var(--tx3);margin-top:1px" id="consEntropy">Entropy: —</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entropy / Randomness Panel -->
+      <div class="entropy-section">
+        <div class="entropy-hdr">
+          <span><i class="ti ti-wave-sine" style="font-size:11px" aria-hidden="true"></i> Market entropy</span>
+          <span id="entropyPct">—%</span>
+        </div>
+        <div class="entropy-track">
+          <div class="entropy-fill" id="entropyFill" style="width:90%;background:var(--amber)"></div>
+        </div>
+        <div class="entropy-legend"><span>Pattern</span><span>Moderate</span><span>Random</span></div>
+        <div class="entropy-status" id="entropyStatus" style="color:var(--tx3)">No data</div>
+      </div>
+
       <!-- Shot log -->
       <div class="sh">Shot log</div>
       <div class="shots-wrap" id="shotLog">
@@ -592,6 +672,28 @@ input:focus,select:focus{border-color:var(--blue)}
         <div class="freq-t">Orange = hot digit · normal = balanced</div>
         <div class="freq-bars" id="freqBars"></div>
         <div style="display:flex;gap:2px;margin-top:2px" id="freqNums"></div>
+      </div>
+
+
+      <!-- Entropy detail -->
+      <div class="sh">Randomness (entropy)</div>
+      <div class="entr-right">
+        <div class="entr-row">
+          <span>Shannon entropy</span>
+          <span class="entr-val" id="erEntropy">—</span>
+        </div>
+        <div class="entr-row">
+          <span>χ² statistic</span>
+          <span class="entr-val" id="erChi">—</span>
+        </div>
+        <div class="entr-row">
+          <span>Market health</span>
+          <span class="entr-health eh-random" id="erHealth">—</span>
+        </div>
+        <div class="entr-row" style="margin-top:4px">
+          <span>AC lag-1</span>
+          <span class="entr-val" id="erAC1">—</span>
+        </div>
       </div>
 
       <!-- Equity curve -->
@@ -885,6 +987,7 @@ function onTick(tick) {
   updateFreqBars();
   updatePriceChart(p);
   updateCooldownBar();
+  updateAIPanel();
   // auto fire
   if (document.getElementById('cfgAuto').checked && armed && !onCooldown && !sessionDone) {
     const maxS = parseInt(document.getElementById('cfgMaxShots').value) || 5;
@@ -1455,6 +1558,144 @@ function calcEMA(data, period) {
   let e = data.slice(0, period).reduce((a, b) => a + b, 0) / period;
   for (let i = period; i < data.length; i++) e = data[i] * k + e * (1 - k);
   return e;
+}
+
+
+// ════════════════════════════════════════════════
+//  AI INTELLIGENCE FUNCTIONS  (v3)
+// ════════════════════════════════════════════════
+
+const ANALYZER_LABELS = {
+  streak:     'Streak',
+  chi:        'Chi-sq',
+  rsi:        'RSI',
+  momentum:   'Momentum',
+  entropy:    'Entropy',
+  pattern:    'Pattern',
+};
+
+// Shannon entropy of digit array (bits, max=3.32 for 10 symbols)
+function calcEntropy(digs) {
+  if (!digs || digs.length < 2) return 3.32;
+  const freq = new Array(10).fill(0);
+  digs.forEach(d => freq[d]++);
+  const n = digs.length;
+  let H = 0;
+  freq.forEach(c => {
+    if (c > 0) { const p = c / n; H -= p * Math.log2(p); }
+  });
+  return H;
+}
+
+// Autocorrelation at lag 1
+function calcAC1(arr) {
+  if (!arr || arr.length < 4) return 0;
+  const n = arr.length;
+  const mu = arr.reduce((a, b) => a + b, 0) / n;
+  let num = 0, den = 0;
+  for (let i = 0; i < n - 1; i++) num += (arr[i] - mu) * (arr[i + 1] - mu);
+  for (let i = 0; i < n;     i++) den += (arr[i] - mu) ** 2;
+  return den === 0 ? 0 : num / den;
+}
+
+// Main AI panel updater — called every tick after runEngine()
+function updateAIPanel() {
+  if (digits.length < 10) return;
+
+  // ── Entropy ──────────────────────────────────────────────────────────────
+  const H       = calcEntropy(digits.slice(-30));
+  const Hmax    = 3.321928;
+  const Hpct    = Math.round(H / Hmax * 100);
+  const ac1     = calcAC1(digits.slice(-20));
+  const sample  = digits.slice(-50);
+  const freq    = new Array(10).fill(0);
+  sample.forEach(d => freq[d]++);
+  const expFreq = sample.length / 10;
+  const chi     = freq.reduce((s, f) => s + (f - expFreq) ** 2 / Math.max(expFreq, 0.1), 0);
+
+  // Entropy fill: 0%=random(red), 100%=patterned(green)
+  // Invert: low entropy = patterned = good
+  const fillPct    = Math.round((1 - H / Hmax) * 100);
+  const entrFill   = document.getElementById('entropyFill');
+  const entrPct    = document.getElementById('entropyPct');
+  const entrStatus = document.getElementById('entropyStatus');
+  const aiBadge    = document.getElementById('aiEntropyBadge');
+  const erEnt      = document.getElementById('erEntropy');
+  const erChi      = document.getElementById('erChi');
+  const erHealth   = document.getElementById('erHealth');
+  const erAC1      = document.getElementById('erAC1');
+
+  if (entrFill) {
+    entrFill.style.width = fillPct + '%';
+    entrFill.style.background = fillPct > 60 ? 'var(--green)' : fillPct > 30 ? 'var(--purple)' : 'var(--amber)';
+  }
+  if (entrPct) entrPct.textContent = Hpct + '%';
+
+  let healthTxt = 'Random', healthCls = 'eh-random', statusTxt = '';
+  if (H < 2.2) {
+    healthTxt = 'Patterned'; healthCls = 'eh-pattern';
+    statusTxt = '⚡ Strong pattern — high statistical edge';
+  } else if (H < 2.8) {
+    healthTxt = 'Moderate'; healthCls = 'eh-moderate';
+    statusTxt = 'Mild pattern — proceed with caution';
+  } else {
+    statusTxt = 'Near-random — wait for pattern to emerge';
+  }
+  if (entrStatus) { entrStatus.textContent = statusTxt; entrStatus.style.color = healthCls === 'eh-pattern' ? 'var(--green)' : healthCls === 'eh-moderate' ? 'var(--purple)' : 'var(--amber)'; }
+  if (aiBadge)   { aiBadge.textContent = healthTxt; aiBadge.className = 'entr-health ' + healthCls; }
+  if (erEnt)     erEnt.textContent = H.toFixed(3) + ' bits';
+  if (erChi)     erChi.textContent = chi.toFixed(2);
+  if (erHealth)  { erHealth.textContent = healthTxt; erHealth.className = 'entr-health ' + healthCls; }
+  if (erAC1)     erAC1.textContent = ac1.toFixed(3);
+
+  // ── Neural bars: show each sniper condition as a bar ─────────────────────
+  const maxConf = 100;
+  const bars = [
+    { label:'Streak',   val: Math.min(100, (lastSignal ? lastSignal.streak : 0) / 10 * 100), pass: condPass.streak,   txt: condVals.streak,   dir: condPass.streak ? (lastSignal && lastSignal.dir ? lastSignal.dir.substring(0,4) : '→') : '' },
+    { label:'Chi-sq',   val: Math.min(100, (lastSignal ? lastSignal.chi : 0) / 20 * 100),    pass: condPass.chi,      txt: condVals.chi,      dir: condPass.chi ? 'SKEW' : '' },
+    { label:'RSI',      val: lastSignal ? Math.abs(parseFloat(lastSignal.rsi) - 50) / 50 * 100 : 0, pass: condPass.rsi, txt: condVals.rsi, dir: condPass.rsi ? (parseFloat(lastSignal && lastSignal.rsi) < 50 ? 'RISE' : 'FALL') : '' },
+    { label:'Momentum', val: condPass.momentum ? 75 : 20,                                    pass: condPass.momentum, txt: condVals.momentum, dir: condPass.momentum ? 'ALIGNED' : '' },
+    { label:'Entropy',  val: Math.max(0, 100 - Hpct),                                        pass: H < 2.8,           txt: H.toFixed(2) + ' bits', dir: H < 2.2 ? 'STRONG' : H < 2.8 ? 'MILD' : 'RANDOM' },
+    { label:'Cooldown', val: condPass.cooldown ? 100 : Math.round((tickCnt - lastShotTick) / (parseInt(document.getElementById('cfgCool').value)||15) * 100), pass: condPass.cooldown, txt: condVals.cooldown, dir: condPass.cooldown ? 'READY' : 'WAIT' },
+  ];
+
+  const nbEl = document.getElementById('neuralBars');
+  if (nbEl) {
+    nbEl.innerHTML = bars.map(b => {
+      const col = b.pass ? 'var(--green)' : b.val > 40 ? 'var(--amber)' : 'var(--red)';
+      const dirCls = b.pass ? 'call' : (b.val > 40 ? 'none' : 'put');
+      return `<div class="nb-row">
+        <div class="nb-label">${b.label}</div>
+        <div class="nb-track"><div class="nb-fill" style="width:${Math.round(b.val)}%;background:${col}"></div></div>
+        <div class="nb-val">${Math.round(b.val)}%</div>
+        <div class="nb-dir ${dirCls}">${b.dir}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Consensus display ──────────────────────────────────────────────────
+  const passCount = Object.values(condPass).filter(Boolean).length;
+  const totalCond = Object.keys(condPass).length;
+  const consPct   = Math.round(passCount / totalCond * 100);
+  const consDir   = document.getElementById('consDir');
+  const consBadge = document.getElementById('aiConsBadge');
+  const consConf  = document.getElementById('consConf');
+  const consAgree = document.getElementById('consAgree');
+  const consEntr  = document.getElementById('consEntropy');
+
+  if (consDir) {
+    if (passCount === totalCond) {
+      consDir.textContent = lastSignal ? lastSignal.dir : 'ALIGNED';
+      consDir.className   = 'cons-dir ' + (lastSignal && lastSignal.dir === 'RISE' ? 'cons-call' : 'cons-put');
+    } else {
+      consDir.textContent = 'SCANNING';
+      consDir.className   = 'cons-dir cons-none';
+    }
+  }
+  if (consBadge) consBadge.textContent = passCount + '/' + totalCond + ' (' + (lastSignal ? lastSignal.score : 0) + '/100)';
+  if (consConf)  consConf.textContent  = 'Confidence: ' + (lastSignal ? lastSignal.score : 0) + '/100';
+  if (consAgree) consAgree.textContent = passCount + '/' + totalCond + ' conditions met';
+  if (consEntr)  consEntr.textContent  = 'Entropy: ' + H.toFixed(2) + ' (' + healthTxt + ')';
 }
 
 // ════════════════════════════════════════════════

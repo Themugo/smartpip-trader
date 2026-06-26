@@ -1,149 +1,162 @@
-from typing import Dict, Any, Optional, List
+"""
+Unified Strategy v3 — Adaptive weights via AdaptiveStrategyManager,
+market-regime awareness, and entropy-gated signal generation.
+"""
+from typing import Dict, Any, Optional
+from collections import deque
+from datetime import datetime
+
+import numpy as np
+
 from models import Prediction
 from backtesting.strategy import BacktestStrategy
 from analysis import AnalysisManager
 from indicators import RSI, SMA, EMA, MACD, BollingerBands
-import numpy as np
+from strategies.adaptive_strategy_manager import AdaptiveStrategyManager
 
 
 class UnifiedStrategy(BacktestStrategy):
-    """Unified strategy that combines all analysis types for maximum win rate"""
-    
-    def __init__(self, min_confidence: float = 80):
+    """
+    Combines all analyzers with adaptive, performance-tracked weights.
+    Blocks trades when market entropy is too high (near-random conditions).
+    """
+
+    DEFAULT_WEIGHTS = {
+        "even_odd":            0.12,
+        "rise_fall":           0.15,
+        "over_under":          0.12,
+        "match_diff":          0.10,
+        "technical":           0.15,
+        "ml":                  0.13,
+        "digit_analysis":      0.08,
+        "volatility_analysis": 0.05,
+        "multitimeframe":      0.05,
+        "pattern_recognizer":  0.05,
+    }
+
+    def __init__(self, min_confidence: float = 75):
         super().__init__("unified")
         self.min_confidence = min_confidence
         self.analysis_manager = AnalysisManager()
-        self.analysis_weights = {
-            "even_odd": 0.15,
-            "rise_fall": 0.20,
-            "over_under": 0.20,
-            "match_diff": 0.15,
-            "technical": 0.20,
-            "ml": 0.10
-        }
-        self.last_predictions = {}
-    
+        self.adaptive_manager = AdaptiveStrategyManager()
+
+        # Entropy filter
+        self._entropy_threshold = 2.8   # below this = patterned market → allow trade
+        self._last_entropy: float = 3.32
+
+        # Performance tracking for confidence calibration
+        self._recent_outcomes: deque = deque(maxlen=30)
+        self._calibration_factor: float = 1.0
+
+        # Regime state
+        self._current_regime: Dict[str, str] = {}
+
+    # ── Public API ────────────────────────────────────────────────────────
+
     def generate_signal(self, data: Dict[str, Any]) -> Optional[Prediction]:
-        """Generate signal using unified analysis of all types"""
         price_history = data.get("price_history", [])
-        if len(price_history) < 30:
+        if len(price_history) < 20:
             return None
-        
-        # Run all analysis types
-        comprehensive_analysis = self.analysis_manager.get_comprehensive_analysis(data)
-        
-        # Collect predictions from all analyzers
-        predictions = {}
-        for analyzer_name, analyzer in self.analysis_manager.analyzers.items():
-            if not analyzer.enabled:
-                continue
-            
-            result = analyzer.analyze(data)
-            if result.prediction:
-                predictions[analyzer_name] = {
-                    "direction": result.prediction,
-                    "confidence": result.confidence,
-                    "data": result.data
-                }
-        
-        if not predictions:
+
+        # Get adaptive weights from manager
+        adaptive_weights = self.adaptive_manager.get_current_weights(
+            market=data.get("market", "R_100"),
+            regime=self._current_regime,
+        )
+        # Sync weights to analysis manager
+        self.analysis_manager.update_weights(adaptive_weights)
+
+        # Run comprehensive analysis
+        analysis_result = self.analysis_manager.get_comprehensive_analysis(data)
+        self._last_entropy = self.analysis_manager.get_market_entropy()
+
+        # Entropy gate: skip if market is too random
+        if self._last_entropy > self._entropy_threshold:
+            return None  # market is near-random, no edge
+
+        # Get consensus from analysis manager
+        consensus = self.analysis_manager.generate_best_prediction()
+        if not consensus:
             return None
-        
-        # Calculate weighted score
-        weighted_score = self._calculate_weighted_score(predictions)
-        
-        # Determine consensus direction
-        consensus_direction = self._get_consensus_direction(predictions)
-        
-        if not consensus_direction:
+
+        direction = consensus.get("direction")
+        confidence = consensus.get("confidence", 0)
+        agreement = consensus.get("agreement", 0)
+
+        # Apply calibration factor (adjusts for recent performance)
+        confidence *= self._calibration_factor
+
+        # Require minimum confidence
+        if confidence < self.min_confidence:
             return None
-        
-        # Calculate final confidence
-        final_confidence = self._calculate_final_confidence(predictions, weighted_score)
-        
-        # Check if meets minimum confidence
-        if final_confidence < self.min_confidence:
+
+        # Require minimum agreement among analyzers
+        if agreement < 55:
             return None
-        
-        # Generate reason
-        reason = self._generate_reason(predictions, consensus_direction, weighted_score)
-        
+
+        reason = self._build_reason(consensus, adaptive_weights)
+
         return Prediction(
             type="UNIFIED",
-            direction=consensus_direction,
-            confidence=final_confidence,
-            reason=reason
+            direction=direction,
+            confidence=round(confidence, 1),
+            reason=reason,
         )
-    
-    def _calculate_weighted_score(self, predictions: Dict[str, Dict]) -> float:
-        """Calculate weighted score from all predictions"""
-        total_score = 0.0
-        total_weight = 0.0
-        
-        for analyzer_name, pred in predictions.items():
-            weight = self.analysis_weights.get(analyzer_name, 0.1)
-            confidence = pred["confidence"]
-            total_score += confidence * weight
-            total_weight += weight
-        
-        return total_score / total_weight if total_weight > 0 else 0
-    
-    def _get_consensus_direction(self, predictions: Dict[str, Dict]) -> Optional[str]:
-        """Get consensus direction from all predictions"""
-        call_count = sum(1 for p in predictions.values() if p["direction"] == "CALL")
-        put_count = sum(1 for p in predictions.values() if p["direction"] == "PUT")
-        
-        # Require at least 60% agreement
-        total = len(predictions)
-        if call_count / total >= 0.6:
-            return "CALL"
-        elif put_count / total >= 0.6:
-            return "PUT"
-        
-        return None
-    
-    def _calculate_final_confidence(self, predictions: Dict[str, Dict], 
-                                   weighted_score: float) -> float:
-        """Calculate final confidence with adjustments"""
-        # Base confidence from weighted score
-        confidence = weighted_score
-        
-        # Boost if high agreement
-        call_count = sum(1 for p in predictions.values() if p["direction"] == "CALL")
-        put_count = sum(1 for p in predictions.values() if p["direction"] == "PUT")
-        max_count = max(call_count, put_count)
-        agreement_ratio = max_count / len(predictions)
-        
-        if agreement_ratio >= 0.8:
-            confidence += 10
-        elif agreement_ratio >= 0.6:
-            confidence += 5
-        
-        # Boost if technical and ML agree
-        if "technical" in predictions and "ml" in predictions:
-            if predictions["technical"]["direction"] == predictions["ml"]["direction"]:
-                confidence += 8
-        
-        # Clamp to valid range
-        return min(95, max(50, confidence))
-    
-    def _generate_reason(self, predictions: Dict[str, Dict], direction: str, 
-                        weighted_score: float) -> str:
-        """Generate reason for prediction"""
-        agreeing_analyzers = [name for name, pred in predictions.items() 
-                             if pred["direction"] == direction]
-        
+
+    def record_trade_outcome(self, predicted_direction: str, actual_win: bool,
+                              profit: float, market: str, analyzer_contributions: Dict[str, str]):
+        """Feed trade result back to adaptive manager and calibrate confidence."""
+        self._recent_outcomes.append(1 if actual_win else 0)
+
+        # Update adaptive strategy manager
+        for strategy_name, predicted in analyzer_contributions.items():
+            self.adaptive_manager.update_strategy_performance(
+                strategy=strategy_name,
+                profit=profit,
+                market=market,
+                regime=self._current_regime,
+                timestamp=datetime.now().isoformat(),
+            )
+
+        # Recalibrate confidence multiplier based on recent win rate
+        if len(self._recent_outcomes) >= 10:
+            recent_wr = sum(self._recent_outcomes) / len(self._recent_outcomes)
+            # If win rate is higher than expected (>55%), boost; if lower, penalise
+            self._calibration_factor = max(0.8, min(1.15, 0.85 + recent_wr))
+
+    def set_regime(self, regime: Dict[str, str]):
+        self._current_regime = regime
+
+    def set_entropy_threshold(self, threshold: float):
+        self._entropy_threshold = threshold
+
+    def get_state(self) -> Dict[str, Any]:
+        return {
+            "min_confidence": self.min_confidence,
+            "entropy_threshold": self._entropy_threshold,
+            "last_entropy": round(self._last_entropy, 4),
+            "calibration_factor": round(self._calibration_factor, 4),
+            "recent_win_rate": (
+                round(sum(self._recent_outcomes) / len(self._recent_outcomes) * 100, 1)
+                if self._recent_outcomes else None
+            ),
+            "adaptive_weights": self.adaptive_manager.current_weights,
+        }
+
+    # ── Private helpers ───────────────────────────────────────────────────
+
+    def _build_reason(self, consensus: Dict, weights: Dict) -> str:
+        contributors = consensus.get("contributing", 0)
+        total = consensus.get("active_analyzers", 0)
+        entropy = consensus.get("entropy", self._last_entropy)
+        direction = consensus.get("direction", "?")
+        confidence = consensus.get("confidence", 0)
+        top_weights = sorted(weights.items(), key=lambda x: x[1], reverse=True)[:3]
+        weight_str = ", ".join(f"{k}={v:.2f}" for k, v in top_weights)
         return (
-            f"Unified signal - {len(agreeing_analyzers)}/{len(predictions)} analyzers agree: "
-            f"{', '.join(agreeing_analyzers)}. Weighted score: {weighted_score:.1f}"
+            f"Unified {direction} ({confidence:.0f}%) | "
+            f"{contributors}/{total} analyzers | "
+            f"entropy={entropy:.2f} | "
+            f"top weights: {weight_str} | "
+            f"cal={self._calibration_factor:.2f}"
         )
-    
-    def execute_trade(self, prediction: Prediction, price: float, amount: float = 1.0) -> Dict[str, Any]:
-        """Execute trade with unified strategy"""
-        # Use adjusted position size based on confidence
-        adjusted_amount = amount * (prediction.confidence / 100)
-        
-        trade = super().execute_trade(prediction, price, adjusted_amount)
-        trade["unified_analysis"] = self.last_predictions
-        
-        return trade
