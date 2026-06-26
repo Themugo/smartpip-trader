@@ -9,7 +9,7 @@ from config import Settings
 from core import DerivConnection, AccountManager, MarketManager, MarketSelector
 from analysis import AnalysisManager
 from trading import TradeExecutor, TradeMonitor, RiskManager, StatsManager, PositionSizer, ExecutionOptimizer, ZeroLossRiskManager
-from database import DatabaseManager
+from database import DatabaseManager, SupabaseManager
 from utils import CacheManager, PerformanceMetrics, system_logger, trade_logger, performance_logger
 from models import Prediction
 
@@ -42,10 +42,29 @@ class TradingSystem:
         # ========== PERFORMANCE MODULES ==========
         self.cache = CacheManager(max_size=1000, ttl=5)
         self.metrics = PerformanceMetrics(max_history=1000)
-        self.database = DatabaseManager()
+        # Initialize database (Supabase primary, SQLite fallback)
+        self.database = SupabaseManager()
+        try:
+            test_settings = self.database.get_settings()
+            if test_settings is None:
+                raise Exception("Supabase not available")
+        except Exception:
+            self.database = DatabaseManager()
         
         # ========== SETTINGS ==========
         self.settings = Settings()
+        # Load persisted settings from database
+        try:
+            db_settings = self.database.get_settings()
+            if db_settings:
+                for key in ['base_amount', 'auto_trading', 'max_trades_per_hour', 'min_confidence',
+                           'stop_loss', 'take_profit', 'max_consecutive_losses',
+                           'enable_even_odd', 'enable_rise_fall', 'enable_over_under',
+                           'enable_match_diff', 'enable_digit_analysis']:
+                    if key in db_settings and db_settings[key] is not None:
+                        setattr(self.settings, key, db_settings[key])
+        except Exception:
+            pass
         
         # ========== DATA STORAGE ==========
         self.current_price = 0

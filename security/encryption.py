@@ -12,14 +12,12 @@ class EncryptionManager:
         self.fernet = Fernet(self.key)
     
     def _get_or_create_key(self) -> bytes:
-        """Get or create encryption key"""
+        """Get encryption key from environment (production) or generate one (dev)"""
         key = os.getenv("ENCRYPTION_KEY")
         if key:
             return key.encode()
-        
-        # Generate new key
-        key = Fernet.generate_key()
-        return key
+        # Generate new key for development only
+        return Fernet.generate_key()
     
     def encrypt(self, data: str) -> str:
         """Encrypt string data"""

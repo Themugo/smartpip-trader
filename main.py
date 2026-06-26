@@ -3,14 +3,15 @@ import os
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import uvicorn
 
+from fastapi.middleware.cors import CORSMiddleware
 from trading_system import TradingSystem
 from api import setup_routes
+from middleware.input_sanitizer import InputSanitizer, create_sanitize_middleware
 
 # Initialize the trading system
 platform = TradingSystem()
@@ -29,25 +30,33 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS — allow custom domain and development origins
-site_domain = os.getenv("SITE_DOMAIN", "www.smartpip.site")
-root_domain = site_domain.removeprefix("www.")
+# Setup all API routes
+setup_routes(app, platform)
+
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        f"https://{site_domain}",
-        f"https://{root_domain}",
-        "http://localhost:8000",
-        "http://localhost:9876",
-        "http://localhost:3000",
-    ],
+    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Setup all API routes
-setup_routes(app, platform)
+# Add input sanitization middleware
+sanitizer = InputSanitizer()
+app.middleware("http")(create_sanitize_middleware(sanitizer))
+
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "detail": str(exc) if os.getenv("ENVIRONMENT") != "production" else "An unexpected error occurred"}
+    )
 
 # Mount static files for web interface
 app.mount("/static", StaticFiles(directory="web"), name="static")
@@ -57,14 +66,9 @@ app.mount("/static", StaticFiles(directory="web"), name="static")
 async def serve_web_interface():
     return FileResponse("web/index.html")
 
-# Serve the sniper UI at root (primary interface)
+# Redirect root to web interface
 @app.get("/")
 async def root_redirect():
-    return FileResponse("index.html")
-
-# Backend dashboard at /dashboard
-@app.get("/dashboard")
-async def serve_dashboard():
     return FileResponse("web/index.html")
 
 def custom_openapi():

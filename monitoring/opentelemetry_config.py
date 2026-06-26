@@ -41,7 +41,8 @@ def configure_opentelemetry(app=None, service_name="smartpip-trader"):
     
     # OTLP exporter for traces (sends to Jaeger/Tempo/OTLP collector)
     otlp_endpoint = os.getenv("OTLP_ENDPOINT", "http://localhost:4317")
-    otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
+    otlp_insecure = os.getenv("OTLP_INSECURE", "false").lower() == "true"
+    otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=otlp_insecure)
     span_processor = BatchSpanProcessor(otlp_exporter)
     trace_provider.add_span_processor(span_processor)
     
@@ -57,7 +58,7 @@ def configure_opentelemetry(app=None, service_name="smartpip-trader"):
     
     # OTLP exporter for metrics (optional)
     if os.getenv("ENABLE_OTLP_METRICS", "false").lower() == "true":
-        otlp_metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True)
+        otlp_metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint, insecure=otlp_insecure)
         metric_reader = PeriodicExportingMetricReader(otlp_metric_exporter, export_interval_millis=15000)
         metric_readers.append(metric_reader)
     

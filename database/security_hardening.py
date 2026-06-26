@@ -23,7 +23,9 @@ class DatabaseSecurity:
             encryption_key: Encryption key for sensitive columns
         """
         self.db_path = db_path
-        self.encryption_key = encryption_key or os.getenv("DB_ENCRYPTION_KEY", "default-key-change-in-production")
+        self.encryption_key = encryption_key or os.getenv("DB_ENCRYPTION_KEY")
+        if not self.encryption_key:
+            raise ValueError("DB_ENCRYPTION_KEY environment variable must be set in production")
         self._initialize_database()
     
     @contextmanager

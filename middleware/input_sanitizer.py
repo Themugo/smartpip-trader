@@ -76,7 +76,9 @@ class InputSanitizer:
     """Enterprise-grade input sanitization middleware to prevent XSS and injection attacks"""
     
     def __init__(self, secret_key: str = None):
-        self.secret_key = secret_key or os.getenv("SANITIZATION_SECRET_KEY", "default-secret-key-change-in-production")
+        self.secret_key = secret_key or os.getenv("SANITIZATION_SECRET_KEY")
+        if not self.secret_key:
+            raise ValueError("SANITIZATION_SECRET_KEY environment variable must be set in production")
         
         # Replay attack prevention
         self.used_nonces: Set[str] = set()
@@ -348,8 +350,8 @@ def create_sanitize_middleware(sanitizer: InputSanitizer):
                 # Sanitize input
                 sanitized_body = sanitizer.sanitize_dict(body)
                 
-                # Replace request body with sanitized version
-                request._body = sanitized_body
+                # Replace request body with sanitized version (encode back to bytes)
+                request._body = json.dumps(sanitized_body).encode("utf-8")
                 
             except ValueError as e:
                 return JSONResponse(
