@@ -291,3 +291,7 @@ def setup_routes(app: FastAPI, trading_system):
             "analysis": {k: {"prediction": v.get("prediction"), "confidence": v.get("confidence")}
                         for k, v in result.items() if isinstance(v, dict) and "prediction" in v},
         })
+
+    # ── Journal routes ─────────────────────────────────────────────────────
+    from api.journal_routes import setup_journal_routes
+    setup_journal_routes(app, trading_system)

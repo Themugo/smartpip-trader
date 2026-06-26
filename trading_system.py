@@ -11,6 +11,7 @@ from analysis import AnalysisManager
 from trading import TradeExecutor, TradeMonitor, RiskManager, StatsManager, PositionSizer, ExecutionOptimizer, ZeroLossRiskManager
 from database import DatabaseManager, SupabaseManager
 from utils import CacheManager, PerformanceMetrics, system_logger, trade_logger, performance_logger
+from trading.trade_journal import TradeJournal
 from models import Prediction
 
 logging.basicConfig(level=logging.INFO)
@@ -38,6 +39,7 @@ class TradingSystem:
         self.stats_manager = StatsManager()
         self.position_sizer = PositionSizer()
         self.execution_optimizer = ExecutionOptimizer()
+        self.trade_journal = TradeJournal()
         
         # ========== PERFORMANCE MODULES ==========
         self.cache = CacheManager(max_size=1000, ttl=5)
@@ -230,6 +232,42 @@ class TradingSystem:
         )
         
         if contract_id:
+            # Log trade entry to journal
+            try:
+                analysis_data = getattr(self, "analysis_result", {})
+                entry_conditions = []
+                if self.best_prediction:
+                    entry_conditions = [
+                        f"confidence: {self.best_prediction.confidence:.1f}%",
+                        f"type: {self.best_prediction.type}",
+                    ]
+                    if hasattr(self.best_prediction, 'reason') and self.best_prediction.reason:
+                        entry_conditions.append(f"reason: {self.best_prediction.reason}")
+                regime = "unknown"
+                try:
+                    regime_det = getattr(self, "regime_detector", None)
+                    if regime_det:
+                        regime = getattr(regime_det, "current_regime", "unknown")
+                    elif hasattr(self.analysis, "last_analysis"):
+                        regime = self.analysis.last_analysis.get("regime", "unknown")
+                except Exception:
+                    pass
+                balance = await self.account.get_balance() if hasattr(self.account, "get_balance") else self.stats_manager.get_stats().get("total_profit", 1000) + 1000
+                self._pending_journal_ids = getattr(self, "_pending_journal_ids", {})
+                jid = self.trade_journal.log_trade(
+                    symbol=self.market.get_current_market(),
+                    contract_type=self.best_prediction.type,
+                    entry_price=self.current_price,
+                    amount=self.settings.base_amount,
+                    confidence=self.best_prediction.confidence,
+                    regime=str(regime),
+                    entry_conditions=entry_conditions,
+                    running_balance=float(self.stats_manager.get_stats().get("total_profit", 0) + 1000),
+                )
+                self._pending_journal_ids[contract_id] = jid
+            except Exception as je:
+                logger.warning("Journal log_trade failed: %s", je)
+
             # Monitor the trade
             asyncio.create_task(
                 self.monitor.monitor_trade(
@@ -261,6 +299,28 @@ class TradingSystem:
             # Save trade to database
             trade_data["profit"] = profit
             self.database.save_trade(trade_data)
+
+            # Close trade in journal
+            try:
+                pending = getattr(self, "_pending_journal_ids", {})
+                jid = pending.pop(contract_id, None)
+                if jid:
+                    balance = float(self.stats_manager.get_stats().get("total_profit", 0) + 1000)
+                    exit_conditions = [
+                        "contract_settled",
+                        f"outcome: {'WIN' if profit > 0 else 'LOSS'}",
+                        f"pnl: {profit:+.4f}",
+                    ]
+                    self.trade_journal.close_trade(
+                        trade_id=jid,
+                        pnl=profit,
+                        exit_price=float(trade_data.get("exit_price", self.current_price)),
+                        exit_conditions=exit_conditions,
+                        exit_reason="contract_settled",
+                        running_balance=balance,
+                    )
+            except Exception as je:
+                logger.warning("Journal close_trade failed: %s", je)
             
             # Update statistics in database
             self.database.update_statistics(self.stats_manager.get_stats())
