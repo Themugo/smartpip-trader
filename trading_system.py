@@ -252,7 +252,7 @@ class TradingSystem:
                         regime = self.analysis.last_analysis.get("regime", "unknown")
                 except Exception:
                     pass
-                balance = await self.account.get_balance() if hasattr(self.account, "get_balance") else self.stats_manager.get_stats().get("total_profit", 1000) + 1000
+                balance = self.account.get_balance() if hasattr(self.account, "get_balance") else self.stats_manager.get_stats().get("total_profit", 1000) + 1000
                 self._pending_journal_ids = getattr(self, "_pending_journal_ids", {})
                 jid = self.trade_journal.log_trade(
                     symbol=self.market.get_current_market(),

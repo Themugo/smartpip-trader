@@ -3,7 +3,7 @@ Journal API routes — full CRUD + analytics endpoints for the trade journal.
 Mounts at /api/journal/...
 """
 import logging
-from typing import Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone, timedelta
 
 from fastapi import FastAPI, Request, HTTPException, Query
