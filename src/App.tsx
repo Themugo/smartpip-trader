@@ -17,6 +17,7 @@ import { TradeEvidencePanel } from './components/TradeEvidencePanel';
 import { MLAuditPanel } from './components/MLAuditPanel';
 import { ShadowModePanel } from './components/ShadowModePanel';
 import { TradeJournalPanel } from './components/TradeJournalPanel';
+import { ReviewPage } from './components/ReviewPage';
 import { api } from './lib/api';
 import { supabase } from './lib/supabase';
 import { useDerivTicks } from './hooks/useDerivTicks';
@@ -27,7 +28,7 @@ import { useShadowMode } from './hooks/useShadowMode';
 import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Trade, TradeStatistics, SystemSettings, AuditLogEntry, User } from './lib/supabase';
 
-type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation';
+type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation' | 'review';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -267,6 +268,16 @@ export default function App() {
           >
             Validation
           </button>
+          <button
+            onClick={() => setActiveTab('review')}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              activeTab === 'review'
+                ? 'bg-violet-500/20 text-violet-400'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Review
+          </button>
         </div>
       </div>
 
@@ -352,6 +363,10 @@ export default function App() {
 
         {activeTab === 'validation' && (
           <ValidationDashboard />
+        )}
+
+        {activeTab === 'review' && (
+          <ReviewPage />
         )}
       </main>
 

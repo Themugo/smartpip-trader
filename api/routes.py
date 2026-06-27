@@ -295,3 +295,10 @@ def setup_routes(app: FastAPI, trading_system):
     # ── Journal routes ─────────────────────────────────────────────────────
     from api.journal_routes import setup_journal_routes
     setup_journal_routes(app, trading_system)
+
+    # ── Review / inspection routes ────────────────────────────────────────────
+    from api.review_routes import setup_review_routes
+    import time as _time
+    if not hasattr(app.state, 'boot_time'):
+        app.state.boot_time = _time.time()
+    setup_review_routes(app, trading_system)
