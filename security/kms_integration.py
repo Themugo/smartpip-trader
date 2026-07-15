@@ -384,7 +384,7 @@ class SecretsManager:
             # Store plaintext (not recommended for production)
             logger.info(f"Stored plaintext secret: {secret_name}")
     
-    def retrieve_secret(self, secret_name: str, encrypted: bool = True) -> str:
+    def retrieve_secret(self, secret_name: str, encrypted: bool = True) -> Optional[str]:
         """
         Retrieve a secret
         
@@ -393,21 +393,18 @@ class SecretsManager:
             encrypted: Whether the secret is encrypted
             
         Returns:
-            Secret value
+            Secret value or None if not found
         """
-        if encrypted and self.envelope_encryption:
-            # Retrieve and decrypt (implementation depends on storage backend)
-            logger.info(f"Retrieved encrypted secret: {secret_name}")
-            # Return decrypted value
-        else:
-            # Retrieve plaintext
-            logger.info(f"Retrieved plaintext secret: {secret_name}")
-            # Return value
+        # In a full implementation, this would retrieve from a database or vault
+        # For now, return None as a placeholder
+        logger.warning(f"retrieve_secret not fully implemented - returning None for: {secret_name}")
+        return None
     
     def rotate_secret(self, secret_name: str):
         """Rotate a secret"""
         logger.info(f"Rotating secret: {secret_name}")
         # Implementation depends on provider
+        raise NotImplementedError("Secret rotation requires implementation of storage backend")
 
 
 # Global instance

@@ -31,11 +31,9 @@ class Asset:
             self.average_cost = price
         else:
             total_cost = (self.quantity * self.average_cost) + (quantity * price)
-            self.quantity += quantity
             self.average_cost = total_cost / self.quantity
-        else:
-            self.quantity += quantity
-            self.average_cost = ((self.quantity - quantity) * self.average_cost + quantity * price) / self.quantity
+        
+        self.quantity += quantity
         
         self.total_cost = self.quantity * self.average_cost
         self.current_value = self.quantity * self.current_price
