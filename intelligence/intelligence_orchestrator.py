@@ -290,8 +290,9 @@ class IntelligenceOrchestrator:
 
         # RL agent: compute reward
         reward = self.rl_agent.compute_reward(
+            action="TRADE",
             profit=trade_record.profit,
-            was_trade=True,
+            would_have_profit=trade_record.profit > 0,
         )
         # Update RL with the state from when trade was taken
         # (simplified: use current features as proxy)

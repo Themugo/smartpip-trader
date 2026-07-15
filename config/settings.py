@@ -75,6 +75,26 @@ class Settings:
     rl_enabled: bool = True
     case_reasoning_enabled: bool = True
 
+    # ── Research Intelligence Layer (advanced 12) ──────────────────────
+    research_mode_enabled: bool = True
+    market_dna_enabled: bool = True
+    similarity_search_enabled: bool = True
+    bayesian_engine_enabled: bool = True
+    ensemble_intelligence_enabled: bool = True
+    online_learner_enabled: bool = True
+    abstention_model_enabled: bool = True
+    meta_supervisor_enabled: bool = True
+    explainable_engine_enabled: bool = True
+    backtesting_enabled: bool = True
+    capital_preservation_enabled: bool = True
+    self_improvement_enabled: bool = True
+    min_bayesian_confidence: float = 0.55
+    max_abstention_probability: float = 0.6
+    walk_forward_train_days: int = 30
+    walk_forward_test_days: int = 7
+    monte_carlo_simulations: int = 1000
+    auto_rollback_threshold: float = 0.05
+
     # ── Notifications ────────────────────────────────────────────────────
     telegram_alerts: bool = False
 
@@ -94,6 +114,10 @@ class Settings:
         "intelligence_enabled", "min_opportunity_score", "min_twin_win_rate",
         "twin_simulations", "dynamic_sizing_enabled", "meta_ai_enabled",
         "rl_enabled", "case_reasoning_enabled",
+        "research_mode_enabled", "market_dna_enabled", "similarity_search_enabled",
+        "bayesian_engine_enabled", "ensemble_intelligence_enabled", "online_learner_enabled",
+        "abstention_model_enabled", "meta_supervisor_enabled", "explainable_engine_enabled",
+        "backtesting_enabled", "capital_preservation_enabled", "self_improvement_enabled",
     }
 
     def to_dict(self) -> Dict[str, Any]:
@@ -140,6 +164,18 @@ class Settings:
             "meta_ai_enabled": self.meta_ai_enabled,
             "rl_enabled": self.rl_enabled,
             "case_reasoning_enabled": self.case_reasoning_enabled,
+            "research_mode_enabled": self.research_mode_enabled,
+            "market_dna_enabled": self.market_dna_enabled,
+            "similarity_search_enabled": self.similarity_search_enabled,
+            "bayesian_engine_enabled": self.bayesian_engine_enabled,
+            "ensemble_intelligence_enabled": self.ensemble_intelligence_enabled,
+            "online_learner_enabled": self.online_learner_enabled,
+            "abstention_model_enabled": self.abstention_model_enabled,
+            "meta_supervisor_enabled": self.meta_supervisor_enabled,
+            "explainable_engine_enabled": self.explainable_engine_enabled,
+            "backtesting_enabled": self.backtesting_enabled,
+            "capital_preservation_enabled": self.capital_preservation_enabled,
+            "self_improvement_enabled": self.self_improvement_enabled,
         }
 
     def update(self, data: Dict[str, Any]):

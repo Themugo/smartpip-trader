@@ -13,7 +13,7 @@ from database import DatabaseManager, SupabaseManager
 from utils import CacheManager, PerformanceMetrics, system_logger, trade_logger, performance_logger
 from trading.trade_journal import TradeJournal
 from models import Prediction
-from intelligence import IntelligenceOrchestrator
+from intelligence import IntelligenceOrchestrator, ResearchOrchestrator
 from intelligence.trade_memory import TradeRecord
 
 logging.basicConfig(level=logging.INFO)
@@ -85,6 +85,7 @@ class TradingSystem:
         
         # ========== INTELLIGENCE LAYER ==========
         self.intelligence = None
+        self.research = None
         if self.settings.intelligence_enabled:
             try:
                 self.intelligence = IntelligenceOrchestrator(
@@ -96,6 +97,19 @@ class TradingSystem:
             except Exception as e:
                 logger.warning("Intelligence layer init failed: %s — falling back to legacy mode", e)
                 self.intelligence = None
+
+            # Advanced research intelligence layer
+            if getattr(self.settings, 'research_mode_enabled', False):
+                try:
+                    self.research = ResearchOrchestrator(
+                        analysis_manager=self.analysis,
+                        settings=self.settings,
+                    )
+                    self.research.load_all()
+                    logger.info("Research intelligence layer initialised")
+                except Exception as e:
+                    logger.warning("Research layer init failed: %s — using legacy intelligence", e)
+                    self.research = None
 
         # Setup connection callbacks
         self.connection.set_reconnect_callback(self._on_reconnect)
@@ -222,10 +236,12 @@ class TradingSystem:
             return None
 
         # ── Intelligence-gated execution (default: NO TRADE) ──────────
-        if self.intelligence is not None:
+        # Prefer research orchestrator if available, fallback to legacy intelligence
+        active_intel = self.research if self.research is not None else self.intelligence
+        if active_intel is not None:
             try:
                 hour = datetime.utcnow().hour
-                intel = self.intelligence.evaluate_tick(
+                intel = active_intel.evaluate_tick(
                     price_history=list(self.price_history),
                     digit_history=list(self.last_20_digits),
                     analyzer_output=self.analysis.analysis_result or {},
@@ -291,7 +307,9 @@ class TradingSystem:
                         entry_conditions.append(f"reason: {self.best_prediction.reason}")
 
                 regime_str = "unknown"
-                if self.intelligence and self.intelligence.current_regime:
+                if self.research and hasattr(self.research, 'current_regime') and self.research.current_regime:
+                    regime_str = self.research.current_regime.regime
+                elif self.intelligence and self.intelligence.current_regime:
                     regime_str = self.intelligence.current_regime.regime
                 elif hasattr(self.analysis, "last_analysis"):
                     regime_str = self.analysis.last_analysis.get("regime", "unknown")
@@ -388,7 +406,7 @@ class TradingSystem:
                 logger.warning("Journal close_trade failed: %s", je)
 
             # ── Feed outcome to intelligence layer ───────────────────
-            if self.intelligence:
+            if self.intelligence or self.research:
                 try:
                     pending_intel = getattr(self, "_pending_intel", {})
                     intel_data = pending_intel.pop(contract_id, {})
@@ -422,10 +440,17 @@ class TradingSystem:
                             duration_seconds=0,
                             metadata={},
                         )
-                        self.intelligence.record_trade_outcome(
-                            trade_record=trade_record,
-                            analyzer_output=intel_data.get("analyzer_output", {}),
-                        )
+                        # Record in both intelligence layers
+                        if self.intelligence:
+                            self.intelligence.record_trade_outcome(
+                                trade_record=trade_record,
+                                analyzer_output=intel_data.get("analyzer_output", {}),
+                            )
+                        if self.research:
+                            self.research.record_trade_outcome(
+                                trade_record=trade_record,
+                                analyzer_output=intel_data.get("analyzer_output", {}),
+                            )
                 except Exception as ie:
                     logger.warning("Intelligence outcome recording failed: %s", ie)
             
@@ -527,6 +552,7 @@ class TradingSystem:
             },
             "zero_loss_risk": self.zero_loss_risk_manager.get_risk_metrics(),
             "intelligence": self.intelligence.get_intelligence_state() if self.intelligence else None,
+            "research": self.research.get_intelligence_state() if self.research else None,
             "performance": {
                 "cache": self.cache.get_stats(),
                 "metrics": self.metrics.get_summary(),
