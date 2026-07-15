@@ -18,7 +18,9 @@ import { MLAuditPanel } from './components/MLAuditPanel';
 import { ShadowModePanel } from './components/ShadowModePanel';
 import { TradeJournalPanel } from './components/TradeJournalPanel';
 import { ReviewPage } from './components/ReviewPage';
+import { WorkspaceNav } from './components/WorkspaceNav';
 import { api } from './lib/api';
+import { api as apiV2 } from './lib/api_v2';
 import { supabase } from './lib/supabase';
 import { useDerivTicks } from './hooks/useDerivTicks';
 import { useRegimeDetection } from './hooks/useRegimeDetection';
@@ -29,11 +31,14 @@ import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Trade, TradeStatistics, SystemSettings, AuditLogEntry, User } from './lib/supabase';
 
 type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation' | 'review';
+type Workspace = 'dashboard' | 'live_trading' | 'paper_trading' | 'backtesting' | 'strategy_builder' | 'analytics' | 'risk_center' | 'notifications' | 'ai_command_center' | 'developer_console' | 'settings';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>('dashboard');
+  const [accountConnected, setAccountConnected] = useState(false);
 
   const [trades, setTrades] = useState<Trade[]>([]);
   const [stats, setStats] = useState<TradeStatistics | null>(null);
@@ -182,37 +187,44 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Header botStatus={botStatus} connected={connected} userEmail={user.email} onSignOut={handleSignOut} />
+    <div className="min-h-screen bg-slate-950 flex">
+      {/* Workspace Navigation Sidebar */}
+      <WorkspaceNav
+        currentWorkspace={activeWorkspace}
+        onWorkspaceChange={(workspaceId) => setActiveWorkspace(workspaceId as Workspace)}
+      />
 
-      {/* Tab Navigation */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pt-4">
-        <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1 w-fit border border-slate-700 flex-wrap">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'dashboard'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('regimes')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'regimes'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Regimes
-          </button>
-          <button
-            onClick={() => setActiveTab('sizing')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'sizing'
-                ? 'bg-blue-500/20 text-blue-400'
+      <div className="flex-1 flex flex-col">
+        <Header botStatus={botStatus} connected={connected} userEmail={user.email} onSignOut={handleSignOut} />
+
+        {/* Tab Navigation */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pt-4">
+          <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1 w-fit border border-slate-700 flex-wrap">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                activeTab === 'dashboard'
+                  ? 'bg-blue-500/20 text-blue-400'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('regimes')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                activeTab === 'regimes'
+                  ? 'bg-blue-500/20 text-blue-400'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Regimes
+            </button>
+            <button
+              onClick={() => setActiveTab('sizing')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                activeTab === 'sizing'
+                  ? 'bg-blue-500/20 text-blue-400'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -372,10 +384,11 @@ export default function App() {
 
       <footer className="border-t border-slate-800 mt-8 sm:mt-12 py-4 sm:py-6 px-3 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-          <span>SmartPip Trader v2.7.0 — Full-Stack Edition</span>
-          <span>Data persisted via Supabase</span>
+          <span>SmartPip Trader v4.0 — Modular Institutional Platform</span>
+          <span>Data synchronized via Cloud</span>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

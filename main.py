@@ -1,4 +1,4 @@
-# main.py - ULTIMATE INTELLIGENT TRADING SYSTEM (Production Enhanced)
+# main.py - Modular Institutional Trading Platform
 import os
 import asyncio
 from contextlib import asynccontextmanager
@@ -11,7 +11,9 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from trading_system import TradingSystem
 from api import setup_routes
+from api.v2_routes import setup_v2_routes
 from middleware.input_sanitizer import InputSanitizer, create_sanitize_middleware
+from developer.logging_tool import setup_logging, LogCollector, LogFormat
 
 # Initialize the trading system
 platform = TradingSystem()
@@ -24,14 +26,24 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="SmartPip Trading System",
-    description="Advanced AI-powered trading bot for Deriv Volatility Indices with technical analysis and backtesting",
-    version="2.1.0",
+    title="SmartPip Trading Platform",
+    description="Institutional-grade modular trading platform with plugin architecture, multi-strategy orchestration, and comprehensive risk management",
+    version="4.0.0",
     lifespan=lifespan
 )
 
-# Setup all API routes
+# Setup v1 API routes
 setup_routes(app, platform)
+
+# Setup v2 API routes (modular platform)
+setup_v2_routes(app)
+
+# Setup structured logging
+log_collector = setup_logging(
+    level=os.getenv("LOG_LEVEL", "INFO"),
+    format_type=LogFormat.JSON,
+    log_file=os.getenv("LOG_FILE", "logs/app.log"),
+)
 
 # Add CORS middleware
 app.add_middleware(
