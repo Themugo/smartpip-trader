@@ -90,7 +90,7 @@ app.add_middleware(
 )
 
 # Add input sanitization middleware
-sanitizer = InputSanitizer()
+sanitizer = InputSanitizer(testing=os.getenv("ENVIRONMENT") == "testing")
 app.middleware("http")(create_sanitize_middleware(sanitizer))
 
 # Global exception handler

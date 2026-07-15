@@ -1,9 +1,12 @@
 import asyncio
 import os
 import json
+import pytest
 from core import DerivAPI
 
 
+@pytest.mark.skipif(not os.getenv("DERIV_API_TOKEN"), reason="DERIV_API_TOKEN not set")
+@pytest.mark.asyncio
 async def test_real_deriv_connection():
     """Test connection to real Deriv API"""
     
@@ -17,13 +20,13 @@ async def test_real_deriv_connection():
         print("❌ DERIV_API_TOKEN not set in environment")
         print("Please set your real Deriv API token:")
         print("export DERIV_API_TOKEN=your_real_token")
-        return False
+        pytest.skip("DERIV_API_TOKEN not set")
     
     # Check if it's a real token (not demo)
     if api_token.startswith("demo"):
         print("⚠️  You're using a DEMO token")
         print("Please use your REAL Deriv API token for live trading")
-        return False
+        pytest.skip("DEMO token - need real token for this test")
     
     print(f"✅ API Token found (length: {len(api_token)})")
     
@@ -42,7 +45,7 @@ async def test_real_deriv_connection():
         
         if auth_response.get("error"):
             print(f"❌ Authorization failed: {auth_response['error']['message']}")
-            return False
+            pytest.fail("Authorization failed")
         
         print("✅ Authorization successful")
         
@@ -52,7 +55,7 @@ async def test_real_deriv_connection():
         
         if balance_response.get("error"):
             print(f"❌ Failed to get balance: {balance_response['error']['message']}")
-            return False
+            pytest.fail("Failed to get balance")
         
         balance_info = balance_response.get("balance", {})
         currency = balance_info.get("currency", "USD")
@@ -70,7 +73,7 @@ async def test_real_deriv_connection():
         if account_type != "real":
             print("⚠️  This is not a REAL account")
             print("Please use a real account for live trading")
-            return False
+            pytest.skip("Not a REAL account")
         
         print("\n✅ REAL ACCOUNT VERIFIED")
         
@@ -109,12 +112,6 @@ async def test_real_deriv_connection():
         print(f"  - Market Access: Verified")
         print("\n✅ Your system is ready for REAL trading")
         
-        return True
-        
     except Exception as e:
         print(f"\n❌ Connection failed: {e}")
-        return False
-
-
-if __name__ == "__main__":
-    asyncio.run(test_real_deriv_connection())
+        pytest.fail(f"Connection failed: {e}")

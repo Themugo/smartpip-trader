@@ -37,6 +37,7 @@ class FeatureCategory(Enum):
     VOLUME = "volume"
     DIGIT = "digit"
     REGIME = "regime"
+    VOLATILITY = "volatility"
     CUSTOM = "custom"
 
 

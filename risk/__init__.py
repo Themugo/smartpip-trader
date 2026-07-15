@@ -9,7 +9,7 @@ Provides institutional-grade risk management including:
 - Emergency kill switches
 """
 
-from risk.validator import RiskValidator, RiskLimits, RiskCheck
+from risk.validator import RiskValidator, RiskLimits, RiskCheck, TradeRequest, AccountSnapshot
 from risk.controller import RiskController, RiskLevel
 
 __all__ = [
@@ -18,4 +18,6 @@ __all__ = [
     "RiskCheck",
     "RiskController",
     "RiskLevel",
+    "TradeRequest",
+    "AccountSnapshot",
 ]

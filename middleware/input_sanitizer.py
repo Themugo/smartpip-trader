@@ -75,10 +75,14 @@ class WebhookPayload(BaseModel):
 class InputSanitizer:
     """Enterprise-grade input sanitization middleware to prevent XSS and injection attacks"""
     
-    def __init__(self, secret_key: str = None):
+    def __init__(self, secret_key: str = None, testing: bool = False):
         self.secret_key = secret_key or os.getenv("SANITIZATION_SECRET_KEY")
         if not self.secret_key:
-            raise ValueError("SANITIZATION_SECRET_KEY environment variable must be set in production")
+            if testing:
+                # Use a default key for testing
+                self.secret_key = "test-secret-key-for-development"
+            else:
+                raise ValueError("SANITIZATION_SECRET_KEY environment variable must be set in production")
         
         # Replay attack prevention
         self.used_nonces: Set[str] = set()
