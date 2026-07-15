@@ -295,16 +295,20 @@ class DecisionSnapshot:
     snapshot_id: str
     trade_id: str
     
-    # Timing
+    # Timing (required first)
     decision_time: datetime
-    market_close_time: Optional[datetime] = None
     
-    # Components
+    # Components (required, no defaults)
     available_information: AvailableInformation
-    model_outputs: List[ModelOutput] = field(default_factory=list)
     risk_evaluation: RiskEvaluation
     ai_reasoning: AIReasoning
     execution_decision: ExecutionDecision
+    
+    # Optional timing
+    market_close_time: Optional[datetime] = None
+    
+    # Optional components
+    model_outputs: List[ModelOutput] = field(default_factory=list)
     
     # Outcome (filled after trade closes)
     outcome: DecisionOutcome = DecisionOutcome.PENDING
@@ -352,12 +356,14 @@ class TradeReplay:
     replay_id: str
     trade_id: str
     
-    # Timeline
+    # Timeline (required first)
     entry_time: datetime
-    exit_time: Optional[datetime] = None
     
-    # Entry snapshot
+    # Entry snapshot (required)
     entry_snapshot: DecisionSnapshot
+    
+    # Optional timeline
+    exit_time: Optional[datetime] = None
     
     # Intermediate snapshots (for held positions)
     intermediate_snapshots: List[DecisionSnapshot] = field(default_factory=list)

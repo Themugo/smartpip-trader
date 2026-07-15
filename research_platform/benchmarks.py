@@ -116,12 +116,12 @@ class Benchmark:
     description: str
     benchmark_type: BenchmarkType
     
-    # Configuration
-    config: Dict[str, Any] = field(default_factory=dict)
-    
-    # Time coverage
+    # Time coverage (required, before optional config)
     start_date: datetime
     end_date: datetime
+    
+    # Configuration (with default)
+    config: Dict[str, Any] = field(default_factory=dict)
     
     # Overall metrics
     metrics: BenchmarkMetrics = field(default_factory=BenchmarkMetrics)

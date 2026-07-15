@@ -1,0 +1,280 @@
+# SmartPip Trader Enterprise - Production Docker Compose
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    image: smartpip/api-gateway:1.0.0
+    container_name: smartpip-api-gateway
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+    environment:
+      - SERVICE_NAME=api-gateway
+      - LOG_LEVEL=info
+      - RATE_LIMIT_REQUESTS_PER_MINUTE=1000
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    depends_on:
+      - api-service
+      - auth-service
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # API Service
+  api-service:
+    image: smartpip/api:1.0.0
+    container_name: smartpip-api
+    environment:
+      - SERVICE_NAME=api
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - DERIV_API_TOKEN=${DERIV_API_TOKEN}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Authentication Service
+  auth-service:
+    image: smartpip/auth:1.0.0
+    container_name: smartpip-auth
+    environment:
+      - SERVICE_NAME=auth
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      - MFA_ENABLED=true
+      - RATE_LIMIT_ATTEMPTS=5
+      - RATE_LIMIT_WINDOW_MINUTES=15
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # Worker Service (Background Jobs)
+  worker-service:
+    image: smartpip/worker:1.0.0
+    container_name: smartpip-worker
+    command: ["python", "-m", "smartpip.worker"]
+    environment:
+      - SERVICE_NAME=worker
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - LOG_LEVEL=info
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+
+  # Scheduler Service (Cron Jobs)
+  scheduler-service:
+    image: smartpip/scheduler:1.0.0
+    container_name: smartpip-scheduler
+    command: ["python", "-m", "smartpip.scheduler"]
+    environment:
+      - SERVICE_NAME=scheduler
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: smartpip-postgres
+    environment:
+      - POSTGRES_DB=smartpip
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=512MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "min_wal_size=1GB"
+      - "-c"
+      - "max_wal_size=4GB"
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: smartpip-redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # Prometheus Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: smartpip-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: smartpip-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    networks:
+      - smartpip-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: smartpip-nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api-gateway
+      - grafana
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # Backup Service
+  backup-service:
+    image: smartpip/backup:1.0.0
+    container_name: smartpip-backup
+    command: ["python", "-m", "smartpip.backup"]
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - BACKUP_SCHEDULE="0 2 * * *"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # Elasticsearch (Logs)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: smartpip-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - smartpip-network
+    restart: unless-stopped
+
+  # Kibana (Logs UI)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: smartpip-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    ports:
+      - "5601:5601"
+    networks:
+      - smartpip-network
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+networks:
+  smartpip-network:
+    driver: bridge

@@ -97,16 +97,37 @@ class PermutationResult:
 
 
 @dataclass
+class FeatureContribution:
+    """Contribution of a single feature"""
+    feature_name: str
+    contribution: float  # Positive = supports prediction, Negative = contradicts
+    
+    # Context
+    feature_value: float
+    baseline_value: Optional[float] = None
+    
+    # Direction
+    direction: str = "positive"  # "positive", "negative", "neutral"
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "feature_name": self.feature_name,
+            "contribution": self.contribution,
+            "feature_value": self.feature_value,
+            "baseline_value": self.baseline_value,
+            "direction": self.direction,
+        }
+
+
+@dataclass
 class LocalExplanation:
     """Local explanation for a single prediction"""
     explanation_id: str
     prediction_id: str
     
-    # Input
-    input_features: Dict[str, float] = field(default_factory=dict)
-    
-    # Output
+    # Output (required, before optional fields)
     prediction: float
+    input_features: Dict[str, float] = field(default_factory=dict)
     actual_outcome: Optional[float] = None
     
     # Feature contributions
@@ -142,25 +163,25 @@ class LocalExplanation:
 
 
 @dataclass
-class FeatureContribution:
-    """Contribution of a single feature"""
-    feature_name: str
-    contribution: float  # Positive = supports prediction, Negative = contradicts
+class FeatureInteraction:
+    """Interaction between two features"""
+    feature_1: str
+    feature_2: str
     
-    # Context
-    feature_value: float
-    baseline_value: Optional[float] = None
+    # Interaction strength
+    interaction_strength: float = 0.0
+    interaction_type: str = "unknown"  # "synergy", "redundancy", "antagonism"
     
-    # Direction
-    direction: str = "positive"  # "positive", "negative", "neutral"
+    # Statistics
+    correlation: float = 0.0
     
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "feature_name": self.feature_name,
-            "contribution": self.contribution,
-            "feature_value": self.feature_value,
-            "baseline_value": self.baseline_value,
-            "direction": self.direction,
+            "feature_1": self.feature_1,
+            "feature_2": self.feature_2,
+            "interaction_strength": self.interaction_strength,
+            "interaction_type": self.interaction_type,
+            "correlation": self.correlation,
         }
 
 
@@ -200,29 +221,6 @@ class GlobalExplanation:
             "model_id": self.model_id,
             "model_version": self.model_version,
             "created_at": self.created_at.isoformat(),
-        }
-
-
-@dataclass
-class FeatureInteraction:
-    """Interaction between two features"""
-    feature_1: str
-    feature_2: str
-    
-    # Interaction strength
-    interaction_strength: float = 0.0
-    interaction_type: str = "unknown"  # "synergy", "redundancy", "antagonism"
-    
-    # Statistics
-    correlation: float = 0.0
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "feature_1": self.feature_1,
-            "feature_2": self.feature_2,
-            "interaction_strength": self.interaction_strength,
-            "interaction_type": self.interaction_type,
-            "correlation": self.correlation,
         }
 
 

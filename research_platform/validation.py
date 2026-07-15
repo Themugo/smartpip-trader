@@ -178,14 +178,16 @@ class ValidationResult:
     result_id: str
     validation_type: ValidationType
     
-    # Configuration
+    # Strategy info
     strategy_id: str
     strategy_name: str
-    config: Dict[str, Any] = field(default_factory=dict)
     
-    # Time coverage
+    # Time coverage (before optional config)
     start_date: datetime
     end_date: datetime
+    
+    # Configuration
+    config: Dict[str, Any] = field(default_factory=dict)
     
     # Windows (for walk-forward, rolling)
     windows: List[ValidationWindow] = field(default_factory=list)
