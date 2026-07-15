@@ -21,3 +21,16 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Intelligence runtime artifacts
+retrain_reports/
+sizing_log.db
+model_backups/
+intelligence_data/
+ensemble_models/
+*.db

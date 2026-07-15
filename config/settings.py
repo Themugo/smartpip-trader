@@ -62,8 +62,39 @@ class Settings:
     foreign_bot_endpoint: str = ""
     foreign_bot_api_key: str = ""
 
+    # ── Intelligence layer ─────────────────────────────────────────────
+    intelligence_enabled: bool = True
+    min_opportunity_score: float = 75.0     # min composite score to consider trade
+    min_twin_win_rate: float = 0.55         # Digital Twin approval threshold
+    twin_simulations: int = 500             # scenarios per signal
+    nightly_retrain_enabled: bool = True
+    retrain_hour: int = 3                   # UTC hour for nightly retrain
+    explain_every_tick: bool = False        # only explain when evaluating trades
+    dynamic_sizing_enabled: bool = True
+    meta_ai_enabled: bool = True
+    rl_enabled: bool = True
+    case_reasoning_enabled: bool = True
+
     # ── Notifications ────────────────────────────────────────────────────
     telegram_alerts: bool = False
+
+    # ── Whitelist of fields allowed via API update ───────────────────────
+    ALLOWED_UPDATES = {
+        "base_amount", "auto_trading", "max_trades_per_hour", "min_confidence",
+        "stop_loss", "take_profit", "max_consecutive_losses",
+        "enable_even_odd", "enable_rise_fall", "enable_over_under",
+        "enable_match_diff", "enable_digit_analysis", "enable_technical",
+        "enable_ml", "enable_pattern_recognizer", "enable_multitimeframe",
+        "enable_volatility", "use_ensemble", "ensemble_voting",
+        "ml_min_confidence", "entropy_filter_enabled", "min_entropy_threshold",
+        "chi_threshold", "min_streak_for_signal", "regime_aware_weights",
+        "time_filter_enabled", "allowed_hours", "volatility_sizing",
+        "kelly_fraction", "daily_loss_limit_pct", "max_drawdown_pct",
+        "blacklist_expiry_minutes", "enable_foreign_bot", "telegram_alerts",
+        "intelligence_enabled", "min_opportunity_score", "min_twin_win_rate",
+        "twin_simulations", "dynamic_sizing_enabled", "meta_ai_enabled",
+        "rl_enabled", "case_reasoning_enabled",
+    }
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -101,11 +132,20 @@ class Settings:
             "foreign_bot_endpoint": self.foreign_bot_endpoint,
             "foreign_bot_api_key": self.foreign_bot_api_key,
             "telegram_alerts": self.telegram_alerts,
+            "intelligence_enabled": self.intelligence_enabled,
+            "min_opportunity_score": self.min_opportunity_score,
+            "min_twin_win_rate": self.min_twin_win_rate,
+            "twin_simulations": self.twin_simulations,
+            "dynamic_sizing_enabled": self.dynamic_sizing_enabled,
+            "meta_ai_enabled": self.meta_ai_enabled,
+            "rl_enabled": self.rl_enabled,
+            "case_reasoning_enabled": self.case_reasoning_enabled,
         }
 
     def update(self, data: Dict[str, Any]):
+        """Update settings from dictionary (whitelist-only to prevent injection)"""
         for key, value in data.items():
-            if hasattr(self, key):
+            if key in self.ALLOWED_UPDATES and hasattr(self, key):
                 setattr(self, key, value)
 
     @classmethod
