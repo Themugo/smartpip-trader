@@ -15,15 +15,50 @@ from api.v2_routes import setup_v2_routes
 from middleware.input_sanitizer import InputSanitizer, create_sanitize_middleware
 from developer.logging_tool import setup_logging, LogCollector, LogFormat
 
+# Import all platform modules
+from workspace import WorkspaceManager, WorkspaceLayout
+from timeline import TimelineManager, ReplayEngine
+from research import ResearchLab
+from features import FeatureEngineer
+from health import HealthMonitor
+from alerts import AlertCenter
+from risk_sim import RiskSimulator
+from qa import QualityAssurance
+
 # Initialize the trading system
 platform = TradingSystem()
+
+# Initialize platform modules
+workspace_manager = WorkspaceManager()
+timeline_manager = TimelineManager()
+research_lab = ResearchLab()
+feature_engineer = FeatureEngineer()
+health_monitor = HealthMonitor()
+alert_center = AlertCenter()
+risk_simulator = RiskSimulator()
+qa_system = QualityAssurance()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI"""
     # Start the trading system in background
     asyncio.create_task(platform.run())
+    
+    # Start health monitoring
+    health_monitor.start_monitoring()
+    
+    # Start continuous QA validation
+    qa_system.start_continuous_validation(interval_seconds=300)
+    
+    # Start timeline session
+    timeline_manager.start_session()
+    
     yield
+    
+    # Cleanup
+    health_monitor.stop_monitoring()
+    qa_system.stop_continuous_validation()
+    timeline_manager.end_session()
 
 app = FastAPI(
     title="SmartPip Trading Platform",
