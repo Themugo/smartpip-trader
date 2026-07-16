@@ -8,7 +8,7 @@ import json
 from typing import Any, Dict, Optional, List, Set, Literal
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field
 from datetime import datetime, timedelta
 
 
@@ -21,7 +21,8 @@ class TradeRequest(BaseModel):
     confidence: float = Field(..., ge=0, le=100, description="Confidence percentage")
     duration: int = Field(default=2, ge=1, le=60, description="Trade duration in minutes")
     
-    @validator('market')
+    @field_validator('market')
+    @classmethod
     def validate_market(cls, v):
         valid_markets = {
             "R_10", "R_25", "R_50", "R_75", "R_100",
@@ -32,7 +33,8 @@ class TradeRequest(BaseModel):
             raise ValueError(f"Invalid market: {v}")
         return v
     
-    @validator('direction')
+    @field_validator('direction')
+    @classmethod
     def validate_direction(cls, v):
         return v.upper()
 
@@ -51,7 +53,8 @@ class MarketSwitchRequest(BaseModel):
     """Schema for market switch validation"""
     market: str = Field(..., description="Target market")
     
-    @validator('market')
+    @field_validator('market')
+    @classmethod
     def validate_market(cls, v):
         valid_markets = {
             "R_10", "R_25", "R_50", "R_75", "R_100",
