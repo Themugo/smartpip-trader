@@ -1,0 +1,9 @@
+# Development-only requirements
+
+# Testing
+pytest-mock>=3.14.0
+pytest-cov>=6.0.0
+
+# Security auditing
+pip-audit>=2.7.0
+bandit>=1.7.0
