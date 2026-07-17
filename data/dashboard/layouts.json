@@ -1,0 +1,586 @@
+{
+  "7d24bca1-a1eb-4d4f-8de8-3059c6cd5e95": {
+    "id": "7d24bca1-a1eb-4d4f-8de8-3059c6cd5e95",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T17:51:44.791148",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "d86b6a7a-7a3a-4d0d-8c2b-16092a26ebb4": {
+    "id": "d86b6a7a-7a3a-4d0d-8c2b-16092a26ebb4",
+    "name": "Original",
+    "created_at": "2026-07-16T17:51:44.792613",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "5b112952-2533-4680-a2f9-b59ab4906253": {
+    "id": "5b112952-2533-4680-a2f9-b59ab4906253",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T17:51:44.792800",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "d86b6a7a-7a3a-4d0d-8c2b-16092a26ebb4"
+  },
+  "868a734f-f57e-4a1b-8981-e79278b735ff": {
+    "id": "868a734f-f57e-4a1b-8981-e79278b735ff",
+    "name": "Export Test",
+    "created_at": "2026-07-16T17:51:44.794316",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "023ebe6d-4e92-4e8a-8174-608c82baedc4": {
+    "id": "023ebe6d-4e92-4e8a-8174-608c82baedc4",
+    "name": "Export Test",
+    "created_at": "2026-07-16T17:51:44.794316",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T17:51:44.794531"
+  },
+  "8c49a12f-d804-43df-b46a-655a6a6e4a60": {
+    "id": "8c49a12f-d804-43df-b46a-655a6a6e4a60",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T17:59:19.960243",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "bff31465-54d2-43b3-aa4a-b0b9603dab04": {
+    "id": "bff31465-54d2-43b3-aa4a-b0b9603dab04",
+    "name": "Original",
+    "created_at": "2026-07-16T17:59:19.961874",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "5f3e578e-f9ad-4bdc-af52-21af85365ade": {
+    "id": "5f3e578e-f9ad-4bdc-af52-21af85365ade",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T17:59:19.962082",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "bff31465-54d2-43b3-aa4a-b0b9603dab04"
+  },
+  "8f122ada-8b30-45b2-aa34-a37746cd3854": {
+    "id": "8f122ada-8b30-45b2-aa34-a37746cd3854",
+    "name": "Export Test",
+    "created_at": "2026-07-16T17:59:19.963520",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "04ca6fb5-b91e-421c-9300-2b2cb7f9242e": {
+    "id": "04ca6fb5-b91e-421c-9300-2b2cb7f9242e",
+    "name": "Export Test",
+    "created_at": "2026-07-16T17:59:19.963520",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T17:59:19.963807"
+  },
+  "43c25a1e-5cc0-40d4-ac77-cbe0a7b1e317": {
+    "id": "43c25a1e-5cc0-40d4-ac77-cbe0a7b1e317",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T18:05:01.810984",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "79593e99-f7e3-450d-b57d-3fd8eef9d77e": {
+    "id": "79593e99-f7e3-450d-b57d-3fd8eef9d77e",
+    "name": "Original",
+    "created_at": "2026-07-16T18:05:01.812718",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "1e0ac2a3-3528-4a16-a285-07a3d46fc21f": {
+    "id": "1e0ac2a3-3528-4a16-a285-07a3d46fc21f",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T18:05:01.812982",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "79593e99-f7e3-450d-b57d-3fd8eef9d77e"
+  },
+  "7a3a7dd3-87be-44fc-9672-fbc4b14045f4": {
+    "id": "7a3a7dd3-87be-44fc-9672-fbc4b14045f4",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:05:01.814457",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "ff82ee56-3b13-4355-8a0b-12d5c6cb4155": {
+    "id": "ff82ee56-3b13-4355-8a0b-12d5c6cb4155",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:05:01.814457",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T18:05:01.814782"
+  },
+  "13a7ef5f-29a8-4542-baef-b31773d923a7": {
+    "id": "13a7ef5f-29a8-4542-baef-b31773d923a7",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T18:16:38.932823",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "ccc23143-f036-465e-bfe6-27c95c16aa88": {
+    "id": "ccc23143-f036-465e-bfe6-27c95c16aa88",
+    "name": "Original",
+    "created_at": "2026-07-16T18:16:38.934669",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "388a94f4-42ba-4733-8d6b-3e18aeb3bf94": {
+    "id": "388a94f4-42ba-4733-8d6b-3e18aeb3bf94",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T18:16:38.934990",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "ccc23143-f036-465e-bfe6-27c95c16aa88"
+  },
+  "14e112de-a14d-4f39-8ef4-ba86c6094364": {
+    "id": "14e112de-a14d-4f39-8ef4-ba86c6094364",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:16:38.936860",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "6cdaaac9-ba6e-4118-8a89-d2ff3a52fe24": {
+    "id": "6cdaaac9-ba6e-4118-8a89-d2ff3a52fe24",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:16:38.936860",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T18:16:38.937236"
+  },
+  "2df88ac0-23f4-46e4-936f-ed0ffbd8dfa4": {
+    "id": "2df88ac0-23f4-46e4-936f-ed0ffbd8dfa4",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T18:23:45.767331",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "ff3d732f-b228-490b-b02b-c4e9c1e28162": {
+    "id": "ff3d732f-b228-490b-b02b-c4e9c1e28162",
+    "name": "Original",
+    "created_at": "2026-07-16T18:23:45.769262",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "ef946c6f-8c7b-4044-879d-befbb041054a": {
+    "id": "ef946c6f-8c7b-4044-879d-befbb041054a",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T18:23:45.769664",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "ff3d732f-b228-490b-b02b-c4e9c1e28162"
+  },
+  "bc32ffe3-795b-4912-b949-73d3f2205238": {
+    "id": "bc32ffe3-795b-4912-b949-73d3f2205238",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:23:45.771471",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "92d6c4db-f03b-4d54-aac4-a8fefa1a63b8": {
+    "id": "92d6c4db-f03b-4d54-aac4-a8fefa1a63b8",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:23:45.771471",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T18:23:45.771905"
+  },
+  "785cf0e8-0cfc-4e5c-b658-f175952fa061": {
+    "id": "785cf0e8-0cfc-4e5c-b658-f175952fa061",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T18:53:20.215594",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "26e2da5f-d2a8-4bca-93b5-2e84fbab67dc": {
+    "id": "26e2da5f-d2a8-4bca-93b5-2e84fbab67dc",
+    "name": "Original",
+    "created_at": "2026-07-16T18:53:20.217482",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "f2aaf606-ff81-47d0-9bc3-f88dda4c0174": {
+    "id": "f2aaf606-ff81-47d0-9bc3-f88dda4c0174",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T18:53:20.217927",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "26e2da5f-d2a8-4bca-93b5-2e84fbab67dc"
+  },
+  "aeff24ad-43f4-4478-9703-272689821dae": {
+    "id": "aeff24ad-43f4-4478-9703-272689821dae",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:53:20.219539",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "8251754c-ec6f-412c-8e6c-1f99d9643aea": {
+    "id": "8251754c-ec6f-412c-8e6c-1f99d9643aea",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:53:20.219539",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T18:53:20.220016"
+  },
+  "4def640c-dfe8-4515-af90-0b24ea95c38a": {
+    "id": "4def640c-dfe8-4515-af90-0b24ea95c38a",
+    "name": "Test Layout",
+    "created_at": "2026-07-16T18:55:36.402637",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "b208597b-dc3a-4d46-bf2d-83e3808a1e9c": {
+    "id": "b208597b-dc3a-4d46-bf2d-83e3808a1e9c",
+    "name": "Original",
+    "created_at": "2026-07-16T18:55:36.404623",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "62d7c5f6-cb2a-4df4-bd99-46e6b6b56381": {
+    "id": "62d7c5f6-cb2a-4df4-bd99-46e6b6b56381",
+    "name": "Duplicate",
+    "created_at": "2026-07-16T18:55:36.405089",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "b208597b-dc3a-4d46-bf2d-83e3808a1e9c"
+  },
+  "6afecf15-20b1-4995-ac53-0b04875de66b": {
+    "id": "6afecf15-20b1-4995-ac53-0b04875de66b",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:55:36.407086",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "8157cb7a-4384-41bb-af52-55963241661e": {
+    "id": "8157cb7a-4384-41bb-af52-55963241661e",
+    "name": "Export Test",
+    "created_at": "2026-07-16T18:55:36.407086",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-16T18:55:36.407656"
+  },
+  "ff088859-185f-433a-ad2e-6a3c8299b7da": {
+    "id": "ff088859-185f-433a-ad2e-6a3c8299b7da",
+    "name": "Test Layout",
+    "created_at": "2026-07-17T03:21:22.992491",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "panel1",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        }
+      }
+    ]
+  },
+  "3e036b44-a3f3-4696-bd7b-150c980629b1": {
+    "id": "3e036b44-a3f3-4696-bd7b-150c980629b1",
+    "name": "Original",
+    "created_at": "2026-07-17T03:21:22.994587",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "95dd1474-d9ae-4b18-8e77-7bffaa016506": {
+    "id": "95dd1474-d9ae-4b18-8e77-7bffaa016506",
+    "name": "Duplicate",
+    "created_at": "2026-07-17T03:21:22.995123",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "duplicated_from": "3e036b44-a3f3-4696-bd7b-150c980629b1"
+  },
+  "a632b95c-4331-4fe4-b341-bfe2bdc90aad": {
+    "id": "a632b95c-4331-4fe4-b341-bfe2bdc90aad",
+    "name": "Export Test",
+    "created_at": "2026-07-17T03:21:22.997568",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ]
+  },
+  "1cf0b07a-7471-44d2-9bd0-c0eff5b75b03": {
+    "id": "1cf0b07a-7471-44d2-9bd0-c0eff5b75b03",
+    "name": "Export Test",
+    "created_at": "2026-07-17T03:21:22.997568",
+    "grid_columns": 12,
+    "grid_row_height": 100,
+    "monitor_count": 1,
+    "panels": [
+      {
+        "id": "p1"
+      }
+    ],
+    "imported_at": "2026-07-17T03:21:22.998368"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "config": {
+    "theme": "dark",
+    "refresh_rate": 1.0,
+    "max_history": 1000,
+    "enable_animations": true,
+    "compact_mode": false,
+    "show_tooltips": true,
+    "enable_keyboard_shortcuts": true,
+    "auto_save": true,
+    "save_interval": 30.0
+  },
+  "layouts": [
+    {
+      "layout_id": "713e1edf-13ff-4c6e-9fc3-47334ea76939",
+      "name": "Test Layout",
+      "panels": [
+        {
+          "panel_id": "test_panel",
+          "panel_type": "strategy_health",
+          "title": "Test Panel",
+          "widgets": [],
+          "position": {
+            "x": 0,
+            "y": 0,
+            "w": 4,
+            "h": 3
+          },
+          "visible": true,
+          "collapsible": true,
+          "header_color": "#1a1a2e",
+          "refresh_interval": 1.0
+        }
+      ],
+      "grid_columns": 12,
+      "grid_row_height": 100,
+      "monitor_index": 0,
+      "created_at": "2026-07-17T03:21:22.977314"
+    }
+  ],
+  "current_layout_id": null
+}

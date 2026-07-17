@@ -1,0 +1,33 @@
+{
+  "incident_id": "test_2",
+  "name": "Test Incident",
+  "description": "Description",
+  "start_time": 1784258487.3727014,
+  "end_time": 1784258487.3727117,
+  "duration_seconds": 1.0251998901367188e-05,
+  "severity": "medium",
+  "events": [
+    {
+      "type": "test_event",
+      "timestamp": 1784258487.3727078,
+      "data": {
+        "key": "value"
+      }
+    },
+    {
+      "type": "error",
+      "timestamp": 1784258487.3727107,
+      "data": {
+        "error_type": "ERROR",
+        "message": "Test error",
+        "context": {
+          "context": "test"
+        }
+      }
+    }
+  ],
+  "environment": {},
+  "root_cause": "",
+  "resolution": "",
+  "resolved_at": 1784258487.3727124
+}

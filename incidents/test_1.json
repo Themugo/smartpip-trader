@@ -1,0 +1,14 @@
+{
+  "incident_id": "test_1",
+  "name": "Test Incident",
+  "description": "Description",
+  "start_time": 1784258487.371839,
+  "end_time": 1784258487.3718567,
+  "duration_seconds": 1.7642974853515625e-05,
+  "severity": "medium",
+  "events": [],
+  "environment": {},
+  "root_cause": "",
+  "resolution": "",
+  "resolved_at": 1784258487.371858
+}
