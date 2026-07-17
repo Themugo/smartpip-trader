@@ -19,6 +19,8 @@ import { ShadowModePanel } from './components/ShadowModePanel';
 import { TradeJournalPanel } from './components/TradeJournalPanel';
 import { ReviewPage } from './components/ReviewPage';
 import { WorkspaceNav } from './components/WorkspaceNav';
+import { BrokerConnections } from './components/BrokerConnections';
+import { OnboardingWizard } from './components/OnboardingWizard';
 import { api } from './lib/api';
 import { api as apiV2 } from './lib/api_v2';
 import { supabase } from './lib/supabase';
@@ -31,12 +33,17 @@ import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Trade, TradeStatistics, SystemSettings, AuditLogEntry, User } from './lib/supabase';
 
 type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation' | 'review';
+type SettingsTab = 'general' | 'broker' | 'risk' | 'notifications' | 'appearance';
 type Workspace = 'dashboard' | 'live_trading' | 'paper_trading' | 'backtesting' | 'strategy_builder' | 'analytics' | 'risk_center' | 'notifications' | 'ai_command_center' | 'developer_console' | 'settings';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [hasBrokerConnection, setHasBrokerConnection] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('general');
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace>('dashboard');
   const [accountConnected, setAccountConnected] = useState(false);
 
@@ -62,11 +69,20 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        // Check if user has completed onboarding
+        const onboardingCompleted = localStorage.getItem('onboarding_completed');
+        setHasCompletedOnboarding(!!onboardingCompleted);
+      }
       setAuthLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        const onboardingCompleted = localStorage.getItem('onboarding_completed');
+        setHasCompletedOnboarding(!!onboardingCompleted);
+      }
       setAuthLoading(false);
     });
 
@@ -184,6 +200,23 @@ export default function App() {
 
   if (!user) {
     return <AuthPage onSignIn={handleSignIn} onSignUp={handleSignUp} />;
+  }
+
+  // Show onboarding for new users
+  if (!hasCompletedOnboarding && !showOnboarding) {
+    return (
+      <OnboardingWizard
+        onComplete={() => {
+          localStorage.setItem('onboarding_completed', 'true');
+          setHasCompletedOnboarding(true);
+          setShowOnboarding(true);
+        }}
+        onSkip={() => {
+          localStorage.setItem('onboarding_completed', 'true');
+          setHasCompletedOnboarding(true);
+        }}
+      />
+    );
   }
 
   return (
@@ -334,6 +367,32 @@ export default function App() {
               <div className="space-y-4 sm:space-y-6">
                 <SettingsPanel settings={settings} onUpdate={handleUpdateSettings} />
                 <AuditLog logs={auditLogs} />
+                
+                {/* Broker Connection Card */}
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">Broker Connection</p>
+                      <p className="text-xs text-slate-400">
+                        {hasBrokerConnection ? 'Connected' : 'Not connected'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSettingsTab('broker');
+                      setActiveWorkspace('settings');
+                    }}
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-sm transition-colors"
+                  >
+                    {hasBrokerConnection ? 'Manage Connections' : 'Connect Broker'}
+                  </button>
+                </div>
               </div>
             </div>
           </>
