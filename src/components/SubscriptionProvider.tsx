@@ -82,7 +82,8 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   };
 
   const canAccess = (feature: keyof PlanFeatures): boolean => {
-    return subscription.features[feature];
+    const value = subscription.features[feature];
+    return typeof value === 'boolean' ? value : (value as number) > 0;
   };
 
   const upgradePlan = (plan: Plan) => {

@@ -188,8 +188,8 @@ export function SubscriptionPlans() {
                   {/* Features */}
                   <ul className="space-y-3">
                     {features.map((feature) => {
-                      const value = config.features[feature.key];
-                      const formattedValue = feature.format ? feature.format(value) : null;
+                      const value = config.features[feature.key] as boolean | number;
+                      const formattedValue = feature.format ? feature.format(value as number) : null;
                       
                       return (
                         <li key={feature.key} className="flex items-center gap-3">

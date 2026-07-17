@@ -201,13 +201,15 @@ export interface SubscriptionState {
 
 // Feature check hook helper
 export function hasFeature(subscription: SubscriptionState | null, feature: keyof PlanFeatures): boolean {
-  if (!subscription) return PLANS.free.features[feature];
-  return subscription.features[feature];
+  if (!subscription) return PLANS.free.features[feature] as boolean;
+  const value = subscription.features[feature];
+  return typeof value === 'boolean' ? value : value > 0;
 }
 
 // Check if feature is available for plan
 export function isFeatureAvailable(plan: Plan, feature: keyof PlanFeatures): boolean {
-  return PLANS[plan].features[feature];
+  const value = PLANS[plan].features[feature];
+  return typeof value === 'boolean' ? value : value > 0;
 }
 
 // Get plan display name
