@@ -1,9 +1,9 @@
 {
-  "buildCommand": "npm run build && cp web/index.html dist/index.html",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/app", "destination": "/index.html" },
+    { "source": "/app", "destination": "/app.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
