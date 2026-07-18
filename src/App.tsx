@@ -19,10 +19,8 @@ import { ShadowModePanel } from './components/ShadowModePanel';
 import { TradeJournalPanel } from './components/TradeJournalPanel';
 import { ReviewPage } from './components/ReviewPage';
 import { WorkspaceNav } from './components/WorkspaceNav';
-import { BrokerConnections } from './components/BrokerConnections';
 import { OnboardingWizard } from './components/OnboardingWizard';
 import { api } from './lib/api';
-import { api as apiV2 } from './lib/api_v2';
 import { supabase } from './lib/supabase';
 import { useDerivTicks } from './hooks/useDerivTicks';
 import { useRegimeDetection } from './hooks/useRegimeDetection';
@@ -31,9 +29,9 @@ import { useMLAudit } from './hooks/useMLAudit';
 import { useShadowMode } from './hooks/useShadowMode';
 import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Trade, TradeStatistics, SystemSettings, AuditLogEntry, User } from './lib/supabase';
+import type { RegimeType } from './hooks/useRegimeDetection';
 
 type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation' | 'review';
-type SettingsTab = 'general' | 'broker' | 'risk' | 'notifications' | 'appearance';
 type Workspace = 'dashboard' | 'live_trading' | 'paper_trading' | 'backtesting' | 'strategy_builder' | 'analytics' | 'risk_center' | 'notifications' | 'ai_command_center' | 'developer_console' | 'settings';
 
 export default function App() {
@@ -41,11 +39,9 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [hasBrokerConnection, setHasBrokerConnection] = useState(false);
+  const [hasBrokerConnection] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  const [settingsTab, setSettingsTab] = useState<SettingsTab>('general');
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace>('dashboard');
-  const [accountConnected, setAccountConnected] = useState(false);
 
   const [trades, setTrades] = useState<Trade[]>([]);
   const [stats, setStats] = useState<TradeStatistics | null>(null);
@@ -53,7 +49,6 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [botStatus, setBotStatus] = useState<'RUNNING' | 'STOPPED' | 'PAUSED'>('STOPPED');
   const [connected, setConnected] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -62,8 +57,45 @@ export default function App() {
   const { regimeState, isStrategyAllowed } = useRegimeDetection(tickData.digitHistory, tickData.price);
   const { evidenceLog, buildEvidence } = useTradeEvidence();
   const { state: mlAuditState, runAudit } = useMLAudit();
-  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, generateSignal, markExecuted, markMissed, reset: resetShadow } = useShadowMode();
-  const { entries: journalEntries, addEntry, updateExit, insights: journalInsights, generateWeeklyInsights } = useTradeJournal();
+  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, generateSignal } = useShadowMode();
+  const { entries: journalEntries, addEntry, insights: journalInsights, generateWeeklyInsights } = useTradeJournal();
+  
+  // Wrapper for addEntry to match expected type
+  const handleAddJournalEntry = (entry: {
+    timestamp: number;
+    symbol: string;
+    contractType: string;
+    entryPrice: number;
+    entryDigit: number;
+    amount: number;
+    confidence: number;
+    regime: string;
+    entryConditions: string[];
+    exitConditions: string[];
+    notes: string;
+    profit?: number | null;
+    exitPrice?: number | null;
+    exitDigit?: number | null;
+    pnl?: number | null;
+  }) => {
+    addEntry({
+      timestamp: entry.timestamp,
+      symbol: entry.symbol,
+      contractType: entry.contractType,
+      entryPrice: entry.entryPrice,
+      entryDigit: entry.entryDigit,
+      amount: entry.amount,
+      confidence: entry.confidence,
+      regime: entry.regime as RegimeType,
+      entryConditions: entry.entryConditions,
+      exitConditions: entry.exitConditions,
+      notes: entry.notes,
+      profit: entry.profit ?? null,
+      exitPrice: entry.exitPrice ?? null,
+      exitDigit: entry.exitDigit ?? null,
+      pnl: entry.pnl ?? null,
+    });
+  };
 
   // Auth state
   useEffect(() => {
@@ -106,8 +138,6 @@ export default function App() {
     } catch (e: any) {
       setConnected(false);
       setError(e.message || 'Failed to fetch data');
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -182,7 +212,13 @@ export default function App() {
         profit: t.profit || 0,
         timestamp: new Date(t.entry_time).getTime(),
       }));
-      const strategyHistory = [{ name: 'digit', trades: trades.length, wins: trades.filter(t => (t.profit || 0) > 0).length }];
+      const strategyHistory = trades.map(t => ({
+        name: t.type || 'digit',
+        trades: 1,
+        wins: (t.profit || 0) > 0 ? 1 : 0,
+        losses: (t.profit || 0) <= 0 ? 1 : 0,
+        pnl: t.profit || 0,
+      }));
       runAudit(tradeHistory, strategyHistory);
     }
   }, [trades, runAudit]);
@@ -352,7 +388,7 @@ export default function App() {
                   isStrategyAllowed={isStrategyAllowed}
                   onBuildEvidence={buildEvidence}
                   onGenerateShadowSignal={generateSignal}
-                  onAddJournalEntry={addEntry}
+                  onAddJournalEntry={handleAddJournalEntry}
                 />
                 <ControlPanel
                   botStatus={botStatus}
@@ -385,7 +421,6 @@ export default function App() {
                   </div>
                   <button
                     onClick={() => {
-                      setSettingsTab('broker');
                       setActiveWorkspace('settings');
                     }}
                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-sm transition-colors"
@@ -419,7 +454,13 @@ export default function App() {
               profit: t.profit || 0,
               timestamp: new Date(t.entry_time).getTime(),
             }));
-            const strategyHistory = [{ name: 'digit', trades: trades.length, wins: trades.filter(t => (t.profit || 0) > 0).length }];
+            const strategyHistory = trades.map(t => ({
+              name: t.type || 'digit',
+              trades: 1,
+              wins: (t.profit || 0) > 0 ? 1 : 0,
+              losses: (t.profit || 0) <= 0 ? 1 : 0,
+              pnl: t.profit || 0,
+            }));
             runAudit(tradeHistory, strategyHistory);
           }} />
         )}

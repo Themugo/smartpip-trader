@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   BarChart3, TrendingUp, TrendingDown, Activity, Zap,
   Waves, Ban, ChevronDown, ChevronUp, Filter, Percent,
-  DollarSign, Target, ShieldCheck, ShieldAlert
+ Target, ShieldCheck, ShieldAlert
 } from 'lucide-react';
 import type { RegimeType } from '../hooks/useRegimeDetection';
 

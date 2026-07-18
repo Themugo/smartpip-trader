@@ -3,18 +3,18 @@ import {
   TrendingUp,
   TrendingDown,
   BarChart3,
-  PieChart,
+
   Activity,
   Download,
-  Calendar,
-  Filter,
-  ChevronDown,
+
+
+
   Target,
   DollarSign,
   Clock,
   ArrowUpRight,
   ArrowDownRight,
-  RefreshCw
+
 } from 'lucide-react';
 
 export function AnalyticsPlatform() {
@@ -264,8 +264,8 @@ export function AnalyticsPlatform() {
                         {strategy.winRate}%
                       </span>
                     </td>
-                    <td className={`py-3 text-right ${strategy.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      ${strategy.pnl}
+                    <td className={`py-3 text-right ${strategy.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      ${strategy.profit}
                     </td>
                     <td className="py-3 text-right text-white">{strategy.sharpe}</td>
                   </tr>

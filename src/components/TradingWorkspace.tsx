@@ -9,14 +9,14 @@ import {
   Bell,
   History,
   Settings,
-  Grip,
-  Maximize2,
+
+
   Minimize2,
-  X,
-  Plus,
-  ChevronDown,
-  Eye,
-  EyeOff,
+
+
+
+
+
   Clock,
   CheckCircle2,
   XCircle,

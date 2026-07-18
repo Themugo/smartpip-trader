@@ -17,7 +17,7 @@ import {
   TrendingDown,
   Brain,
   ChevronLeft,
-  ChevronRight,
+
   Flag,
   Share2,
   Filter
@@ -26,15 +26,9 @@ import {
 interface TradeAnnotation {
   id: string;
   time: number;
-  type: 'ai_commentary' | 'market_event' | 'trade_marker' | 'pattern' | 'custom';
+  type: 'ai_commentary' | 'market_event' | 'trade_marker' | 'pattern' | 'custom' | 'trade_entry' | 'trade_exit' | 'regime_change';
   content: string;
   important: boolean;
-}
-
-interface ReplayEvent {
-  time: number;
-  type: 'trade_entry' | 'trade_exit' | 'signal' | 'regime_change' | 'anomaly';
-  data: any;
 }
 
 export function ReplayIntelligence() {

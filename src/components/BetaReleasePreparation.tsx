@@ -10,12 +10,12 @@ import {
   ExternalLink,
   CheckCircle2,
   Circle,
-  Download,
-  Users,
-  Globe,
+
+
+
   Shield,
-  Zap,
-  Heart
+
+
 } from 'lucide-react';
 
 export function BetaReleasePreparation() {

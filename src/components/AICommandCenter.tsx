@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import {
   Brain,
-  MessageSquare,
+
   TrendingUp,
-  TrendingDown,
+
   Shield,
   Activity,
   Target,
@@ -20,7 +20,7 @@ import {
   FileText,
   PieChart,
   DollarSign,
-  Clock
+
 } from 'lucide-react';
 
 interface AIQuery {

@@ -414,8 +414,8 @@ export function useMLAudit() {
     });
 
     // 7. NON-STATIONARITY
-    const adf = priceHistory && priceHistory.length >= 20 ? adfStatistic(priceHistory) : { passed: false, score: 0 };
-    const profitADF = profits.length >= 20 ? adfStatistic(profits) : { passed: false, score: 0 };
+    const adf = priceHistory && priceHistory.length >= 20 ? adfStatistic(priceHistory) : { statistic: 0, passed: false, score: 0 };
+    const profitADF = profits.length >= 20 ? adfStatistic(profits) : { statistic: 0, passed: false, score: 0 };
     const regimeChanges = tradeHistory.filter((t, i) => i > 0 && t.regime !== tradeHistory[i - 1].regime).length;
     const regimeStability = tradeHistory.length > 0 ? 1 - (regimeChanges / tradeHistory.length) : 0;
 

@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import {
   Search,
-  Filter,
+
   Star,
   Download,
   Upload,
   Copy,
   Heart,
   Share2,
-  BarChart3,
+
   TrendingUp,
   Users,
-  Calendar,
-  ChevronDown,
-  X,
+
+
+
   CheckCircle2,
-  AlertCircle,
+
   Tag,
   GitBranch
 } from 'lucide-react';

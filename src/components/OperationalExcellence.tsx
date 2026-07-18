@@ -11,18 +11,18 @@ import {
   XCircle,
   RefreshCw,
   Zap,
-  Users,
-  Key,
+
+
   FileText,
   HardDrive,
   Wifi,
   Cpu,
   Gauge,
-  TrendingUp,
-  BarChart3,
-  BellRing,
+
+
+
   Settings,
-  Eye
+
 } from 'lucide-react';
 
 export function OperationalExcellence() {

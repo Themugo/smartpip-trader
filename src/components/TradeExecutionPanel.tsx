@@ -4,7 +4,7 @@ import type { TickData } from '../hooks/useDerivTicks';
 import { useDigitAnalysis } from '../hooks/useDigitAnalysis';
 import { useTradeExecution, type ContractType } from '../hooks/useTradeExecution';
 import { useAdaptivePositionSizing } from '../hooks/useAdaptivePositionSizing';
-import type { RegimeState } from '../hooks/useRegimeDetection';
+import type { RegimeState, RegimeType } from '../hooks/useRegimeDetection';
 
 interface TradeExecutionPanelProps {
   tickData: TickData;
@@ -17,7 +17,7 @@ interface TradeExecutionPanelProps {
     amount: number,
     digitHistory: number[],
     price: number,
-    regime: string,
+    regime: RegimeType,
     regimeConfidence: number,
     sizingAdjustments: { name: string; factor: number }[],
     isStrategyAllowed: boolean,
@@ -33,7 +33,7 @@ interface TradeExecutionPanelProps {
     expectedOutcome: 'win' | 'loss',
     expectedPnl: number,
     latencyMs: number,
-  ) => { id: string };
+  ) => Promise<{ id: string }>;
   onAddJournalEntry?: (entry: {
     timestamp: number;
     symbol: string;
@@ -46,7 +46,11 @@ interface TradeExecutionPanelProps {
     entryConditions: string[];
     exitConditions: string[];
     notes: string;
-  }) => { id: string };
+    profit?: number | null;
+    exitPrice?: number | null;
+    exitDigit?: number | null;
+    pnl?: number | null;
+  }) => void;
 }
 
 const CONTRACT_TYPES: { type: ContractType; label: string; icon: React.ElementType; color: string; desc: string; strategyType: string }[] = [
@@ -166,13 +170,12 @@ export function TradeExecutionPanel({ tickData, apiToken, regimeState, isStrateg
         'win',
         amount * 0.94,
         tickData.latencyMs,
-      );
+      ).catch(console.error);
     }
 
     // Add journal entry
-    let journalId: string | undefined;
     if (onAddJournalEntry) {
-      const entry = onAddJournalEntry({
+      onAddJournalEntry({
         timestamp: Date.now(),
         symbol: tickData.symbol,
         contractType: selectedType,
@@ -189,7 +192,6 @@ export function TradeExecutionPanel({ tickData, apiToken, regimeState, isStrateg
         exitConditions: [],
         notes: `Adaptive size: ${amount.toFixed(2)}`,
       });
-      journalId = entry.id;
     }
 
     const result = await executeTrade(req);
