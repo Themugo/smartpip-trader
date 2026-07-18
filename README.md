@@ -1,23 +1,24 @@
-# SmartPip Trader v3.0
+# SmartPip Trader v4.0
 
-**AI-powered sniper bot for Deriv volatility indices** — FastAPI backend, WebSocket real-time feed, ensemble ML, and a dark-themed browser UI.
+**AI-powered trading platform for Deriv Volatility Indices** — React frontend, FastAPI backend, Supabase edge functions, ensemble ML, and institutional-grade risk management.
 
-## What's new in v3.0
+## What's new in v4.0
 
 | Component | Upgrade |
 |-----------|---------|
-| **Ensemble ML** | RF + GBM + LR with calibrated probabilities, soft voting weighted by live-trade accuracy |
-| **PatternRecognizer** | Chi-squared test, Wald-Wolfowitz runs test, Shannon entropy, mean reversion scoring |
-| **Feature Engineering** | 33+ features: entropy, autocorrelation lags 1-3, MACD, Bollinger Band position, run-length encoding |
-| **Adaptive weights** | Per-analyzer weights tracked and updated each trade; entropy filter gates trades in random markets |
-| **UI: AI Brain panel** | Neural consensus visualization, entropy meter, signal strength bars for all 6 conditions |
-| **API** | New endpoints: `/api/signals`, `/api/patterns`, `/api/ml-status`, `/api/entropy`, `/api/analyzer-weights` |
+| **Frontend** | React 18 + TypeScript, Vite, Tailwind CSS, Recharts |
+| **Architecture** | Modular service-oriented design with plugin support |
+| **Intelligence Layer** | Advanced ML with regime detection, shadow mode, trade journaling |
+| **Platform** | Multi-workspace support, cloud sync, operational dashboards |
+| **Deployment** | Docker, Vercel, Supabase Edge Functions |
+| **Security** | JWT auth, input validation, audit logging, secrets management |
 
 ## Stack
 
-- **Backend**: Python 3.11, FastAPI 0.115, Uvicorn, WebSockets
-- **ML**: scikit-learn (RF, GBM, LR, CalibratedClassifierCV), XGBoost, SciPy
-- **Frontend**: Vanilla JS, Chart.js 4, Tabler Icons
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Recharts, Lucide Icons
+- **Backend**: Python 3.11+, FastAPI, Uvicorn, WebSockets
+- **ML**: scikit-learn, XGBoost, NumPy, Pandas, SciPy
+- **Database**: Supabase (PostgreSQL), Redis
 - **Exchange**: Deriv WSS API (`wss://ws.binaryws.com/websockets/v3`)
 
 ## Quick start
