@@ -15,7 +15,8 @@ from .core import (
     Widget,
     WidgetType,
     Theme,
-    Layout
+    Layout,
+    get_dashboard_html,
 )
 from .panels import (
     # Health

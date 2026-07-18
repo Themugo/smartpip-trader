@@ -391,3 +391,51 @@ class Dashboard:
         self._save_config()
         
         return layout
+
+
+def get_dashboard_html() -> str:
+    """Get the main dashboard HTML page"""
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPip Trader Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #1a1a2e; color: #eee; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .title { font-size: 24px; font-weight: bold; color: #00d4ff; }
+        .status { padding: 5px 10px; border-radius: 4px; background: #00d4ff; color: #000; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .panel { background: #16213e; border-radius: 8px; padding: 15px; }
+        .panel-header { font-size: 14px; color: #00d4ff; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .metric { font-size: 28px; font-weight: bold; margin: 10px 0; }
+        .positive { color: #00ff88; }
+        .negative { color: #ff4757; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">SmartPip Trader</div>
+        <div class="status">Connected</div>
+    </div>
+    <div class="grid">
+        <div class="panel">
+            <div class="panel-header">Portfolio Value</div>
+            <div class="metric" id="portfolio-value">$10,000.00</div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Today's P&L</div>
+            <div class="metric positive" id="daily-pnl">+$125.50</div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Win Rate</div>
+            <div class="metric" id="win-rate">62.5%</div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Active Positions</div>
+            <div class="metric" id="active-positions">3</div>
+        </div>
+    </div>
+</body>
+</html>"""

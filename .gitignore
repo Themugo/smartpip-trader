@@ -34,3 +34,7 @@ model_backups/
 intelligence_data/
 ensemble_models/
 *.db
+
+# Test coverage
+.coverage
+htmlcov/
