@@ -3,6 +3,8 @@
  * Global test configuration and mocks
  */
 
+import { afterEach, vi } from 'vitest';
+
 // Mock environment variables
 Object.defineProperty(import.meta, 'env', {
   value: {
@@ -16,12 +18,10 @@ Object.defineProperty(import.meta, 'env', {
 
 // Global test timeout
 const DEFAULT_TIMEOUT = 10000;
-if (typeof vi !== 'undefined') {
-  vi.setConfig({
-    testTimeout: DEFAULT_TIMEOUT,
-    hookTimeout: DEFAULT_TIMEOUT,
-  });
-}
+vi.setConfig({
+  testTimeout: DEFAULT_TIMEOUT,
+  hookTimeout: DEFAULT_TIMEOUT,
+});
 
 // Cleanup after each test
 afterEach(() => {
