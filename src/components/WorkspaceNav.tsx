@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { api } from '../lib/api_v2';
+import { api } from '../lib/api';
 
 interface Workspace {
   id: string;
