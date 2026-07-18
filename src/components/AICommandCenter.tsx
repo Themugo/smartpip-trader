@@ -70,7 +70,7 @@ export function AICommandCenter({ mode = 'standalone' }: AICommandCenterProps) {
     { id: 'briefing', label: 'Daily Briefing', icon: FileText, description: 'Morning market briefing' },
   ] as const;
 
-  const generateMockResponse = (type: AIQuery['type'], question: string): AIResponse => {
+  const generateMockResponse = (type: AIQuery['type'], _question: string): AIResponse => {
     const responses: Record<string, AIResponse> = {
       market: {
         answer: `Based on current market analysis, the Volatility 75 index is showing a bullish momentum with the AI confidence at 87%. Key indicators suggest continuation of the upward trend.`,

@@ -78,7 +78,7 @@ export function BrokerConnections({ onConnectionChange }: BrokerConnectionsProps
     }
   };
 
-  const testConnection = async (token: string, broker: string): Promise<boolean> => {
+  const testConnection = async (token: string, _broker: string): Promise<boolean> => {
     try {
       // Simulate API test
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -184,7 +184,7 @@ export function BrokerConnections({ onConnectionChange }: BrokerConnectionsProps
     }
   };
 
-  const getBrokerIcon = (broker: string) => {
+  const getBrokerIcon = (_broker: string) => {
     return <Zap className="w-5 h-5" />;
   };
 

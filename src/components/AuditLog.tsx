@@ -1,4 +1,4 @@
-import { ShieldCheck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import type { AuditLogEntry } from '../lib/supabase';
 

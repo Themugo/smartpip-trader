@@ -61,7 +61,6 @@ export function DemoDataBadge({
 // Demo Data Container - wraps content that contains demo data
 export interface DemoDataContainerProps {
   children: ReactNode;
-  label?: string;
   showBadge?: boolean;
   className?: string;
 }
@@ -70,7 +69,6 @@ import { type ReactNode } from 'react';
 
 export function DemoDataContainer({
   children,
-  label = 'Demo Data',
   showBadge = true,
   className,
 }: DemoDataContainerProps) {

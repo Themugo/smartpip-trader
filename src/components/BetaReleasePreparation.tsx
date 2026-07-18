@@ -20,8 +20,6 @@ import {
 
 export function BetaReleasePreparation() {
   const [feedback, setFeedback] = useState('');
-  const [bugReport, setBugReport] = useState({ title: '', description: '', severity: 'medium' });
-  const [featureRequest, setFeatureRequest] = useState({ title: '', description: '' });
 
   // Release Checklist
   const checklist = {

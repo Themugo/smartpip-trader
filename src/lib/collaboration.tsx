@@ -339,7 +339,7 @@ export function RoleBadge({ role }: { role: UserRole }) {
 
 // Members List Component
 export function MembersList() {
-  const { members, currentUser, removeMember, updateMemberRole } = useCollaboration();
+  const { members, currentUser, removeMember, updateMemberRole: _updateMemberRole } = useCollaboration();
   
   return (
     <div className="space-y-3">
@@ -483,8 +483,8 @@ interface ShareDialogProps {
   onClose: () => void;
 }
 
-export function ShareDialog({ entityId, entityType, entityName, onClose }: ShareDialogProps) {
-  const { inviteByEmail, generateShareLink, currentUser } = useCollaboration();
+export function ShareDialog({ entityId, entityType, entityName: _entityName, onClose }: ShareDialogProps) {
+  const { inviteByEmail, generateShareLink, currentUser: _currentUser } = useCollaboration();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<UserRole>('viewer');
   const [isInviting, setIsInviting] = useState(false);

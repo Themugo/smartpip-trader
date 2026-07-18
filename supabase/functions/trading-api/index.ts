@@ -24,7 +24,7 @@ interface AuditPayload {
   details?: Record<string, unknown>;
 }
 
-function getSupabaseClient(req: Request) {
+function getSupabaseClient(_req: Request) {
   const url = Deno.env.get("SUPABASE_URL")!;
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   return { url, key };
@@ -106,7 +106,8 @@ Deno.serve(async (req: Request) => {
 
     // Verify user for protected endpoints
     const auth = await verifyUser(req);
-    const userEmail = auth?.user?.email || "anonymous";
+    // userEmail can be used for audit logging in the future
+    const _userEmail = auth?.user?.email || "anonymous";
 
     // GET /trading-api/health (public)
     if (req.method === "GET" && route === "health") {

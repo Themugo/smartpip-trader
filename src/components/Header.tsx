@@ -1,4 +1,4 @@
-import { Activity, Shield, TrendingUp, BarChart3, LogOut, User, Clock, Menu, X } from 'lucide-react';
+import { Activity, Shield, TrendingUp, BarChart3, LogOut, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface HeaderProps {
