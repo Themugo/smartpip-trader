@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartPip - Security and Feedback">
+    <title>Security & Feedback - SmartPip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            
+            --header-height: 64px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--neutral-200);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--danger);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .page-content {
+            padding: 32px;
+            max-width: 900px;
+        }
+
+        /* Section Styles */
+        .section {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--neutral-200);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--brand-secondary);
+        }
+
+        /* Security Section */
+        .security-score {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .score-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .score-info p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Session List */
+        .session-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .session-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+        }
+
+        .session-item.current {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .session-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .session-item.current .session-icon {
+            background: var(--success);
+            color: white;
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .session-title .badge {
+            padding: 2px 8px;
+            background: var(--success);
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .session-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .session-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 2FA Section */
+        .two-fa-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+        }
+
+        .two-fa-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-lg);
+            background: var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .two-fa-info {
+            flex: 1;
+        }
+
+        .two-fa-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .two-fa-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            position: relative;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .toggle-switch.active {
+            background: var(--brand-secondary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: var(--radius-full);
+            top: 3px;
+            left: 3px;
+            transition: transform var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+
+        /* Password Section */
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-secondary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Feedback Section */
+        .feedback-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--neutral-200);
+            padding-bottom: 16px;
+        }
+
+        .feedback-tab {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .feedback-tab:hover {
+            background: var(--neutral-100);
+        }
+
+        .feedback-tab.active {
+            background: var(--brand-secondary);
+            color: white;
+        }
+
+        /* Feature Request */
+        .request-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .request-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+        }
+
+        .vote-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vote-count {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .vote-btn.active .vote-count {
+            color: var(--brand-secondary);
+        }
+
+        .vote-btn i {
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .vote-btn.active i,
+        .vote-btn:hover i {
+            color: var(--brand-secondary);
+        }
+
+        .request-content {
+            flex: 1;
+        }
+
+        .request-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .request-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .request-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .request-status {
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .request-status.under-review {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .request-status.planned {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .request-status.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        /* Rating Section */
+        .rating-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .rating-card {
+            padding: 20px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .rating-card:hover {
+            border-color: var(--neutral-300);
+        }
+
+        .rating-card.selected {
+            border-color: var(--brand-secondary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .rating-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .rating-label {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .rating-description {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Announcement Banner */
+        .announcement-banner {
+            background: var(--brand-gradient);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .announcement-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .announcement-content {
+            flex: 1;
+        }
+
+        .announcement-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .announcement-text {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .announcement-dismiss {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background var(--transition-fast);
+        }
+
+        .announcement-dismiss:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--brand-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-200);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-content {
+                padding: 16px;
+            }
+
+            .rating-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    SmartPip
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="profile.html" class="nav-item">
+                        <i class="fas fa-user"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        Preferences
+                    </a>
+                    <a href="security-feedback.html" class="nav-item active">
+                        <i class="fas fa-shield-alt"></i>
+                        Security
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-bell"></i>
+                        Notifications
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Feedback</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-lightbulb"></i>
+                        Feature Requests
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-bug"></i>
+                        Report Issue
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-star"></i>
+                        Rate Us
+                        <span class="nav-badge">3</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h1 class="page-title">Security & Feedback</h1>
+            </header>
+
+            <div class="page-content">
+                <!-- Announcement -->
+                <div class="announcement-banner">
+                    <div class="announcement-icon">
+                        <i class="fas fa-megaphone"></i>
+                    </div>
+                    <div class="announcement-content">
+                        <div class="announcement-title">New Feature: Two-Factor Authentication</div>
+                        <div class="announcement-text">Add an extra layer of security to your account. Enable 2FA now!</div>
+                    </div>
+                    <button class="announcement-dismiss">Dismiss</button>
+                </div>
+
+                <!-- Security Score -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Security Overview
+                        </h2>
+                    </div>
+
+                    <div class="security-score">
+                        <div class="score-circle">85</div>
+                        <div class="score-info">
+                            <h3>Good Security Score</h3>
+                            <p>Your account has basic security protections. Enable 2FA for a better score.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Sessions -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-laptop"></i>
+                            Active Sessions
+                        </h2>
+                        <button class="btn btn-secondary btn-sm">Sign Out All</button>
+                    </div>
+
+                    <div class="session-list">
+                        <div class="session-item current">
+                            <div class="session-icon">
+                                <i class="fas fa-laptop"></i>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-title">
+                                    Chrome on Windows
+                                    <span class="badge">Current</span>
+                                </div>
+                                <div class="session-meta">New York, USA • Active now</div>
+                            </div>
+                            <div class="session-actions">
+                                <button class="btn btn-secondary btn-sm">This device</button>
+                            </div>
+                        </div>
+
+                        <div class="session-item">
+                            <div class="session-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-title">Safari on iPhone</div>
+                                <div class="session-meta">New York, USA • 2 hours ago</div>
+                            </div>
+                            <div class="session-actions">
+                                <button class="btn btn-danger btn-sm">Revoke</button>
+                            </div>
+                        </div>
+
+                        <div class="session-item">
+                            <div class="session-icon">
+                                <i class="fas fa-desktop"></i>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-title">Firefox on MacOS</div>
+                                <div class="session-meta">Boston, USA • Yesterday</div>
+                            </div>
+                            <div class="session-actions">
+                                <button class="btn btn-danger btn-sm">Revoke</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two-Factor Authentication -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-lock"></i>
+                            Two-Factor Authentication
+                        </h2>
+                    </div>
+
+                    <div class="two-fa-card">
+                        <div class="two-fa-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="two-fa-info">
+                            <div class="two-fa-title">Authenticator App</div>
+                            <div class="two-fa-description">Use an app like Google Authenticator or Authy to generate codes.</div>
+                        </div>
+                        <div class="toggle-switch" id="twoFaToggle"></div>
+                    </div>
+
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                        Two-factor authentication adds an extra layer of security by requiring a code from your phone in addition to your password.
+                    </p>
+                </div>
+
+                <!-- Change Password -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </h2>
+                    </div>
+
+                    <form class="password-form">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-input" placeholder="Enter current password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-input" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-input" placeholder="Confirm new password">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="button" class="btn btn-primary">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Feature Requests -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-lightbulb"></i>
+                            Feature Requests
+                        </h2>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i>
+                            New Request
+                        </button>
+                    </div>
+
+                    <div class="feedback-tabs">
+                        <button class="feedback-tab active">Popular</button>
+                        <button class="feedback-tab">Recent</button>
+                        <button class="feedback-tab">My Requests</button>
+                    </div>
+
+                    <div class="request-list">
+                        <div class="request-item">
+                            <div class="vote-btn">
+                                <span class="vote-count">245</span>
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                            <div class="request-content">
+                                <div class="request-title">Add support for multiple broker accounts simultaneously</div>
+                                <div class="request-description">Being able to connect and trade across multiple brokers from one dashboard would be incredibly useful.</div>
+                                <div class="request-meta">
+                                    <span>by Sarah M.</span>
+                                    <span>•</span>
+                                    <span>3 days ago</span>
+                                    <span>•</span>
+                                    <span class="request-status under-review">Under Review</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="request-item">
+                            <div class="vote-btn active">
+                                <span class="vote-count">189</span>
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                            <div class="request-content">
+                                <div class="request-title">Export trading data to CSV/Excel</div>
+                                <div class="request-description">Would love to be able to export my trade history and performance data for external analysis.</div>
+                                <div class="request-meta">
+                                    <span>by John D.</span>
+                                    <span>•</span>
+                                    <span>1 week ago</span>
+                                    <span>•</span>
+                                    <span class="request-status planned">Planned</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="request-item">
+                            <div class="vote-btn">
+                                <span class="vote-count">156</span>
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                            <div class="request-content">
+                                <div class="request-title">Mobile app for iOS and Android</div>
+                                <div class="request-description">A native mobile app would make it much easier to monitor trades on the go.</div>
+                                <div class="request-meta">
+                                    <span>by Mike R.</span>
+                                    <span>•</span>
+                                    <span>2 weeks ago</span>
+                                    <span>•</span>
+                                    <span class="request-status under-review">Under Review</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rate Us -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-star"></i>
+                            Rate Your Experience
+                        </h2>
+                    </div>
+
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                        How would you rate your experience with SmartPip?
+                    </p>
+
+                    <div class="rating-cards">
+                        <div class="rating-card">
+                            <div class="rating-icon">😞</div>
+                            <div class="rating-label">Poor</div>
+                            <div class="rating-description">Not meeting expectations</div>
+                        </div>
+                        <div class="rating-card">
+                            <div class="rating-icon">😐</div>
+                            <div class="rating-label">Fair</div>
+                            <div class="rating-description">Below expectations</div>
+                        </div>
+                        <div class="rating-card selected">
+                            <div class="rating-icon">😊</div>
+                            <div class="rating-label">Good</div>
+                            <div class="rating-description">Meeting expectations</div>
+                        </div>
+                        <div class="rating-card">
+                            <div class="rating-icon">😄</div>
+                            <div class="rating-label">Great</div>
+                            <div class="rating-description">Above expectations</div>
+                        </div>
+                        <div class="rating-card">
+                            <div class="rating-icon">🤩</div>
+                            <div class="rating-label">Excellent</div>
+                            <div class="rating-description">Exceeding all expectations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 2FA Toggle
+        document.getElementById('twoFaToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                alert('Two-factor authentication enabled!');
+            }
+        });
+
+        // Vote buttons
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const count = parseInt(this.querySelector('.vote-count').textContent);
+                if (this.classList.contains('active')) {
+                    this.classList.remove('active');
+                    this.querySelector('.vote-count').textContent = count - 1;
+                } else {
+                    this.classList.add('active');
+                    this.querySelector('.vote-count').textContent = count + 1;
+                }
+            });
+        });
+
+        // Rating cards
+        document.querySelectorAll('.rating-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.rating-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            });
+        });
+
+        // Feedback tabs
+        document.querySelectorAll('.feedback-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.feedback-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Announcement dismiss
+        document.querySelector('.announcement-dismiss').addEventListener('click', function() {
+            this.closest('.announcement-banner').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
