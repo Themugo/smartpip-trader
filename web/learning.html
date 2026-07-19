@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartPip Learning Center - Master trading with our comprehensive guides">
+    <title>Learning Center - SmartPip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================
+           CSS VARIABLES
+           ========================================== */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            
+            --header-height: 64px;
+            --sidebar-width: 260px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--neutral-200);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-progress {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .user-plan {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--neutral-100);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            width: 300px;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 24px;
+        }
+
+        /* Progress Banner */
+        .progress-banner {
+            background: var(--brand-gradient);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            color: white;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .progress-content h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .progress-content p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .progress-stats {
+            display: flex;
+            gap: 32px;
+        }
+
+        .progress-stat {
+            text-align: center;
+        }
+
+        .progress-stat-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .progress-stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--brand-secondary);
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: none;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--neutral-300);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--brand-primary);
+            color: white;
+            border-color: var(--brand-primary);
+        }
+
+        /* Learning Paths Grid */
+        .learning-paths {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .path-card {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .path-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--brand-secondary);
+        }
+
+        .path-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .path-icon.beginner {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+
+        .path-icon.intermediate {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+
+        .path-icon.advanced {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+        }
+
+        .path-icon.risk {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+        }
+
+        .path-icon.strategy {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+        }
+
+        .path-icon.psychology {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+            color: white;
+        }
+
+        .path-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .path-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .path-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .path-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .path-progress {
+            margin-top: 16px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Lessons Grid */
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .lesson-card {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .lesson-card:hover {
+            border-color: var(--brand-secondary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .lesson-card.completed {
+            background: var(--neutral-50);
+        }
+
+        .lesson-thumbnail {
+            width: 120px;
+            height: 80px;
+            border-radius: var(--radius-md);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .lesson-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lesson-category {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--brand-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .lesson-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .lesson-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .lesson-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .lesson-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .lesson-status {
+            margin-left: auto;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-badge.in-progress {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-secondary);
+        }
+
+        .status-badge.not-started {
+            background: var(--neutral-100);
+            color: var(--text-muted);
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            margin-bottom: 48px;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .faq-question:hover {
+            background: var(--neutral-50);
+        }
+
+        .faq-question i {
+            color: var(--text-muted);
+            transition: transform var(--transition-normal);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 20px 20px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .learning-paths {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .learning-paths,
+            .lessons-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-banner {
+                flex-direction: column;
+                gap: 24px;
+                text-align: center;
+            }
+
+            .progress-stats {
+                justify-content: center;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .path-card, .lesson-card, .faq-item {
+            animation: fadeIn 0.4s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    SmartPip
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-chart-pie"></i>
+                        Analytics
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-wallet"></i>
+                        Portfolio
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Learning</div>
+                    <a href="learning.html" class="nav-item active">
+                        <i class="fas fa-graduation-cap"></i>
+                        Learning Center
+                        <span class="nav-progress">45%</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        Trade Journal
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-history"></i>
+                        Strategy Replay
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Tools</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-brain"></i>
+                        AI Insights
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-circle-question"></i>
+                        Help Center
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-plan">Free Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="mobile-toggle" id="mobileToggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">Learning Center</h1>
+                        <p class="page-subtitle">Master trading with our comprehensive guides</p>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search lessons, guides...">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Progress Banner -->
+                <div class="progress-banner">
+                    <div class="progress-content">
+                        <h2>Your Learning Progress</h2>
+                        <p>Continue where you left off or start a new learning path.</p>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <div class="progress-stat-value">12</div>
+                            <div class="progress-stat-label">Lessons Completed</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="progress-stat-value">4.5h</div>
+                            <div class="progress-stat-label">Time Invested</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="progress-stat-value">45%</div>
+                            <div class="progress-stat-label">Overall Progress</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Paths -->
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-road"></i>
+                        Learning Paths
+                    </h2>
+                </div>
+
+                <div class="learning-paths">
+                    <div class="path-card">
+                        <div class="path-icon beginner">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h3 class="path-title">Beginner Trading</h3>
+                        <p class="path-description">Learn the fundamentals of trading, market basics, and your first steps.</p>
+                        <div class="path-meta">
+                            <span><i class="fas fa-book"></i> 8 lessons</span>
+                            <span><i class="fas fa-clock"></i> 2 hours</span>
+                        </div>
+                        <div class="path-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>6 of 8 completed</span>
+                                <span>75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-card">
+                        <div class="path-icon risk">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <h3 class="path-title">Risk Management</h3>
+                        <p class="path-description">Master position sizing, stop losses, and capital protection strategies.</p>
+                        <div class="path-meta">
+                            <span><i class="fas fa-book"></i> 6 lessons</span>
+                            <span><i class="fas fa-clock"></i> 1.5 hours</span>
+                        </div>
+                        <div class="path-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 33%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>2 of 6 completed</span>
+                                <span>33%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-card">
+                        <div class="path-icon strategy">
+                            <i class="fas fa-chess"></i>
+                        </div>
+                        <h3 class="path-title">Trading Strategies</h3>
+                        <p class="path-description">Explore different trading strategies and find what works for you.</p>
+                        <div class="path-meta">
+                            <span><i class="fas fa-book"></i> 10 lessons</span>
+                            <span><i class="fas fa-clock"></i> 3 hours</span>
+                        </div>
+                        <div class="path-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 10%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>1 of 10 completed</span>
+                                <span>10%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-card">
+                        <div class="path-icon intermediate">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="path-title">Technical Analysis</h3>
+                        <p class="path-description">Learn to read charts, identify patterns, and use indicators.</p>
+                        <div class="path-meta">
+                            <span><i class="fas fa-book"></i> 12 lessons</span>
+                            <span><i class="fas fa-clock"></i> 4 hours</span>
+                        </div>
+                        <div class="path-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Not started</span>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-card">
+                        <div class="path-icon psychology">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="path-title">Trading Psychology</h3>
+                        <p class="path-description">Develop the mindset of successful traders and manage emotions.</p>
+                        <div class="path-meta">
+                            <span><i class="fas fa-book"></i> 7 lessons</span>
+                            <span><i class="fas fa-clock"></i> 2 hours</span>
+                        </div>
+                        <div class="path-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 57%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>4 of 7 completed</span>
+                                <span>57%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-card">
+                        <div class="path-icon advanced">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="path-title">Advanced Trading</h3>
+                        <p class="path-description">Master advanced techniques for experienced traders.</p>
+                        <div class="path-meta">
+                            <span><i class="fas fa-book"></i> 15 lessons</span>
+                            <span><i class="fas fa-clock"></i> 5 hours</span>
+                        </div>
+                        <div class="path-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>Not started</span>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continue Learning -->
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-play-circle"></i>
+                        Continue Learning
+                    </h2>
+                    <div class="section-tabs">
+                        <button class="tab-btn active">In Progress</button>
+                        <button class="tab-btn">All Lessons</button>
+                    </div>
+                </div>
+
+                <div class="lessons-grid">
+                    <div class="lesson-card">
+                        <div class="lesson-thumbnail">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="lesson-content">
+                            <div class="lesson-category">Risk Management</div>
+                            <h4 class="lesson-title">Position Sizing Strategies</h4>
+                            <p class="lesson-description">Learn how to calculate optimal position sizes based on your account and risk tolerance.</p>
+                            <div class="lesson-meta">
+                                <span><i class="fas fa-clock"></i> 15 min</span>
+                                <span><i class="fas fa-film"></i> Video</span>
+                                <span class="lesson-status">
+                                    <span class="status-badge in-progress">In Progress</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lesson-card completed">
+                        <div class="lesson-thumbnail">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="lesson-content">
+                            <div class="lesson-category">Trading Psychology</div>
+                            <h4 class="lesson-title">Managing Trading Emotions</h4>
+                            <p class="lesson-description">Understand how emotions affect trading decisions and strategies to stay calm.</p>
+                            <div class="lesson-meta">
+                                <span><i class="fas fa-clock"></i> 20 min</span>
+                                <span><i class="fas fa-book-open"></i> Article</span>
+                                <span class="lesson-status">
+                                    <span class="status-badge completed">Completed</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lesson-card">
+                        <div class="lesson-thumbnail">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="lesson-content">
+                            <div class="lesson-category">Beginner Trading</div>
+                            <h4 class="lesson-title">Understanding Market Volatility</h4>
+                            <p class="lesson-description">Discover what drives market volatility and how to trade during different conditions.</p>
+                            <div class="lesson-meta">
+                                <span><i class="fas fa-clock"></i> 18 min</span>
+                                <span><i class="fas fa-film"></i> Video</span>
+                                <span class="lesson-status">
+                                    <span class="status-badge not-started">Not Started</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lesson-card">
+                        <div class="lesson-thumbnail">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="lesson-content">
+                            <div class="lesson-category">Trading Strategies</div>
+                            <h4 class="lesson-title">Trend Following Basics</h4>
+                            <p class="lesson-description">Learn the fundamentals of trend following and how to identify trends.</p>
+                            <div class="lesson-meta">
+                                <span><i class="fas fa-clock"></i> 25 min</span>
+                                <span><i class="fas fa-film"></i> Video</span>
+                                <span class="lesson-status">
+                                    <span class="status-badge not-started">Not Started</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="faq-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-circle-question"></i>
+                            Frequently Asked Questions
+                        </h2>
+                    </div>
+
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                How do I start learning on SmartPip?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">
+                                Simply navigate to the Learning Center from your dashboard. Choose a learning path that matches your experience level, or start with any individual lesson. Your progress is automatically saved, so you can pick up right where you left off.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                Are the learning materials free?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">
+                                Yes! All learning materials on SmartPip are completely free. We believe in empowering traders with knowledge. Premium features are available for advanced tools and features, but education is accessible to everyone.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                Can I track my learning progress?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">
+                                Absolutely. Your progress is tracked automatically across all learning paths and lessons. You can view your overall progress, completed courses, and time invested from your dashboard.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                Do I need trading experience to start?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">
+                                No prior experience is required. We have learning paths designed specifically for beginners. We recommend starting with the "Beginner Trading" path to build a solid foundation before diving into more advanced topics.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const item = button.parentElement;
+                const isActive = item.classList.contains('active');
+                
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+                
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Navigation active state
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (item.getAttribute('href') === 'learning.html') return;
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
