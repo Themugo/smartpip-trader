@@ -653,12 +653,12 @@ class SmartPipApp {
     }
     
     showAuthModal() {
-        // TODO: Implement authentication modal
+        // Authentication modal - shows toast for now
         this.showToast('Authentication coming soon', 'info');
     }
     
     showMarketModal() {
-        // TODO: Implement market selection modal
+        // Market selection modal - redirects to markets
         this.navigateTo('#markets');
     }
 }
