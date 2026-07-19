@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartPip - Manage your profile and preferences">
+    <title>Profile - SmartPip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            
+            --header-height: 64px;
+            --sidebar-width: 260px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--neutral-200);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .user-plan {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--text-secondary);
+            margin-right: 16px;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .page-content {
+            padding: 32px;
+            max-width: 1000px;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            border: 1px solid var(--neutral-200);
+        }
+
+        .profile-avatar-section {
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-full);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .avatar-edit-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            background: var(--bg-card);
+            border: 2px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+        }
+
+        .avatar-edit-btn:hover {
+            border-color: var(--brand-secondary);
+            color: var(--brand-secondary);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-email {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-item i {
+            color: var(--text-muted);
+        }
+
+        .profile-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(67, 56, 202, 0.1);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--brand-secondary);
+        }
+
+        /* Settings Sections */
+        .settings-section {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--neutral-200);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--brand-secondary);
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-secondary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Theme Selector */
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .theme-option {
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .theme-option:hover {
+            border-color: var(--neutral-300);
+        }
+
+        .theme-option.active {
+            border-color: var(--brand-secondary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .theme-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            margin: 0 auto 12px;
+        }
+
+        .theme-preview.dark {
+            background: linear-gradient(135deg, #121212 50%, #1e1e1e 50%);
+        }
+
+        .theme-preview.light {
+            background: linear-gradient(135deg, #ffffff 50%, #f8fafc 50%);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .theme-preview.system {
+            background: linear-gradient(135deg, #121212 50%, #ffffff 50%);
+        }
+
+        .theme-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Toggle Switch */
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .toggle-item:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .toggle-description {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            position: relative;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .toggle-switch.active {
+            background: var(--brand-secondary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: var(--radius-full);
+            top: 3px;
+            left: 3px;
+            transition: transform var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+
+        /* Connected Brokers */
+        .broker-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .broker-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .broker-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .broker-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .broker-name {
+            font-weight: 600;
+        }
+
+        .broker-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .broker-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: var(--radius-full);
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+        }
+
+        .broker-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--brand-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-200);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Activity History */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.login {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .activity-icon.trade {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .activity-icon.settings {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .activity-icon.alert {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .activity-details {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Save Button */
+        .save-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .page-content {
+                padding: 16px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-meta {
+                justify-content: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .theme-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    SmartPip
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-chart-pie"></i>
+                        Analytics
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="profile.html" class="nav-item active">
+                        <i class="fas fa-user"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        Preferences
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-shield-alt"></i>
+                        Security
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-bell"></i>
+                        Notifications
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Support</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        Learning Center
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-circle-question"></i>
+                        Help Center
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-plan">Free Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="mobile-toggle" id="mobileToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <h1 class="page-title">Profile Settings</h1>
+            </header>
+
+            <div class="page-content">
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar-section">
+                        <div class="profile-avatar">JD</div>
+                        <button class="avatar-edit-btn" title="Change photo">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">John Doe</h2>
+                        <p class="profile-email">john.doe@example.com</p>
+                        <div class="profile-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                Joined January 2026
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                New York, USA
+                            </div>
+                        </div>
+                        <span class="profile-badge">
+                            <i class="fas fa-star"></i>
+                            Free Plan
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-user-circle"></i>
+                            Personal Information
+                        </h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-input" value="John">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-input" value="Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" value="john.doe@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-input" placeholder="Tell us about yourself...">Passionate trader exploring the markets with SmartPip. Focused on volatility indices and developing consistent strategies.</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-palette"></i>
+                            Appearance
+                        </h3>
+                    </div>
+
+                    <div class="theme-options">
+                        <div class="theme-option active">
+                            <div class="theme-preview dark"></div>
+                            <div class="theme-name">Dark</div>
+                        </div>
+                        <div class="theme-option">
+                            <div class="theme-preview light"></div>
+                            <div class="theme-name">Light</div>
+                        </div>
+                        <div class="theme-option">
+                            <div class="theme-preview system"></div>
+                            <div class="theme-name">System</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            Preferences
+                        </h3>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Email Notifications</div>
+                            <div class="toggle-description">Receive updates about your trades and portfolio</div>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Push Notifications</div>
+                            <div class="toggle-description">Get instant alerts on your device</div>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Weekly Progress Report</div>
+                            <div class="toggle-description">Receive a summary of your trading performance</div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Marketing Emails</div>
+                            <div class="toggle-description">Updates about new features and promotions</div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+                </div>
+
+                <!-- Connected Brokers -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-link"></i>
+                            Connected Brokers
+                        </h3>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i>
+                            Add Broker
+                        </button>
+                    </div>
+
+                    <div class="broker-card">
+                        <div class="broker-info">
+                            <div class="broker-logo">D</div>
+                            <div>
+                                <div class="broker-name">Deriv</div>
+                                <div class="broker-email">Connected since Jan 2026</div>
+                            </div>
+                        </div>
+                        <div class="broker-status">
+                            <span class="status-dot connected"></span>
+                            <span style="font-size: 0.8rem; color: var(--success);">Connected</span>
+                        </div>
+                        <div class="broker-actions">
+                            <button class="btn btn-secondary btn-sm">Manage</button>
+                            <button class="btn btn-danger btn-sm">Disconnect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity History -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-history"></i>
+                            Recent Activity
+                        </h3>
+                        <button class="btn btn-secondary btn-sm">View All</button>
+                    </div>
+
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon login">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Logged in</div>
+                                <div class="activity-details">Chrome on Windows • New York, USA</div>
+                            </div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon trade">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Paper trade executed</div>
+                                <div class="activity-details">V-75 Long position opened</div>
+                            </div>
+                            <div class="activity-time">15 minutes ago</div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon settings">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Profile updated</div>
+                                <div class="activity-details">Bio changed</div>
+                            </div>
+                            <div class="activity-time">1 hour ago</div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon alert">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Goal achieved</div>
+                                <div class="activity-details">Maintained 60% win rate for the week</div>
+                            </div>
+                            <div class="activity-time">3 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Actions -->
+                <div class="save-section">
+                    <button class="btn btn-secondary">Cancel</button>
+                    <button class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Theme selection
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+
+        // Toggle switches
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+            });
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (item.getAttribute('href') === 'profile.html') return;
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Avatar edit button
+        document.querySelector('.avatar-edit-btn').addEventListener('click', () => {
+            alert('Photo upload dialog would open here');
+        });
+    </script>
+</body>
+</html>
