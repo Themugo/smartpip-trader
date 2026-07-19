@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartPip Help Center - Get support and answers">
+    <title>Help Center - SmartPip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            
+            --header-height: 64px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--neutral-200);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .header-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--brand-gradient);
+            padding: 80px 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 32px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 8px 8px 8px 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .search-btn:hover {
+            background: var(--brand-secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        /* Quick Links Grid */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+
+        .quick-link {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .quick-link:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--brand-secondary);
+        }
+
+        .quick-link-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.5rem;
+        }
+
+        .quick-link-icon.docs {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-secondary);
+        }
+
+        .quick-link-icon.support {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .quick-link-icon.bug {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .quick-link-icon.feature {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .quick-link-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .quick-link-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Status Banner */
+        .status-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--radius-full);
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .status-details {
+            flex: 1;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .status-link {
+            color: var(--brand-secondary);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .status-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Two Column Layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--brand-secondary);
+        }
+
+        .section-link {
+            font-size: 0.9rem;
+            color: var(--brand-secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .section-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Article Cards */
+        .article-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .article-card {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .article-card:hover {
+            border-color: var(--brand-secondary);
+            background: var(--neutral-50);
+        }
+
+        .article-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--neutral-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .article-content {
+            flex: 1;
+        }
+
+        .article-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .article-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .article-arrow {
+            color: var(--text-muted);
+            transition: transform var(--transition-fast);
+        }
+
+        .article-card:hover .article-arrow {
+            transform: translateX(4px);
+            color: var(--brand-secondary);
+        }
+
+        /* FAQ Section */
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .faq-item:hover {
+            border-color: var(--brand-secondary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .faq-question {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .faq-question i {
+            color: var(--brand-secondary);
+            margin-top: 2px;
+        }
+
+        .faq-answer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding-left: 24px;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(90deg);
+        }
+
+        /* Release Notes */
+        .release-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .release-item {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .release-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .release-version {
+            padding: 4px 12px;
+            background: var(--brand-gradient);
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .release-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .release-type {
+            margin-left: auto;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .release-type.new {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .release-type.improved {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .release-type.fixed {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .release-changes {
+            padding-left: 16px;
+        }
+
+        .release-change {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .release-change:last-child {
+            margin-bottom: 0;
+        }
+
+        .release-change i {
+            color: var(--success);
+            margin-top: 4px;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: var(--bg-card);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            text-align: center;
+        }
+
+        .contact-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .contact-description {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .contact-options {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            border: none;
+        }
+
+        .contact-btn.primary {
+            background: var(--brand-gradient);
+            color: white;
+        }
+
+        .contact-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-btn.secondary {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .contact-btn.secondary:hover {
+            background: var(--neutral-200);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--neutral-900);
+            color: var(--neutral-300);
+            padding: 48px 24px 24px;
+            margin-top: 48px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: var(--neutral-400);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 24px;
+            border-top: 1px solid var(--neutral-800);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .quick-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="header-brand">
+                <div class="header-brand-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                SmartPip
+            </a>
+            <div class="header-actions">
+                <a href="dashboard.html" class="contact-btn secondary" style="padding: 8px 16px; font-size: 0.85rem;">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">How can we help you?</h1>
+            <p class="hero-subtitle">Search our knowledge base or browse categories below</p>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search for help articles...">
+                <button class="search-btn">Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Status Banner -->
+        <div class="status-banner">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span class="status-text">All Systems Operational</span>
+            </div>
+            <div class="status-details">
+                No incidents reported in the last 90 days. Last checked 2 minutes ago.
+            </div>
+            <a href="#" class="status-link">View Status Page →</a>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <div class="quick-link">
+                <div class="quick-link-icon docs">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3 class="quick-link-title">Documentation</h3>
+                <p class="quick-link-description">Guides and tutorials</p>
+            </div>
+            <div class="quick-link">
+                <div class="quick-link-icon support">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="quick-link-title">Contact Support</h3>
+                <p class="quick-link-description">Get personalized help</p>
+            </div>
+            <div class="quick-link">
+                <div class="quick-link-icon bug">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <h3 class="quick-link-title">Report a Bug</h3>
+                <p class="quick-link-description">Found an issue? Let us know</p>
+            </div>
+            <div class="quick-link">
+                <div class="quick-link-icon feature">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="quick-link-title">Feature Request</h3>
+                <p class="quick-link-description">Suggest new features</p>
+            </div>
+        </div>
+
+        <!-- Two Columns -->
+        <div class="two-columns">
+            <!-- Popular Articles -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-fire"></i>
+                        Popular Articles
+                    </h2>
+                    <a href="#" class="section-link">View all →</a>
+                </div>
+
+                <div class="article-list">
+                    <div class="article-card">
+                        <div class="article-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">Getting Started with SmartPip</div>
+                            <div class="article-meta">5 min read</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">How to Connect Your Broker</div>
+                            <div class="article-meta">8 min read</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">Understanding Paper Trading</div>
+                            <div class="article-meta">6 min read</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">Risk Management Best Practices</div>
+                            <div class="article-meta">10 min read</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-folder"></i>
+                        Browse by Category
+                    </h2>
+                </div>
+
+                <div class="article-list">
+                    <div class="article-card">
+                        <div class="article-icon" style="background: rgba(67, 56, 202, 0.1); color: var(--brand-secondary);">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">Account & Billing</div>
+                            <div class="article-meta">12 articles</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">Trading Features</div>
+                            <div class="article-meta">18 articles</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--info);">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">AI & Automation</div>
+                            <div class="article-meta">9 articles</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="article-content">
+                            <div class="article-title">API & Integrations</div>
+                            <div class="article-meta">14 articles</div>
+                        </div>
+                        <i class="fas fa-chevron-right article-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-circle-question"></i>
+                    Frequently Asked Questions
+                </h2>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <i class="fas fa-chevron-right"></i>
+                        Is SmartPip free to use?
+                    </div>
+                    <div class="faq-answer">
+                        Yes! SmartPip offers a free plan that includes paper trading, basic analytics, and access to our learning center. Premium plans offer advanced features like multiple broker connections and priority AI processing.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <i class="fas fa-chevron-right"></i>
+                        Which brokers are supported?
+                    </div>
+                    <div class="faq-answer">
+                        Currently, SmartPip supports Deriv. We're actively working on adding more broker integrations. You can start using paper trading immediately without connecting a broker.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <i class="fas fa-chevron-right"></i>
+                        Is my trading data secure?
+                    </div>
+                    <div class="faq-answer">
+                        Absolutely. We use industry-standard encryption to protect your data. We never share your personal information or trading data with third parties. You can also enable two-factor authentication for extra security.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <i class="fas fa-chevron-right"></i>
+                        Can I practice without risking real money?
+                    </div>
+                    <div class="faq-answer">
+                        Yes! Our paper trading feature lets you practice with virtual funds using real market data. It's a great way to develop and test strategies before trading with real capital.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Release Notes -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-tags"></i>
+                    Release Notes
+                </h2>
+                <a href="#" class="section-link">View all →</a>
+            </div>
+
+            <div class="release-list">
+                <div class="release-item">
+                    <div class="release-header">
+                        <span class="release-version">v2.5.0</span>
+                        <span class="release-date">July 15, 2026</span>
+                        <span class="release-type new">New</span>
+                    </div>
+                    <div class="release-changes">
+                        <div class="release-change">
+                            <i class="fas fa-plus"></i>
+                            <span>Added AI-powered strategy recommendations based on your trading patterns</span>
+                        </div>
+                        <div class="release-change">
+                            <i class="fas fa-plus"></i>
+                            <span>New paper trading challenge system with daily goals</span>
+                        </div>
+                        <div class="release-change">
+                            <i class="fas fa-star"></i>
+                            <span>Enhanced performance charts with multiple timeframe views</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="release-item">
+                    <div class="release-header">
+                        <span class="release-version">v2.4.2</span>
+                        <span class="release-date">July 8, 2026</span>
+                        <span class="release-type fixed">Fixed</span>
+                    </div>
+                    <div class="release-changes">
+                        <div class="release-change">
+                            <i class="fas fa-check"></i>
+                            <span>Fixed issue with notification delivery delays</span>
+                        </div>
+                        <div class="release-change">
+                            <i class="fas fa-check"></i>
+                            <span>Resolved mobile responsiveness issues on the dashboard</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-section">
+            <h2 class="contact-title">Still need help?</h2>
+            <p class="contact-description">Our support team is available Monday to Friday, 9am to 6pm EST.</p>
+            <div class="contact-options">
+                <button class="contact-btn primary">
+                    <i class="fas fa-comments"></i>
+                    Start Live Chat
+                </button>
+                <button class="contact-btn secondary">
+                    <i class="fas fa-envelope"></i>
+                    Email Support
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Integrations</a></li>
+                    <li><a href="#">Changelog</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Press Kit</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Risk Disclaimer</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 SmartPip. All rights reserved.</span>
+            <span>
+                <a href="#" style="color: var(--neutral-400);">Status</a> • 
+                <a href="#" style="color: var(--neutral-400);">Security</a> • 
+                <a href="#" style="color: var(--neutral-400);">Sitemap</a>
+            </span>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ toggle
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Article card click
+        document.querySelectorAll('.article-card').forEach(card => {
+            card.addEventListener('click', () => {
+                alert('Would navigate to article: ' + card.querySelector('.article-title').textContent);
+            });
+        });
+
+        // Quick link click
+        document.querySelectorAll('.quick-link').forEach(link => {
+            link.addEventListener('click', () => {
+                alert('Would open: ' + link.querySelector('.quick-link-title').textContent);
+            });
+        });
+
+        // Contact button click
+        document.querySelectorAll('.contact-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('Would open: ' + btn.textContent.trim());
+            });
+        });
+    </script>
+</body>
+</html>
