@@ -3,96 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SmartPip - AI-Assisted Trading Platform. Analyze markets, practice with paper trading, review performance, and make smarter trading decisions.">
-    <meta name="keywords" content="AI trading, paper trading, trading analytics, risk management, Deriv, trading platform">
-    <meta property="og:title" content="SmartPip - AI-Assisted Trading, Built for Smarter Decisions">
-    <meta property="og:description" content="SmartPip helps traders analyze markets, practice safely with paper trading, review performance, and make informed trading decisions.">
-    <meta property="og:type" content="website">
+    <meta name="description" content="SmartPip - Trade With Confidence, Not Guesswork. AI-assisted trading platform for smarter decisions.">
     <meta name="twitter:card" content="summary_large_image">
-    <title>SmartPip - AI-Assisted Trading, Built for Smarter Decisions</title>
+    <meta property="og:title" content="SmartPip - Trade With Confidence">
+    <meta property="og:description" content="AI-assisted trading platform. Analyze markets, practice safely, make smarter decisions.">
+    <meta property="og:type" content="website">
+    <title>SmartPip - Trade With Confidence</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* ==========================================
-           CSS VARIABLES & THEME - Modern SaaS
-           ========================================== */
         :root {
-            /* Colors - Clean Light Theme */
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-tertiary: #f1f5f9;
-            --bg-card: #ffffff;
-            --bg-card-hover: #f8fafc;
-            --bg-elevated: #ffffff;
+            --white: #ffffff;
+            --black: #0a0a0f;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f5;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #868e96;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
             
-            /* Primary Brand - Deep Indigo */
-            --brand-primary: #4338ca;
-            --brand-secondary: #6366f1;
-            --brand-tertiary: #818cf8;
-            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --primary: #1a56db;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
             
-            /* Accent - Teal */
-            --accent-primary: #0d9488;
-            --accent-secondary: #14b8a6;
-            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            --accent: #0d9488;
+            --accent-light: #14b8a6;
             
-            /* Neutral */
-            --neutral-50: #f8fafc;
-            --neutral-100: #f1f5f9;
-            --neutral-200: #e2e8f0;
-            --neutral-300: #cbd5e1;
-            --neutral-400: #94a3b8;
-            --neutral-500: #64748b;
-            --neutral-600: #475569;
-            --neutral-700: #334155;
-            --neutral-800: #1e293b;
-            --neutral-900: #0f172a;
-            
-            /* Text */
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --text-inverse: #ffffff;
-            
-            /* Status */
             --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
+            --text-primary: #1a1a2e;
+            --text-secondary: #525252;
+            --text-muted: #737373;
             
-            /* Shadows */
-            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
-            --shadow-card-hover: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            --bg-primary: #ffffff;
+            --bg-secondary: #fafbfc;
+            --bg-tertiary: #f4f6f8;
             
-            /* Border Radius */
-            --radius-sm: 6px;
-            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
             --radius-2xl: 32px;
             --radius-full: 9999px;
             
-            /* Transitions */
             --transition-fast: 150ms ease;
             --transition-normal: 250ms ease;
             --transition-slow: 400ms ease;
-            --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            --container-max: 1200px;
+            --container-narrow: 800px;
         }
 
-        /* ==========================================
-           RESET & BASE
-           ========================================== */
         *, *::before, *::after {
             margin: 0;
             padding: 0;
@@ -106,7 +79,7 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
@@ -114,14 +87,15 @@
         }
 
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Sora', sans-serif;
-            font-weight: 700;
+            font-family: 'DM Serif Display', serif;
+            font-weight: 400;
             line-height: 1.2;
+            color: var(--text-primary);
         }
 
         a {
-            text-decoration: none;
             color: inherit;
+            text-decoration: none;
         }
 
         button {
@@ -136,100 +110,75 @@
             height: auto;
         }
 
-        /* ==========================================
-           UTILITIES
-           ========================================== */
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: var(--container-max);
             margin: 0 auto;
             padding: 0 24px;
         }
 
-        .container-xl {
-            max-width: 1400px;
-        }
-
-        .section {
-            padding: 100px 0;
-        }
-
-        .section-sm {
-            padding: 60px 0;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        /* ==========================================
-           NAVIGATION - Sticky & Clean
-           ========================================== */
+        /* Navigation */
         .nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid transparent;
+            padding: 20px 0;
             transition: all var(--transition-normal);
         }
 
         .nav.scrolled {
-            border-bottom-color: var(--neutral-200);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             box-shadow: var(--shadow-sm);
+            padding: 12px 0;
         }
 
-        .nav-container {
+        .nav-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 72px;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-family: 'Sora', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 1.35rem;
             font-weight: 700;
             color: var(--text-primary);
         }
 
-        .nav-brand-icon {
-            width: 38px;
-            height: 38px;
-            background: var(--brand-gradient);
-            border-radius: var(--radius-md);
+        .nav-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
-        .nav-menu {
+        .nav-links {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 32px;
         }
 
         .nav-link {
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            transition: all var(--transition-fast);
+            transition: color var(--transition-fast);
         }
 
         .nav-link:hover {
             color: var(--text-primary);
-            background: var(--neutral-100);
         }
 
         .nav-actions {
@@ -238,9 +187,6 @@
             gap: 12px;
         }
 
-        /* ==========================================
-           BUTTONS
-           ========================================== */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -251,57 +197,61 @@
             font-weight: 600;
             border-radius: var(--radius-md);
             transition: all var(--transition-normal);
-            cursor: pointer;
             white-space: nowrap;
         }
 
         .btn-primary {
-            background: var(--brand-gradient);
+            background: var(--text-primary);
             color: white;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
         }
 
         .btn-secondary {
-            background: white;
-            color: var(--text-primary);
-            border: 1px solid var(--neutral-200);
-            box-shadow: var(--shadow-xs);
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--gray-300);
         }
 
         .btn-secondary:hover {
-            background: var(--neutral-50);
-            border-color: var(--neutral-300);
+            background: var(--gray-50);
+            color: var(--text-primary);
+            border-color: var(--gray-400);
         }
 
         .btn-ghost {
             color: var(--text-secondary);
+            padding: 8px 16px;
         }
 
         .btn-ghost:hover {
             color: var(--text-primary);
-            background: var(--neutral-100);
+            background: var(--gray-50);
         }
 
-        .btn-lg {
-            padding: 14px 28px;
-            font-size: 1rem;
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 8px;
         }
 
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.85rem;
+        .nav-toggle span {
+            width: 22px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
         }
 
-        /* ==========================================
-           HERO SECTION
-           ========================================== */
+        /* Hero */
         .hero {
-            padding: 140px 0 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
             position: relative;
             overflow: hidden;
         }
@@ -310,68 +260,54 @@
             position: absolute;
             inset: 0;
             background: 
-                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 50% at 70% 80%, rgba(13, 148, 136, 0.04) 0%, transparent 50%),
-                var(--bg-primary);
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26, 86, 219, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(13, 148, 136, 0.03) 0%, transparent 40%);
+            pointer-events: none;
         }
 
         .hero-grid {
             position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(var(--neutral-200) 1px, transparent 1px),
-                linear-gradient(90deg, var(--neutral-200) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.4;
-            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+                linear-gradient(var(--gray-200) 1px, transparent 1px),
+                linear-gradient(90deg, var(--gray-200) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.5;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 60%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 60%);
         }
 
         .hero-content {
             position: relative;
             z-index: 1;
-            max-width: 800px;
+            max-width: 720px;
             margin: 0 auto;
             text-align: center;
         }
 
-        .hero-badge {
+        .hero-eyebrow {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 6px 14px;
-            background: var(--neutral-100);
-            border: 1px solid var(--neutral-200);
+            background: var(--gray-100);
             border-radius: var(--radius-full);
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--brand-secondary);
+            color: var(--primary);
             margin-bottom: 24px;
         }
 
-        .hero-badge i {
-            font-size: 0.75rem;
-        }
-
         .hero-title {
-            font-size: clamp(2.5rem, 5vw, 3.75rem);
-            font-weight: 800;
-            color: var(--text-primary);
+            font-size: clamp(2.5rem, 5vw, 4rem);
             margin-bottom: 24px;
             letter-spacing: -0.02em;
         }
 
-        .hero-title span {
-            background: var(--brand-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
+        .hero-description {
             font-size: 1.2rem;
             color: var(--text-secondary);
-            max-width: 640px;
+            max-width: 560px;
             margin: 0 auto 40px;
             line-height: 1.7;
         }
@@ -390,26 +326,116 @@
             color: var(--text-muted);
         }
 
-        /* ==========================================
-           PLATFORM PREVIEW
-           ========================================== */
-        .preview {
-            padding: 20px 0 100px;
+        /* Benefits */
+        .benefits {
+            padding: 100px 0;
+            background: var(--bg-secondary);
         }
 
-        .preview-container {
-            position: relative;
-            max-width: 1100px;
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            margin-bottom: 16px;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 560px;
             margin: 0 auto;
-            padding: 0 24px;
         }
 
-        .preview-window {
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .benefit-card {
             background: var(--bg-primary);
-            border: 1px solid var(--neutral-200);
             border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-2xl);
+            padding: 32px;
+            text-align: center;
+            transition: all var(--transition-normal);
+            border: 1px solid transparent;
+        }
+
+        .benefit-card:hover {
+            border-color: var(--gray-200);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .benefit-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(26, 86, 219, 0.08) 0%, rgba(26, 86, 219, 0.04) 100%);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .benefit-card:nth-child(2) .benefit-icon {
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(13, 148, 136, 0.04) 100%);
+            color: var(--accent);
+        }
+
+        .benefit-card:nth-child(3) .benefit-icon {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
+            color: #f59e0b;
+        }
+
+        .benefit-card:nth-child(4) .benefit-icon {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.04) 100%);
+            color: #ef4444;
+        }
+
+        .benefit-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .benefit-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Preview */
+        .preview {
+            padding: 100px 0;
+        }
+
+        .preview-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-xl);
             overflow: hidden;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .preview-header {
@@ -417,8 +443,8 @@
             align-items: center;
             gap: 8px;
             padding: 14px 20px;
-            background: var(--neutral-50);
-            border-bottom: 1px solid var(--neutral-200);
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
         }
 
         .preview-dot {
@@ -427,23 +453,23 @@
             border-radius: 50%;
         }
 
-        .preview-dot.red { background: #ff5f57; }
-        .preview-dot.yellow { background: #febc2e; }
-        .preview-dot.green { background: #28c840; }
+        .preview-dot:nth-child(1) { background: #ff5f57; }
+        .preview-dot:nth-child(2) { background: #febc2e; }
+        .preview-dot:nth-child(3) { background: #28c840; }
 
         .preview-body {
             display: grid;
-            grid-template-columns: 240px 1fr;
-            min-height: 500px;
+            grid-template-columns: 200px 1fr;
+            min-height: 400px;
         }
 
         .preview-sidebar {
-            background: var(--neutral-50);
-            border-right: 1px solid var(--neutral-200);
+            background: var(--gray-50);
+            border-right: 1px solid var(--gray-200);
             padding: 20px;
         }
 
-        .preview-sidebar-item {
+        .preview-nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -453,304 +479,145 @@
             font-weight: 500;
             color: var(--text-secondary);
             margin-bottom: 4px;
-            transition: all var(--transition-fast);
         }
 
-        .preview-sidebar-item.active {
-            background: white;
-            color: var(--brand-primary);
+        .preview-nav-item.active {
+            background: var(--bg-primary);
+            color: var(--primary);
             box-shadow: var(--shadow-sm);
-        }
-
-        .preview-sidebar-item i {
-            width: 18px;
-            text-align: center;
         }
 
         .preview-main {
             padding: 24px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto;
             gap: 20px;
         }
 
-        .preview-card {
-            background: white;
-            border: 1px solid var(--neutral-200);
+        .preview-widget {
+            background: var(--gray-50);
             border-radius: var(--radius-lg);
             padding: 20px;
-            box-shadow: var(--shadow-card);
         }
 
-        .preview-card-header {
+        .preview-widget-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 16px;
         }
 
-        .preview-card-title {
-            font-size: 0.85rem;
+        .preview-widget-title {
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-primary);
         }
 
-        .preview-card-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--neutral-100);
+        .preview-widget-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-primary);
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--brand-secondary);
+            color: var(--text-muted);
+            font-size: 0.75rem;
         }
 
-        /* Portfolio Summary */
-        .portfolio-value {
-            font-family: 'Sora', sans-serif;
+        .preview-value {
+            font-family: 'DM Serif Display', serif;
             font-size: 2rem;
-            font-weight: 700;
             color: var(--text-primary);
+            margin-bottom: 4px;
         }
 
-        .portfolio-change {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+        .preview-change {
             font-size: 0.85rem;
-            font-weight: 600;
             color: var(--success);
-            margin-top: 4px;
+            font-weight: 500;
         }
 
-        .portfolio-stats {
+        .preview-stats {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             margin-top: 16px;
             padding-top: 16px;
-            border-top: 1px solid var(--neutral-200);
+            border-top: 1px solid var(--gray-200);
         }
 
-        .portfolio-stat {
+        .preview-stat {
             flex: 1;
         }
 
-        .portfolio-stat-label {
-            font-size: 0.75rem;
+        .preview-stat-label {
+            font-size: 0.7rem;
             color: var(--text-muted);
-            margin-bottom: 2px;
         }
 
-        .portfolio-stat-value {
+        .preview-stat-value {
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--text-primary);
         }
 
-        /* Performance Chart */
-        .chart-placeholder {
-            height: 120px;
+        .preview-chart {
+            height: 80px;
             display: flex;
             align-items: flex-end;
             gap: 4px;
-            padding: 10px 0;
+            padding-top: 10px;
         }
 
-        .chart-bar {
+        .preview-chart-bar {
             flex: 1;
-            background: linear-gradient(to top, var(--brand-secondary), var(--brand-tertiary));
-            border-radius: 4px 4px 0 0;
+            background: linear-gradient(to top, var(--primary), var(--primary-light));
+            border-radius: 3px 3px 0 0;
             opacity: 0.7;
-            transition: opacity var(--transition-fast);
         }
 
-        .chart-bar:hover {
-            opacity: 1;
-        }
-
-        /* Market Watch */
-        .market-item {
+        .preview-list-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 0;
-            border-bottom: 1px solid var(--neutral-100);
+            border-bottom: 1px solid var(--gray-200);
         }
 
-        .market-item:last-child {
+        .preview-list-item:last-child {
             border-bottom: none;
         }
 
-        .market-name {
+        .preview-list-name {
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--text-primary);
         }
 
-        .market-symbol {
+        .preview-list-sub {
             font-size: 0.75rem;
             color: var(--text-muted);
         }
 
-        .market-price {
+        .preview-list-value {
             text-align: right;
         }
 
-        .market-value {
+        .preview-list-price {
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--text-primary);
         }
 
-        .market-change {
+        .preview-list-change {
             font-size: 0.75rem;
             color: var(--success);
         }
 
-        /* AI Insights */
-        .insight-item {
-            display: flex;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--neutral-100);
-        }
-
-        .insight-item:last-child {
-            border-bottom: none;
-        }
-
-        .insight-icon {
-            width: 28px;
-            height: 28px;
-            background: var(--accent-primary);
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.75rem;
-            flex-shrink: 0;
-        }
-
-        .insight-text {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        /* Paper Trading Badge */
-        .preview-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: rgba(13, 148, 136, 0.1);
-            border-radius: var(--radius-full);
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--accent-primary);
-            margin-bottom: 12px;
-        }
-
-        /* ==========================================
-           FEATURES SECTION
-           ========================================== */
-        .features {
+        /* How It Works */
+        .how-it-works {
+            padding: 100px 0;
             background: var(--bg-secondary);
         }
 
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            background: white;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--brand-secondary);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .section-title {
-            font-size: clamp(2rem, 4vw, 2.75rem);
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .section-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-top: 60px;
-        }
-
-        .feature-card {
-            background: white;
-            border-radius: var(--radius-xl);
-            padding: 32px;
-            box-shadow: var(--shadow-card);
-            transition: all var(--transition-normal);
-            border: 1px solid transparent;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-card-hover);
-            border-color: var(--neutral-200);
-        }
-
-        .feature-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, var(--brand-secondary), var(--brand-tertiary));
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.25rem;
-            margin-bottom: 20px;
-        }
-
-        .feature-icon.teal {
-            background: var(--accent-gradient);
-        }
-
-        .feature-title {
-            font-family: 'Sora', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-
-        .feature-description {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* ==========================================
-           HOW IT WORKS
-           ========================================== */
-        .how-it-works {
-            background: white;
-        }
-
-        .steps-container {
+        .steps {
             display: flex;
             justify-content: center;
             gap: 32px;
@@ -758,32 +625,30 @@
             flex-wrap: wrap;
         }
 
-        .step-card {
+        .step {
             text-align: center;
-            max-width: 220px;
+            max-width: 200px;
         }
 
         .step-number {
-            width: 64px;
-            height: 64px;
-            background: var(--brand-gradient);
+            width: 56px;
+            height: 56px;
+            background: var(--text-primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Sora', sans-serif;
-            font-size: 1.5rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.25rem;
             font-weight: 700;
             color: white;
-            margin: 0 auto 20px;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            margin: 0 auto 16px;
         }
 
         .step-title {
-            font-family: 'Sora', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
@@ -797,94 +662,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--neutral-300);
+            color: var(--gray-300);
             font-size: 1.5rem;
-            margin-top: 32px;
+            align-self: center;
+            padding-bottom: 40px;
         }
 
-        /* ==========================================
-           WHY SMARPIP
-           ========================================== */
-        .why-section {
-            background: var(--bg-secondary);
-        }
-
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-            margin-top: 60px;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .benefit-card {
-            background: white;
-            border-radius: var(--radius-xl);
-            padding: 32px;
-            display: flex;
-            gap: 20px;
-            box-shadow: var(--shadow-card);
-            transition: all var(--transition-normal);
-        }
-
-        .benefit-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-card-hover);
-        }
-
-        .benefit-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--neutral-100);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--brand-secondary);
-            font-size: 1.25rem;
-            flex-shrink: 0;
-        }
-
-        .benefit-content {
-            flex: 1;
-        }
-
-        .benefit-title {
-            font-family: 'Sora', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .benefit-description {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* ==========================================
-           PRICING
-           ========================================== */
+        /* Pricing */
         .pricing {
-            background: white;
+            padding: 100px 0;
         }
 
         .pricing-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
-            margin-top: 60px;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 960px;
+            margin: 60px auto 0;
         }
 
         .pricing-card {
-            background: white;
-            border: 1px solid var(--neutral-200);
+            background: var(--bg-primary);
+            border: 1px solid var(--gray-200);
             border-radius: var(--radius-xl);
             padding: 32px;
             position: relative;
@@ -892,13 +691,13 @@
         }
 
         .pricing-card:hover {
-            border-color: var(--brand-secondary);
+            border-color: var(--gray-300);
             box-shadow: var(--shadow-lg);
         }
 
         .pricing-card.featured {
-            border-color: var(--brand-primary);
-            box-shadow: 0 0 0 1px var(--brand-primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
         }
 
         .pricing-badge {
@@ -907,18 +706,17 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 4px 16px;
-            background: var(--brand-gradient);
-            border-radius: var(--radius-full);
+            background: var(--primary);
+            color: white;
             font-size: 0.75rem;
             font-weight: 600;
-            color: white;
+            border-radius: var(--radius-full);
         }
 
         .pricing-name {
-            font-family: 'Sora', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
@@ -933,10 +731,8 @@
         }
 
         .pricing-amount {
-            font-family: 'Sora', sans-serif;
+            font-family: 'DM Serif Display', serif;
             font-size: 3rem;
-            font-weight: 800;
-            color: var(--text-primary);
         }
 
         .pricing-period {
@@ -960,31 +756,34 @@
 
         .pricing-features li i {
             color: var(--success);
-            font-size: 0.85rem;
         }
 
         .pricing-cta {
             width: 100%;
         }
 
-        /* ==========================================
-           FAQ
-           ========================================== */
+        /* FAQ */
         .faq {
+            padding: 100px 0;
             background: var(--bg-secondary);
         }
 
         .faq-list {
-            max-width: 800px;
+            max-width: 720px;
             margin: 60px auto 0;
         }
 
         .faq-item {
-            background: white;
+            background: var(--bg-primary);
             border-radius: var(--radius-lg);
             margin-bottom: 12px;
-            box-shadow: var(--shadow-xs);
             overflow: hidden;
+            border: 1px solid transparent;
+            transition: all var(--transition-fast);
+        }
+
+        .faq-item:hover {
+            border-color: var(--gray-200);
         }
 
         .faq-question {
@@ -994,15 +793,10 @@
             justify-content: space-between;
             padding: 20px 24px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-primary);
             text-align: left;
             cursor: pointer;
-            transition: background var(--transition-fast);
-        }
-
-        .faq-question:hover {
-            background: var(--neutral-50);
         }
 
         .faq-question i {
@@ -1026,60 +820,10 @@
             display: block;
         }
 
-        /* ==========================================
-           CTA SECTION
-           ========================================== */
-        .cta-section {
-            background: var(--brand-gradient);
-            padding: 80px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-bg-pattern {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
-        }
-
-        .cta-content {
-            position: relative;
-            text-align: center;
-            z-index: 1;
-        }
-
-        .cta-title {
-            font-size: clamp(2rem, 4vw, 2.5rem);
-            font-weight: 800;
-            color: white;
-            margin-bottom: 16px;
-        }
-
-        .cta-subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 32px;
-        }
-
-        .cta-section .btn-primary {
-            background: white;
-            color: var(--brand-primary);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .cta-section .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        }
-
-        /* ==========================================
-           FOOTER
-           ========================================== */
+        /* Footer */
         .footer {
-            background: var(--neutral-900);
-            color: var(--neutral-300);
+            background: var(--text-primary);
+            color: white;
             padding: 60px 0 30px;
         }
 
@@ -1099,14 +843,14 @@
             margin-bottom: 16px;
         }
 
-        .footer-brand .nav-brand-icon {
+        .footer-brand .nav-logo {
             background: rgba(255, 255, 255, 0.1);
         }
 
         .footer-brand p {
             font-size: 0.9rem;
+            color: var(--gray-400);
             line-height: 1.6;
-            color: var(--neutral-400);
         }
 
         .footer-social {
@@ -1123,7 +867,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--neutral-400);
+            color: var(--gray-400);
             transition: all var(--transition-fast);
         }
 
@@ -1135,7 +879,6 @@
         .footer-column h4 {
             font-size: 0.85rem;
             font-weight: 600;
-            color: white;
             margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -1151,7 +894,7 @@
 
         .footer-links a {
             font-size: 0.9rem;
-            color: var(--neutral-400);
+            color: var(--gray-400);
             transition: color var(--transition-fast);
         }
 
@@ -1164,12 +907,12 @@
             align-items: center;
             justify-content: space-between;
             padding-top: 30px;
-            border-top: 1px solid var(--neutral-800);
+            border-top: 1px solid var(--gray-700);
         }
 
         .footer-copyright {
             font-size: 0.85rem;
-            color: var(--neutral-500);
+            color: var(--gray-500);
         }
 
         .footer-legal {
@@ -1179,7 +922,7 @@
 
         .footer-legal a {
             font-size: 0.85rem;
-            color: var(--neutral-500);
+            color: var(--gray-500);
             transition: color var(--transition-fast);
         }
 
@@ -1187,29 +930,9 @@
             color: white;
         }
 
-        /* ==========================================
-           MOBILE MENU
-           ========================================== */
-        .nav-toggle {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            padding: 8px;
-        }
-
-        .nav-toggle span {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: var(--text-primary);
-            border-radius: 2px;
-        }
-
-        /* ==========================================
-           RESPONSIVE
-           ========================================== */
+        /* Responsive */
         @media (max-width: 1024px) {
-            .features-grid {
+            .benefits-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             
@@ -1226,12 +949,11 @@
             .footer-brand {
                 grid-column: span 3;
                 max-width: none;
-                margin-bottom: 20px;
             }
         }
 
         @media (max-width: 768px) {
-            .nav-menu {
+            .nav-links {
                 display: none;
                 position: absolute;
                 top: 100%;
@@ -1240,11 +962,11 @@
                 background: white;
                 flex-direction: column;
                 padding: 20px;
-                border-bottom: 1px solid var(--neutral-200);
+                border-bottom: 1px solid var(--gray-200);
                 box-shadow: var(--shadow-lg);
             }
 
-            .nav-menu.active {
+            .nav-links.active {
                 display: flex;
             }
 
@@ -1257,33 +979,21 @@
             }
 
             .hero {
-                padding: 120px 0 60px;
+                padding: 100px 0 60px;
             }
 
-            .hero-title {
-                font-size: 2.25rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-
-            .features-grid {
+            .benefits-grid {
                 grid-template-columns: 1fr;
             }
 
-            .steps-container {
+            .steps {
                 flex-direction: column;
                 align-items: center;
             }
 
             .step-arrow {
                 transform: rotate(90deg);
-                margin: 0;
-            }
-
-            .benefits-grid {
-                grid-template-columns: 1fr;
+                padding: 0;
             }
 
             .pricing-grid {
@@ -1323,10 +1033,6 @@
         }
 
         @media (max-width: 480px) {
-            .section {
-                padding: 60px 0;
-            }
-
             .container {
                 padding: 0 16px;
             }
@@ -1339,19 +1045,17 @@
                 width: 100%;
             }
 
-            .benefit-card {
-                flex-direction: column;
-                text-align: center;
+            .benefits-grid,
+            .pricing-grid {
+                gap: 16px;
             }
 
-            .benefit-icon {
-                margin: 0 auto;
+            .benefit-card,
+            .pricing-card {
+                padding: 24px;
             }
         }
 
-        /* ==========================================
-           ANIMATIONS
-           ========================================== */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -1367,56 +1071,32 @@
             animation: fadeInUp 0.6s ease forwards;
         }
 
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-
-        /* ==========================================
-           SCROLLBAR
-           ========================================== */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--neutral-100);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--neutral-300);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--neutral-400);
-        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="nav" id="navbar">
         <div class="container">
-            <div class="nav-container">
+            <div class="nav-inner">
                 <a href="#" class="nav-brand">
-                    <div class="nav-brand-icon">
+                    <div class="nav-logo">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     SmartPip
                 </a>
                 
-                <div class="nav-menu" id="navMenu">
-                    <a href="#features" class="nav-link">Features</a>
+                <div class="nav-links" id="navLinks">
+                    <a href="#benefits" class="nav-link">Why SmartPip</a>
+                    <a href="#preview" class="nav-link">Platform</a>
                     <a href="#pricing" class="nav-link">Pricing</a>
                     <a href="#faq" class="nav-link">FAQ</a>
-                    <a href="#about" class="nav-link">About</a>
-                    <a href="#contact" class="nav-link">Contact</a>
                 </div>
                 
                 <div class="nav-actions">
-                    <a href="#" class="btn btn-ghost btn-sm">Login</a>
-                    <a href="#" class="btn btn-primary btn-sm">Get Started</a>
+                    <a href="#" class="btn btn-ghost">Sign In</a>
+                    <a href="#" class="btn btn-primary">Get Started Free</a>
                     <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
                         <span></span>
                         <span></span>
@@ -1427,484 +1107,320 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-grid"></div>
         <div class="container">
             <div class="hero-content">
-                <div class="hero-badge animate-fadeInUp">
+                <div class="hero-eyebrow animate-fadeInUp">
                     <i class="fas fa-sparkles"></i>
-                    AI-Powered Trading Platform
+                    AI-Assisted Trading Platform
                 </div>
-                <h1 class="hero-title animate-fadeInUp delay-100">
-                    AI-Assisted Trading, Built for <span>Smarter Decisions</span>
+                <h1 class="hero-title animate-fadeInUp delay-1">
+                    Trade With Confidence,<br>Not Guesswork
                 </h1>
-                <p class="hero-subtitle animate-fadeInUp delay-200">
-                    SmartPip helps traders analyze markets, practice safely with paper trading, review performance, and make informed trading decisions from one intuitive platform.
+                <p class="hero-description animate-fadeInUp delay-2">
+                    SmartPip helps traders analyze markets, practice safely, review performance, and make informed trading decisions using one intelligent platform.
                 </p>
-                <div class="hero-actions animate-fadeInUp delay-300">
-                    <a href="#" class="btn btn-primary btn-lg">
-                        <i class="fas fa-rocket"></i>
-                        Get Started Free
-                    </a>
-                    <a href="#features" class="btn btn-secondary btn-lg">
-                        Explore Features
-                    </a>
+                <div class="hero-actions animate-fadeInUp delay-3">
+                    <a href="#" class="btn btn-primary">Get Started Free</a>
+                    <a href="#benefits" class="btn btn-secondary">Learn More</a>
                 </div>
-                <p class="hero-note animate-fadeInUp delay-400">
-                    <i class="fas fa-shield-halved"></i> No credit card required. Start with paper trading.
+                <p class="hero-note animate-fadeInUp delay-3">
+                    No credit card required. Start with paper trading.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- Platform Preview -->
-    <section class="preview">
-        <div class="preview-container">
-            <div class="preview-window">
-                <div class="preview-header">
-                    <div class="preview-dot red"></div>
-                    <div class="preview-dot yellow"></div>
-                    <div class="preview-dot green"></div>
-                </div>
-                <div class="preview-body">
-                    <div class="preview-sidebar">
-                        <div class="preview-sidebar-item active">
-                            <i class="fas fa-home"></i>
-                            Dashboard
-                        </div>
-                        <div class="preview-sidebar-item">
-                            <i class="fas fa-chart-pie"></i>
-                            Analytics
-                        </div>
-                        <div class="preview-sidebar-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            Paper Trading
-                        </div>
-                        <div class="preview-sidebar-item">
-                            <i class="fas fa-book"></i>
-                            Trade Journal
-                        </div>
-                        <div class="preview-sidebar-item">
-                            <i class="fas fa-brain"></i>
-                            AI Insights
-                        </div>
-                    </div>
-                    <div class="preview-main">
-                        <!-- Portfolio Summary -->
-                        <div class="preview-card">
-                            <div class="preview-card-header">
-                                <span class="preview-card-title">Portfolio Summary</span>
-                                <div class="preview-card-icon">
-                                    <i class="fas fa-wallet"></i>
-                                </div>
-                            </div>
-                            <div class="portfolio-value">$12,450.00</div>
-                            <div class="portfolio-change">
-                                <i class="fas fa-arrow-up"></i>
-                                +$1,234.50 (10.5%)
-                            </div>
-                            <div class="portfolio-stats">
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-stat-label">Trades</div>
-                                    <div class="portfolio-stat-value">156</div>
-                                </div>
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-stat-label">Win Rate</div>
-                                    <div class="portfolio-stat-value">68%</div>
-                                </div>
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-stat-label">P/L</div>
-                                    <div class="portfolio-stat-value">+$2,450</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Performance Chart -->
-                        <div class="preview-card">
-                            <div class="preview-card-header">
-                                <span class="preview-card-title">Performance</span>
-                                <div class="preview-badge">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    Paper Trading
-                                </div>
-                            </div>
-                            <div class="chart-placeholder">
-                                <div class="chart-bar" style="height: 45%"></div>
-                                <div class="chart-bar" style="height: 60%"></div>
-                                <div class="chart-bar" style="height: 40%"></div>
-                                <div class="chart-bar" style="height: 75%"></div>
-                                <div class="chart-bar" style="height: 55%"></div>
-                                <div class="chart-bar" style="height: 80%"></div>
-                                <div class="chart-bar" style="height: 65%"></div>
-                                <div class="chart-bar" style="height: 90%"></div>
-                                <div class="chart-bar" style="height: 70%"></div>
-                                <div class="chart-bar" style="height: 85%"></div>
-                                <div class="chart-bar" style="height: 95%"></div>
-                                <div class="chart-bar" style="height: 100%"></div>
-                            </div>
-                        </div>
-
-                        <!-- Market Watch -->
-                        <div class="preview-card">
-                            <div class="preview-card-header">
-                                <span class="preview-card-title">Market Watch</span>
-                                <div class="preview-card-icon">
-                                    <i class="fas fa-eye"></i>
-                                </div>
-                            </div>
-                            <div class="market-item">
-                                <div>
-                                    <div class="market-name">Volatility 75</div>
-                                    <div class="market-symbol">V-75</div>
-                                </div>
-                                <div class="market-price">
-                                    <div class="market-value">1,234.56</div>
-                                    <div class="market-change">+2.34%</div>
-                                </div>
-                            </div>
-                            <div class="market-item">
-                                <div>
-                                    <div class="market-name">Volatility 50</div>
-                                    <div class="market-symbol">V-50</div>
-                                </div>
-                                <div class="market-price">
-                                    <div class="market-value">856.78</div>
-                                    <div class="market-change">+1.12%</div>
-                                </div>
-                            </div>
-                            <div class="market-item">
-                                <div>
-                                    <div class="market-name">Boom 1000</div>
-                                    <div class="market-symbol">BOOM-1000</div>
-                                </div>
-                                <div class="market-price">
-                                    <div class="market-value">2,145.90</div>
-                                    <div class="market-change">+0.89%</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- AI Insights -->
-                        <div class="preview-card">
-                            <div class="preview-card-header">
-                                <span class="preview-card-title">AI Insights</span>
-                                <div class="preview-card-icon" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <div class="insight-icon">
-                                    <i class="fas fa-lightbulb"></i>
-                                </div>
-                                <div class="insight-text">
-                                    <strong>Pattern Detected:</strong> Strong upward momentum on V-75. Consider long positions.
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <div class="insight-icon">
-                                    <i class="fas fa-shield-halved"></i>
-                                </div>
-                                <div class="insight-text">
-                                    <strong>Risk Alert:</strong> High volatility detected. Reduce position sizes by 20%.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features section" id="features">
+    <section class="benefits" id="benefits">
         <div class="container">
-            <div class="text-center">
-                <div class="section-label">
-                    <i class="fas fa-sparkles"></i>
-                    Features
-                </div>
-                <h2 class="section-title">Everything you need to trade smarter</h2>
-                <p class="section-subtitle">
-                    Powerful tools designed to help you analyze, practice, and improve your trading performance.
-                </p>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="feature-title">AI Market Analysis</h3>
-                    <p class="feature-description">
-                        Advanced AI algorithms analyze market patterns and provide actionable insights to inform your trading decisions.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon teal">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3 class="feature-title">Paper Trading</h3>
-                    <p class="feature-description">
-                        Practice trading strategies risk-free with virtual funds before committing real capital.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="feature-title">Performance Analytics</h3>
-                    <p class="feature-description">
-                        Track your trading performance with detailed analytics and visualize your progress over time.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon teal">
-                        <i class="fas fa-shield-halved"></i>
-                    </div>
-                    <h3 class="feature-title">Risk Management</h3>
-                    <p class="feature-description">
-                        Built-in risk management tools help protect your capital and minimize potential losses.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h3 class="feature-title">Trade Journal</h3>
-                    <p class="feature-description">
-                        Document and review your trades to learn from both wins and losses systematically.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon teal">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <h3 class="feature-title">Strategy Replay</h3>
-                    <p class="feature-description">
-                        Review past market conditions and replay your trades to understand what worked and what didn't.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section class="how-it-works section" id="about">
-        <div class="container">
-            <div class="text-center">
-                <div class="section-label">
-                    <i class="fas fa-route"></i>
-                    How It Works
-                </div>
-                <h2 class="section-title">Get started in minutes</h2>
-                <p class="section-subtitle">
-                    Start exploring SmartPip right away. No broker connection required initially.
-                </p>
-            </div>
-
-            <div class="steps-container">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3 class="step-title">Create your account</h3>
-                    <p class="step-description">
-                        Sign up for free and access the platform immediately.
-                    </p>
-                </div>
-
-                <div class="step-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3 class="step-title">Explore with paper trading</h3>
-                    <p class="step-description">
-                        Practice trading strategies using virtual funds with real market data.
-                    </p>
-                </div>
-
-                <div class="step-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3 class="step-title">Connect your broker when ready</h3>
-                    <p class="step-description">
-                        Link your Deriv account to trade with real capital when you're confident.
-                    </p>
-                </div>
-
-                <div class="step-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <h3 class="step-title">Monitor and improve</h3>
-                    <p class="step-description">
-                        Track your performance and continuously refine your trading strategies.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Why SmartPip -->
-    <section class="why-section section">
-        <div class="container">
-            <div class="text-center">
-                <div class="section-label">
-                    <i class="fas fa-star"></i>
-                    Why SmartPip
-                </div>
-                <h2 class="section-title">Trading insights, simplified</h2>
-                <p class="section-subtitle">
-                    Focus on making better trading decisions with clear insights and powerful tools.
+            <div class="section-header">
+                <div class="section-label">Why SmartPip</div>
+                <h2 class="section-title">Built for smarter traders</h2>
+                <p class="section-description">
+                    Tools designed to help you prepare better, analyze more effectively, and trade with greater discipline.
                 </p>
             </div>
 
             <div class="benefits-grid">
                 <div class="benefit-card">
                     <div class="benefit-icon">
-                        <i class="fas fa-lightbulb"></i>
+                        <i class="fas fa-brain"></i>
                     </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Clear Trading Insights</h3>
-                        <p class="benefit-description">
-                            Get AI-powered analysis and insights that help you understand market patterns without complexity.
-                        </p>
-                    </div>
+                    <h3 class="benefit-title">AI-Assisted Analysis</h3>
+                    <p class="benefit-description">
+                        Gain insights from AI-powered market analysis to inform your trading decisions.
+                    </p>
                 </div>
 
                 <div class="benefit-card">
                     <div class="benefit-icon">
-                        <i class="fas fa-seedling"></i>
+                        <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Practice Before Risking Money</h3>
-                        <p class="benefit-description">
-                            Paper trading lets you develop and test strategies without financial risk.
-                        </p>
-                    </div>
+                    <h3 class="benefit-title">Paper Trading</h3>
+                    <p class="benefit-description">
+                        Practice strategies with virtual funds before risking real capital.
+                    </p>
                 </div>
 
                 <div class="benefit-card">
                     <div class="benefit-icon">
-                        <i class="fas fa-chart-bar"></i>
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Track Long-Term Performance</h3>
-                        <p class="benefit-description">
-                            Monitor your trading journey with detailed analytics and performance metrics.
-                        </p>
-                    </div>
+                    <h3 class="benefit-title">Performance Insights</h3>
+                    <p class="benefit-description">
+                        Track your progress with clear analytics and detailed reports.
+                    </p>
                 </div>
 
                 <div class="benefit-card">
                     <div class="benefit-icon">
-                        <i class="fas fa-magnifying-glass-chart"></i>
+                        <i class="fas fa-shield-halved"></i>
                     </div>
-                    <div class="benefit-content">
-                        <h3 class="benefit-title">Understand Every Decision</h3>
-                        <p class="benefit-description">
-                            Review your trades with full context to learn what drives your success.
-                        </p>
+                    <h3 class="benefit-title">Risk Awareness</h3>
+                    <p class="benefit-description">
+                        Built-in tools help you understand and manage trading risks.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="preview" id="preview">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">The Platform</div>
+                <h2 class="section-title">Everything you need, nothing you don't</h2>
+                <p class="section-description">
+                    A clean, focused interface designed for clarity and ease of use.
+                </p>
+            </div>
+
+            <div class="preview-card">
+                <div class="preview-header">
+                    <div class="preview-dot"></div>
+                    <div class="preview-dot"></div>
+                    <div class="preview-dot"></div>
+                </div>
+                <div class="preview-body">
+                    <div class="preview-sidebar">
+                        <div class="preview-nav-item active">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </div>
+                        <div class="preview-nav-item">
+                            <i class="fas fa-chart-pie"></i>
+                            Analytics
+                        </div>
+                        <div class="preview-nav-item">
+                            <i class="fas fa-book"></i>
+                            Journal
+                        </div>
+                    </div>
+                    <div class="preview-main">
+                        <div class="preview-widget">
+                            <div class="preview-widget-header">
+                                <span class="preview-widget-title">Portfolio</span>
+                                <div class="preview-widget-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                            </div>
+                            <div class="preview-value">$12,450</div>
+                            <div class="preview-change">
+                                <i class="fas fa-arrow-up"></i>
+                                +$1,234 (10.5%)
+                            </div>
+                            <div class="preview-stats">
+                                <div class="preview-stat">
+                                    <div class="preview-stat-label">Trades</div>
+                                    <div class="preview-stat-value">156</div>
+                                </div>
+                                <div class="preview-stat">
+                                    <div class="preview-stat-label">Win Rate</div>
+                                    <div class="preview-stat-value">68%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-widget">
+                            <div class="preview-widget-header">
+                                <span class="preview-widget-title">Performance</span>
+                            </div>
+                            <div class="preview-chart">
+                                <div class="preview-chart-bar" style="height: 40%"></div>
+                                <div class="preview-chart-bar" style="height: 55%"></div>
+                                <div class="preview-chart-bar" style="height: 35%"></div>
+                                <div class="preview-chart-bar" style="height: 70%"></div>
+                                <div class="preview-chart-bar" style="height: 50%"></div>
+                                <div class="preview-chart-bar" style="height: 75%"></div>
+                                <div class="preview-chart-bar" style="height: 60%"></div>
+                                <div class="preview-chart-bar" style="height: 85%"></div>
+                                <div class="preview-chart-bar" style="height: 95%"></div>
+                                <div class="preview-chart-bar" style="height: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div class="preview-widget">
+                            <div class="preview-widget-header">
+                                <span class="preview-widget-title">Market Watch</span>
+                            </div>
+                            <div class="preview-list-item">
+                                <div>
+                                    <div class="preview-list-name">V-75</div>
+                                    <div class="preview-list-sub">Volatility 75</div>
+                                </div>
+                                <div class="preview-list-value">
+                                    <div class="preview-list-price">1,234.56</div>
+                                    <div class="preview-list-change">+2.34%</div>
+                                </div>
+                            </div>
+                            <div class="preview-list-item">
+                                <div>
+                                    <div class="preview-list-name">V-50</div>
+                                    <div class="preview-list-sub">Volatility 50</div>
+                                </div>
+                                <div class="preview-list-value">
+                                    <div class="preview-list-price">856.78</div>
+                                    <div class="preview-list-change">+1.12%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-widget">
+                            <div class="preview-widget-header">
+                                <span class="preview-widget-title">AI Insights</span>
+                            </div>
+                            <div class="preview-list-item" style="border: none; padding-top: 0;">
+                                <div>
+                                    <div class="preview-list-name" style="font-size: 0.8rem;">Pattern Detected</div>
+                                    <div class="preview-list-sub">Strong upward momentum on V-75. Consider long positions.</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Pricing -->
-    <section class="pricing section" id="pricing">
+    <section class="how-it-works" id="how-it-works">
         <div class="container">
-            <div class="text-center">
-                <div class="section-label">
-                    <i class="fas fa-tag"></i>
-                    Pricing
+            <div class="section-header">
+                <div class="section-label">How It Works</div>
+                <h2 class="section-title">Start trading smarter today</h2>
+                <p class="section-description">
+                    Get started in minutes, not hours.
+                </p>
+            </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Create Account</h3>
+                    <p class="step-description">Sign up free and access the platform immediately.</p>
                 </div>
+
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Practice Trading</h3>
+                    <p class="step-description">Use paper trading to develop your strategies.</p>
+                </div>
+
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Connect Broker</h3>
+                    <p class="step-description">Link your account when you're ready to trade live.</p>
+                </div>
+
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Trade Confidently</h3>
+                    <p class="step-description">Monitor your trades and improve over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Pricing</div>
                 <h2 class="section-title">Simple, transparent pricing</h2>
-                <p class="section-subtitle">
-                    Start free, upgrade when you need more.
+                <p class="section-description">
+                    Start free. Upgrade when you need more.
                 </p>
             </div>
 
             <div class="pricing-grid">
                 <div class="pricing-card">
                     <h3 class="pricing-name">Free</h3>
-                    <p class="pricing-description">For beginners exploring trading</p>
+                    <p class="pricing-description">For those just getting started.</p>
                     <div class="pricing-price">
                         <span class="pricing-amount">$0</span>
-                        <span class="pricing-period">/ forever</span>
+                        <span class="pricing-period"> / forever</span>
                     </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Paper trading with virtual funds</li>
-                        <li><i class="fas fa-check"></i> Basic AI market analysis</li>
+                        <li><i class="fas fa-check"></i> Paper trading</li>
+                        <li><i class="fas fa-check"></i> Basic analytics</li>
                         <li><i class="fas fa-check"></i> Trade journal</li>
-                        <li><i class="fas fa-check"></i> Basic performance tracking</li>
+                        <li><i class="fas fa-check"></i> Community support</li>
                     </ul>
                     <a href="#" class="btn btn-secondary pricing-cta">Get Started</a>
                 </div>
 
                 <div class="pricing-card featured">
-                    <div class="pricing-badge">Popular</div>
-                    <h3 class="pricing-name">Starter</h3>
-                    <p class="pricing-description">For serious traders</p>
+                    <div class="pricing-badge">Recommended</div>
+                    <h3 class="pricing-name">Pro</h3>
+                    <p class="pricing-description">For serious traders.</p>
                     <div class="pricing-price">
                         <span class="pricing-amount">$19</span>
-                        <span class="pricing-period">/ month</span>
+                        <span class="pricing-period"> / month</span>
                     </div>
                     <ul class="pricing-features">
                         <li><i class="fas fa-check"></i> Everything in Free</li>
-                        <li><i class="fas fa-check"></i> Connect one broker account</li>
+                        <li><i class="fas fa-check"></i> Live trading</li>
                         <li><i class="fas fa-check"></i> Advanced AI insights</li>
-                        <li><i class="fas fa-check"></i> Strategy replay</li>
-                        <li><i class="fas fa-check"></i> Export trade data</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
                     </ul>
                     <a href="#" class="btn btn-primary pricing-cta">Start Free Trial</a>
                 </div>
 
                 <div class="pricing-card">
-                    <h3 class="pricing-name">Professional</h3>
-                    <p class="pricing-description">For power traders</p>
+                    <h3 class="pricing-name">Enterprise</h3>
+                    <p class="pricing-description">For teams and organizations.</p>
                     <div class="pricing-price">
-                        <span class="pricing-amount">$49</span>
-                        <span class="pricing-period">/ month</span>
+                        <span class="pricing-amount">Custom</span>
                     </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Everything in Starter</li>
-                        <li><i class="fas fa-check"></i> Multiple broker accounts</li>
-                        <li><i class="fas fa-check"></i> Priority AI processing</li>
-                        <li><i class="fas fa-check"></i> Custom alerts</li>
-                        <li><i class="fas fa-check"></i> API access</li>
+                        <li><i class="fas fa-check"></i> Everything in Pro</li>
+                        <li><i class="fas fa-check"></i> Team management</li>
+                        <li><i class="fas fa-check"></i> Custom integrations</li>
+                        <li><i class="fas fa-check"></i> Dedicated support</li>
                     </ul>
-                    <a href="#" class="btn btn-secondary pricing-cta">Contact Sales</a>
+                    <a href="#" class="btn btn-secondary pricing-cta">Contact Us</a>
                 </div>
-            </div>
-
-            <div class="text-center" style="margin-top: 40px;">
-                <a href="#" class="btn btn-ghost">Compare Plans</a>
             </div>
         </div>
     </section>
 
-    <!-- FAQ -->
-    <section class="faq section" id="faq">
+    <section class="faq" id="faq">
         <div class="container">
-            <div class="text-center">
-                <div class="section-label">
-                    <i class="fas fa-circle-question"></i>
-                    FAQ
-                </div>
-                <h2 class="section-title">Frequently asked questions</h2>
+            <div class="section-header">
+                <div class="section-label">FAQ</div>
+                <h2 class="section-title">Questions? Answers.</h2>
             </div>
 
             <div class="faq-list">
@@ -1914,96 +1430,77 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        No, you can start with paper trading using virtual funds immediately after creating an account. Connect your broker (like Deriv) only when you're ready to trade with real capital.
+                        No. You can start using SmartPip immediately with paper trading—no broker connection required. When you're ready to trade with real capital, you can connect your Deriv account.
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        Can I practice trading without risking real money?
+                        Can I practice trading first?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        Yes! SmartPip's paper trading feature lets you practice with virtual funds that simulate real market conditions. It's a great way to develop and test strategies risk-free.
+                        Absolutely. Paper trading lets you practice with virtual funds using real market data. It's a great way to develop and test strategies before risking real money.
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        Is my trading data secure?
+                        Is my data secure?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        Absolutely. We use industry-standard encryption to protect your data. Your trading information is stored securely and we never share your personal data with third parties.
+                        Yes. We use industry-standard encryption to protect your data. We never share your personal information or trading data with third parties.
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        Which brokers are supported?
+                        How do subscriptions work?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        SmartPip currently supports Deriv. We're constantly working to add more broker integrations. You can start using the platform immediately with paper trading regardless.
+                        Our Free plan includes paper trading and basic features forever. Pro and Enterprise plans add live trading, advanced features, and priority support. You can upgrade, downgrade, or cancel anytime.
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question">
-                        Can I upgrade or downgrade my plan later?
+                        Can I upgrade later?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        Yes, you can change your plan at any time. Upgrades take effect immediately, and downgrades apply at the end of your billing period. No long-term commitments required.
+                        Yes, you can upgrade at any time. Upgrades take effect immediately, and downgrades apply at the end of your billing period. No long-term commitments required.
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section">
-        <div class="cta-bg-pattern"></div>
-        <div class="container">
-            <div class="cta-content">
-                <h2 class="cta-title">Ready to trade smarter?</h2>
-                <p class="cta-subtitle">
-                    Join thousands of traders who use SmartPip to improve their trading decisions.
-                </p>
-                <a href="#" class="btn btn-primary btn-lg">
-                    <i class="fas fa-rocket"></i>
-                    Get Started Free
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer" id="contact">
+    <footer class="footer">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="#" class="nav-brand">
-                        <div class="nav-brand-icon">
+                        <div class="nav-logo">
                             <i class="fas fa-chart-line"></i>
                         </div>
                         SmartPip
                     </a>
-                    <p>AI-assisted trading platform that helps you analyze markets, practice safely, and make smarter trading decisions.</p>
+                    <p>AI-assisted trading platform. Prepare better, analyze more, trade with discipline.</p>
                     <div class="footer-social">
-                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
                         <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
 
                 <div class="footer-column">
                     <h4>Product</h4>
                     <ul class="footer-links">
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
                         <li><a href="#">Integrations</a></li>
-                        <li><a href="#">Changelog</a></li>
                     </ul>
                 </div>
 
@@ -2011,8 +1508,7 @@
                     <h4>Resources</h4>
                     <ul class="footer-links">
                         <li><a href="#">Documentation</a></li>
-                        <li><a href="#">Trading Guide</a></li>
-                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">API</a></li>
                         <li><a href="#">Support</a></li>
                     </ul>
                 </div>
@@ -2020,78 +1516,65 @@
                 <div class="footer-column">
                     <h4>Company</h4>
                     <ul class="footer-links">
-                        <li><a href="#about">About</a></li>
+                        <li><a href="#">About</a></li>
                         <li><a href="#">Blog</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-column">
                     <h4>Legal</h4>
                     <ul class="footer-links">
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Status</a></li>
+                        <li><a href="#">Privacy</a></li>
+                        <li><a href="#">Terms</a></li>
+                        <li><a href="#">Security</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p class="footer-copyright">2026 SmartPip. All rights reserved.</p>
+                <p class="footer-copyright">© 2026 SmartPip. All rights reserved.</p>
                 <div class="footer-legal">
-                    <a href="#">Terms</a>
-                    <a href="#">Privacy</a>
-                    <a href="#">Security</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // Navigation scroll effect
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 10) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // Mobile menu toggle
         const navToggle = document.getElementById('navToggle');
-        const navMenu = document.getElementById('navMenu');
+        const navLinks = document.getElementById('navLinks');
         
         navToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
+            navLinks.classList.toggle('active');
         });
 
-        // Close mobile menu when clicking a link
-        navMenu.querySelectorAll('.nav-link').forEach(link => {
+        navLinks.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
+                navLinks.classList.remove('active');
             });
         });
 
-        // FAQ Accordion
         document.querySelectorAll('.faq-question').forEach(button => {
             button.addEventListener('click', () => {
                 const item = button.parentElement;
                 const isActive = item.classList.contains('active');
                 
-                // Close all items
                 document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
                 
-                // Toggle current item
                 if (!isActive) {
                     item.classList.add('active');
                 }
             });
         });
 
-        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -2107,29 +1590,6 @@
                     });
                 }
             });
-        });
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const fadeObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observe elements for fade-in animation
-        document.querySelectorAll('.feature-card, .step-card, .benefit-card, .pricing-card').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            fadeObserver.observe(el);
         });
     </script>
 </body>
