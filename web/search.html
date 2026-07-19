@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartPip - Command Palette Search">
+    <title>SmartPip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-xl: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+            
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Demo Trigger Button */
+        .demo-trigger {
+            padding: 16px 32px;
+            background: var(--brand-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .demo-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Command Palette Overlay */
+        .command-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 15vh;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .command-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Command Palette */
+        .command-palette {
+            width: 100%;
+            max-width: 640px;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            transform: translateY(-20px) scale(0.95);
+            transition: transform var(--transition-normal);
+        }
+
+        .command-overlay.open .command-palette {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Search Header */
+        .command-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .command-search-icon {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+
+        .command-input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .command-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .command-shortcut {
+            display: flex;
+            gap: 4px;
+        }
+
+        .shortcut-key {
+            padding: 4px 8px;
+            background: var(--neutral-100);
+            border: 1px solid var(--neutral-200);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-family: inherit;
+        }
+
+        /* Search Results */
+        .command-results {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .result-group {
+            margin-bottom: 8px;
+        }
+
+        .result-group-title {
+            padding: 8px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .result-item:hover,
+        .result-item.selected {
+            background: var(--neutral-100);
+        }
+
+        .result-item.selected {
+            background: rgba(67, 56, 202, 0.1);
+        }
+
+        .result-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .result-icon.page {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-secondary);
+        }
+
+        .result-icon.trade {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .result-icon.journal {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .result-icon.settings {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .result-icon.action {
+            background: var(--neutral-100);
+            color: var(--text-secondary);
+        }
+
+        .result-icon.document {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .result-icon.learning {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-title .highlight {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--brand-primary);
+            padding: 0 4px;
+            border-radius: 2px;
+        }
+
+        .result-description {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result-shortcut {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .result-item:hover .result-shortcut,
+        .result-item.selected .result-shortcut {
+            opacity: 1;
+        }
+
+        .result-badge {
+            padding: 2px 8px;
+            background: var(--neutral-100);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--neutral-100);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: var(--text-muted);
+        }
+
+        .empty-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .empty-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Command Footer */
+        .command-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-top: 1px solid var(--neutral-200);
+            background: var(--neutral-50);
+        }
+
+        .footer-hints {
+            display: flex;
+            gap: 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .footer-hint {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-hint kbd {
+            padding: 2px 6px;
+            background: var(--neutral-200);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .footer-btn {
+            padding: 4px 8px;
+            background: none;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .footer-btn:hover {
+            background: var(--neutral-100);
+        }
+
+        /* Quick Actions Grid */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 8px 16px 16px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 8px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+        }
+
+        .quick-action:hover {
+            background: var(--neutral-100);
+            border-color: var(--neutral-200);
+        }
+
+        .quick-action i {
+            font-size: 1.25rem;
+            color: var(--brand-secondary);
+        }
+
+        .quick-action span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Scrollbar */
+        .command-results::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .command-results::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .command-results::-webkit-scrollbar-thumb {
+            background: var(--neutral-300);
+            border-radius: 3px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .result-item {
+            animation: slideIn 0.2s ease forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .command-palette {
+                max-width: calc(100% - 32px);
+                margin: 0 16px;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-hints {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="demo-trigger" id="openCommand">
+        <i class="fas fa-search"></i>
+        Open Command Palette
+        <span style="opacity: 0.7; margin-left: 8px; font-size: 0.85rem;">⌘K</span>
+    </button>
+
+    <!-- Command Palette Overlay -->
+    <div class="command-overlay" id="commandOverlay">
+        <div class="command-palette">
+            <!-- Search Header -->
+            <div class="command-header">
+                <i class="fas fa-search command-search-icon"></i>
+                <input 
+                    type="text" 
+                    class="command-input" 
+                    id="commandInput" 
+                    placeholder="Search for anything..."
+                    autocomplete="off"
+                >
+                <div class="command-shortcut">
+                    <span class="shortcut-key">esc</span>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="command-results" id="commandResults">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action" data-action="new-trade">
+                        <i class="fas fa-chart-line"></i>
+                        <span>New Trade</span>
+                    </div>
+                    <div class="quick-action" data-action="paper-trade">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Paper Trade</span>
+                    </div>
+                    <div class="quick-action" data-action="journal">
+                        <i class="fas fa-book"></i>
+                        <span>Add Journal</span>
+                    </div>
+                    <div class="quick-action" data-action="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Results -->
+                <div class="result-group">
+                    <div class="result-group-title">Navigation</div>
+                    
+                    <div class="result-item selected" data-type="page" data-url="dashboard.html">
+                        <div class="result-icon page">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">Dashboard</div>
+                            <div class="result-description">View your trading overview</div>
+                        </div>
+                        <div class="result-shortcut">
+                            <span class="shortcut-key">G</span>
+                            <span class="shortcut-key">H</span>
+                        </div>
+                    </div>
+
+                    <div class="result-item" data-type="page" data-url="learning.html">
+                        <div class="result-icon learning">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">Learning Center</div>
+                            <div class="result-description">Access tutorials and guides</div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" data-type="page" data-url="profile.html">
+                        <div class="result-icon page">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">Profile Settings</div>
+                            <div class="result-description">Manage your account</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Trades -->
+                <div class="result-group">
+                    <div class="result-group-title">Recent Trades</div>
+                    
+                    <div class="result-item" data-type="trade" data-id="trade-1">
+                        <div class="result-icon trade">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">V-75 Long</div>
+                            <div class="result-description">Opened 2 hours ago • +$150 profit</div>
+                        </div>
+                        <span class="result-badge">Paper</span>
+                    </div>
+
+                    <div class="result-item" data-type="trade" data-id="trade-2">
+                        <div class="result-icon trade">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">V-50 Short</div>
+                            <div class="result-description">Opened 5 hours ago • +$85 profit</div>
+                        </div>
+                        <span class="result-badge">Paper</span>
+                    </div>
+                </div>
+
+                <!-- Journal Entries -->
+                <div class="result-group">
+                    <div class="result-group-title">Journal Entries</div>
+                    
+                    <div class="result-item" data-type="journal" data-id="journal-1">
+                        <div class="result-icon journal">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">V-75 Breakout Strategy</div>
+                            <div class="result-description">Entry on support breakout</div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" data-type="journal" data-id="journal-2">
+                        <div class="result-icon journal">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">RSI Divergence Trade</div>
+                            <div class="result-description">Short on overbought divergence</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="result-group">
+                    <div class="result-group-title">Settings</div>
+                    
+                    <div class="result-item" data-type="settings">
+                        <div class="result-icon settings">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">Appearance</div>
+                            <div class="result-description">Theme and display preferences</div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" data-type="settings">
+                        <div class="result-icon settings">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">Notifications</div>
+                            <div class="result-description">Configure alerts and sounds</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documentation -->
+                <div class="result-group">
+                    <div class="result-group-title">Documentation</div>
+                    
+                    <div class="result-item" data-type="document">
+                        <div class="result-icon document">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">Getting Started Guide</div>
+                            <div class="result-description">Learn the basics of SmartPip</div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" data-type="document">
+                        <div class="result-icon document">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">API Documentation</div>
+                            <div class="result-description">Developer reference</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="command-footer">
+                <div class="footer-hints">
+                    <div class="footer-hint">
+                        <kbd>↑</kbd><kbd>↓</kbd> to navigate
+                    </div>
+                    <div class="footer-hint">
+                        <kbd>↵</kbd> to select
+                    </div>
+                    <div class="footer-hint">
+                        <kbd>esc</kbd> to close
+                    </div>
+                </div>
+                <div class="footer-actions">
+                    <button class="footer-btn">
+                        <i class="fas fa-history"></i>
+                        Recent
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const openButton = document.getElementById('openCommand');
+        const overlay = document.getElementById('commandOverlay');
+        const input = document.getElementById('commandInput');
+        const results = document.getElementById('commandResults');
+        const items = results.querySelectorAll('.result-item');
+        
+        let selectedIndex = 0;
+        let isOpen = false;
+
+        function openPalette() {
+            isOpen = true;
+            overlay.classList.add('open');
+            input.focus();
+            selectItem(0);
+        }
+
+        function closePalette() {
+            isOpen = false;
+            overlay.classList.remove('open');
+            input.value = '';
+        }
+
+        function selectItem(index) {
+            items.forEach((item, i) => {
+                item.classList.toggle('selected', i === index);
+            });
+            selectedIndex = index;
+            
+            const selected = items[index];
+            if (selected) {
+                selected.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        function navigate(direction) {
+            const newIndex = selectedIndex + direction;
+            if (newIndex >= 0 && newIndex < items.length) {
+                selectItem(newIndex);
+            }
+        }
+
+        function executeSelected() {
+            const selected = items[selectedIndex];
+            if (selected) {
+                const url = selected.dataset.url;
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    const action = selected.dataset.action;
+                    if (action) {
+                        alert(`Action: ${action}`);
+                    } else {
+                        alert(`Selected: ${selected.querySelector('.result-title').textContent}`);
+                    }
+                }
+                closePalette();
+            }
+        }
+
+        // Open with button click
+        openButton.addEventListener('click', openPalette);
+
+        // Open with keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                if (isOpen) {
+                    closePalette();
+                } else {
+                    openPalette();
+                }
+            }
+
+            if (!isOpen) return;
+
+            switch (e.key) {
+                case 'Escape':
+                    closePalette();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    navigate(-1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    navigate(1);
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    executeSelected();
+                    break;
+            }
+        });
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closePalette();
+            }
+        });
+
+        // Click on result items
+        items.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                selectItem(index);
+                executeSelected();
+            });
+
+            item.addEventListener('mouseenter', () => {
+                selectItem(index);
+            });
+        });
+
+        // Quick actions
+        document.querySelectorAll('.quick-action').forEach(action => {
+            action.addEventListener('click', () => {
+                const actionType = action.dataset.action;
+                alert(`Quick action: ${actionType}`);
+                closePalette();
+            });
+        });
+
+        // Search/filter results
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            
+            items.forEach(item => {
+                const title = item.querySelector('.result-title').textContent.toLowerCase();
+                const description = item.querySelector('.result-description').textContent.toLowerCase();
+                const matches = title.includes(query) || description.includes(query);
+                item.style.display = matches ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
