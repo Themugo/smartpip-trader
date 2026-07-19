@@ -8,7 +8,7 @@ import logging
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -58,7 +58,7 @@ class ModelMetrics:
     correct_predictions: int = 0
     
     # Timestamps
-    calculated_at: datetime = field(default_factory=datetime.utcnow)
+    calculated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -156,7 +156,7 @@ class PerformanceLab:
         
         self._predictions[model_id].append({
             **prediction,
-            "recorded_at": datetime.utcnow(),
+            "recorded_at": datetime.now(timezone.utc),
         })
         
         # Keep only recent predictions
@@ -177,7 +177,7 @@ class PerformanceLab:
             if pred.get("id") == prediction_id:
                 pred["actual_outcome"] = actual_outcome
                 pred["realized_value"] = realized_value
-                pred["outcome_recorded_at"] = datetime.utcnow()
+                pred["outcome_recorded_at"] = datetime.now(timezone.utc)
                 
                 # Update rolling accuracy
                 is_correct = (actual_outcome == pred.get("correct_prediction"))
@@ -251,7 +251,7 @@ class PerformanceLab:
         # Latency from rolling metrics
         model.avg_latency_ms = self._rolling_latency[model_id].average
         
-        model.calculated_at = datetime.utcnow()
+        model.calculated_at = datetime.now(timezone.utc)
         
         return model
     
@@ -384,7 +384,7 @@ class PerformanceLab:
             "total_predictions": total_predictions,
             "avg_accuracy": avg_accuracy,
             "avg_latency_ms": avg_latency,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     
     def get_all_metrics(self) -> Dict[str, ModelMetrics]:

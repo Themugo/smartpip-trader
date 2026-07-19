@@ -265,7 +265,7 @@ class DeveloperLogger:
                     stack_trace = "".join(traceback.format_tb(exc_info[2]))
         
         return LogEntry(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             level=level,
             message=message,
             module=module,

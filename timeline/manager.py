@@ -15,7 +15,7 @@ import os
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Iterator
 
@@ -234,7 +234,7 @@ class TimelineManager:
         
         data = {
             "events": [e.to_dict() for e in events_to_save],
-            "saved_at": datetime.utcnow().isoformat(),
+            "saved_at": datetime.now(timezone.utc).isoformat(),
         }
         
         try:
@@ -335,7 +335,7 @@ class TimelineManager:
         event = TimelineEvent(
             id=str(uuid.uuid4()),
             event_type=event_type,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             severity=severity,
             source=source,
             message=message,
@@ -607,7 +607,7 @@ class TimelineManager:
         data = {
             "session_id": session_id,
             "events": [e.to_dict() for e in events],
-            "exported_at": datetime.utcnow().isoformat(),
+            "exported_at": datetime.now(timezone.utc).isoformat(),
         }
         
         try:
@@ -644,7 +644,7 @@ class TimelineManager:
     
     def cleanup_old_events(self, before: datetime) -> int:
         """Remove events older than specified time"""
-        before = before or datetime.utcnow() - timedelta(days=7)
+        before = before or datetime.now(timezone.utc) - timedelta(days=7)
         
         original_count = len(self._events)
         

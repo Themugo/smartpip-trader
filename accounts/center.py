@@ -14,7 +14,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Any, Dict, List, Optional, Callable
 from uuid import uuid4
 
@@ -304,8 +304,8 @@ class AccountCenter:
                         email=auth_data.get("email", ""),
                         accounts=accounts,
                         active_account_id=primary.account_id,
-                        created_at=datetime.utcnow(),
-                        last_activity=datetime.utcnow(),
+                        created_at=datetime.now(timezone.utc),
+                        last_activity=datetime.now(timezone.utc),
                     )
                     
                     self._save_session()
@@ -368,7 +368,7 @@ class AccountCenter:
             if account.account_id == account_id:
                 account.balance = balance
                 account.currency = currency
-                account.last_used = datetime.utcnow()
+                account.last_used = datetime.now(timezone.utc)
                 break
         
         self._save_session()
@@ -403,8 +403,8 @@ class AccountCenter:
             raise AccountNotFoundError(f"Account {account_id} not found")
         
         self._session.active_account_id = account_id
-        account.last_used = datetime.utcnow()
-        self._session.last_activity = datetime.utcnow()
+        account.last_used = datetime.now(timezone.utc)
+        self._session.last_activity = datetime.now(timezone.utc)
         
         self._save_session()
         

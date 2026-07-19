@@ -13,7 +13,7 @@ import logging
 import uuid
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 from collections import defaultdict
@@ -71,7 +71,7 @@ class FeatureDependency:
 class FeatureVersion:
     """A version of a feature"""
     version: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     
     # Code
@@ -123,7 +123,7 @@ class FeatureTest:
     error_message: str = ""
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     executed_at: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -174,8 +174,8 @@ class StoredFeature:
     
     # Metadata
     author: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Usage
     used_by_features: List[str] = field(default_factory=list)  # Feature IDs that use this
@@ -228,8 +228,8 @@ class FeatureGroup:
     # Metadata
     tags: List[str] = field(default_factory=list)
     author: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Usage
     use_count: int = 0
@@ -335,7 +335,7 @@ class FeatureStore:
         data = {
             "features": [f.to_dict() for f in self._features.values()],
             "groups": [g.to_dict() for g in self._groups.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(store_file, "w") as f:
@@ -408,7 +408,7 @@ class FeatureStore:
         
         feature.versions[version] = version_obj
         feature.current_version = version
-        feature.updated_at = datetime.utcnow()
+        feature.updated_at = datetime.now(timezone.utc)
         
         self._save_store()
         return version_obj
@@ -438,7 +438,7 @@ class FeatureStore:
         if status is not None:
             feature.status = status
         
-        feature.updated_at = datetime.utcnow()
+        feature.updated_at = datetime.now(timezone.utc)
         self._save_store()
         return True
     
@@ -473,7 +473,7 @@ class FeatureStore:
         if dep_feature and feature_id not in dep_feature.used_by_features:
             dep_feature.used_by_features.append(feature_id)
         
-        feature.updated_at = datetime.utcnow()
+        feature.updated_at = datetime.now(timezone.utc)
         self._save_store()
         return True
     
@@ -559,7 +559,7 @@ class FeatureStore:
         )
         
         feature.tests.append(test)
-        feature.updated_at = datetime.utcnow()
+        feature.updated_at = datetime.now(timezone.utc)
         self._save_store()
         
         return test
@@ -587,7 +587,7 @@ class FeatureStore:
         }
         
         for test in feature.tests:
-            test.executed_at = datetime.utcnow()
+            test.executed_at = datetime.now(timezone.utc)
             
             if executor:
                 try:
@@ -653,7 +653,7 @@ class FeatureStore:
             if fid not in group.feature_ids:
                 group.feature_ids.append(fid)
         
-        group.updated_at = datetime.utcnow()
+        group.updated_at = datetime.now(timezone.utc)
         self._save_store()
         return True
     
@@ -685,7 +685,7 @@ class FeatureStore:
         version_obj = feature.versions.get(version_str)
         if version_obj:
             version_obj.usage_count += 1
-            version_obj.last_used_at = datetime.utcnow()
+            version_obj.last_used_at = datetime.now(timezone.utc)
         
         # Update average execution time
         if execution_time_ms > 0:
@@ -694,7 +694,7 @@ class FeatureStore:
                 (feature.avg_execution_time_ms * (n - 1) + execution_time_ms) / n
             )
         
-        feature.updated_at = datetime.utcnow()
+        feature.updated_at = datetime.now(timezone.utc)
         self._save_store()
         return True
     

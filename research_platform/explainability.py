@@ -14,7 +14,7 @@ import logging
 import uuid
 import numpy as np
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -144,7 +144,7 @@ class LocalExplanation:
     method: str = "shap"  # "shap", "lime", "integrated_gradients"
     
     # Metadata
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -208,7 +208,7 @@ class GlobalExplanation:
     # Metadata
     model_id: str = ""
     model_version: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {

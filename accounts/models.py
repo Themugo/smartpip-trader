@@ -3,7 +3,7 @@ Account data models for the unified account center.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -72,7 +72,7 @@ class AccountInfo:
             is_virtual=data.get("is_virtual", True),
             is_primary=data.get("is_primary", False),
             created_at=None,
-            last_used=datetime.utcnow(),
+            last_used=datetime.now(timezone.utc),
             metadata=data,
         )
     
@@ -112,13 +112,13 @@ class AuthToken:
     token: str
     expires_at: Optional[datetime] = None
     scope: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @property
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return datetime.utcnow() >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
     
     @property
     def is_valid(self) -> bool:
@@ -142,7 +142,7 @@ class DerivToken:
     display_name: str
     wallet_id: str
     permissions: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_used: Optional[datetime] = None
     is_active: bool = True
     
@@ -173,9 +173,9 @@ class SessionInfo:
     tokens: List[AuthToken] = field(default_factory=list)
     accounts: List[AccountInfo] = field(default_factory=list)
     active_account_id: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: Optional[datetime] = None
-    last_activity: datetime = field(default_factory=datetime.utcnow)
+    last_activity: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
     
@@ -183,7 +183,7 @@ class SessionInfo:
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return datetime.utcnow() >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
     
     @property
     def active_account(self) -> Optional[AccountInfo]:

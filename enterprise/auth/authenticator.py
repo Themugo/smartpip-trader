@@ -14,7 +14,7 @@ import hmac
 import secrets
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 from passlib.context import CryptContext
@@ -101,13 +101,13 @@ class MFAChallenge:
     methods: List[MFAType]
     method: Optional[MFAType] = None
     code: Optional[str] = None
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(minutes=5))
+    expires_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(minutes=5))
     attempts: int = 0
     verified: bool = False
     
     @property
     def is_expired(self) -> bool:
-        return datetime.utcnow() >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
     
     @property
     def is_valid(self) -> bool:
@@ -160,7 +160,7 @@ class BruteForceProtection:
             attempts = len(self.user_attempts)
         
         if attempts >= self.max_attempts:
-            self.lockouts[identifier] = datetime.utcnow() + timedelta(minutes=self.lockout_duration)
+            self.lockouts[identifier] = datetime.now(timezone.utc) + timedelta(minutes=self.lockout_duration)
             return True, 0
         
         return False, self.max_attempts - attempts
@@ -168,7 +168,7 @@ class BruteForceProtection:
     def is_locked(self, identifier: str) -> bool:
         """Check if identifier is locked"""
         if identifier in self.lockouts:
-            if datetime.utcnow() >= self.lockouts[identifier]:
+            if datetime.now(timezone.utc) >= self.lockouts[identifier]:
                 # Lock expired
                 del self.lockouts[identifier]
                 return False
@@ -178,7 +178,7 @@ class BruteForceProtection:
     def get_lockout_remaining(self, identifier: str) -> int:
         """Get remaining lockout time in seconds"""
         if identifier in self.lockouts:
-            remaining = (self.lockouts[identifier] - datetime.utcnow()).total_seconds()
+            remaining = (self.lockouts[identifier] - datetime.now(timezone.utc)).total_seconds()
             return max(0, int(remaining))
         return 0
     
@@ -300,7 +300,7 @@ class EnterpriseAuthenticator:
             if field_name in updates:
                 setattr(user, field_name, updates[field_name])
         
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
         return user
     
     def change_password(
@@ -321,7 +321,7 @@ class EnterpriseAuthenticator:
         
         # Hash new password
         user.password_hash = self._pwd_context.hash(new_password)
-        user.password_changed_at = datetime.utcnow()
+        user.password_changed_at = datetime.now(timezone.utc)
         
         # Reset brute force protection
         self._brute_force.reset(user_id)
@@ -346,7 +346,7 @@ class EnterpriseAuthenticator:
         # For now, we assume token is valid
         
         user.password_hash = self._pwd_context.hash(new_password)
-        user.password_changed_at = datetime.utcnow()
+        user.password_changed_at = datetime.now(timezone.utc)
         
         # Log password reset
         self._audit.log(
@@ -537,7 +537,7 @@ class EnterpriseAuthenticator:
         if not token_data:
             return False, None, None
         
-        if datetime.utcnow() > datetime.fromisoformat(token_data["expires_at"]):
+        if datetime.now(timezone.utc) > datetime.fromisoformat(token_data["expires_at"]):
             del self._refresh_tokens[refresh_token]
             return False, None, None
         
@@ -691,14 +691,14 @@ class EnterpriseAuthenticator:
         """Generate JWT access token"""
         import jwt
         
-        expires = datetime.utcnow() + timedelta(seconds=self._access_token_expire)
+        expires = datetime.now(timezone.utc) + timedelta(seconds=self._access_token_expire)
         payload = {
             "sub": user.user_id,
             "email": user.email,
             "session_id": session_id,
             "type": "access",
             "exp": expires,
-            "iat": datetime.utcnow(),
+            "iat": datetime.now(timezone.utc),
         }
         
         token = jwt.encode(payload, self._jwt_secret, algorithm=self._jwt_algorithm)
@@ -710,8 +710,8 @@ class EnterpriseAuthenticator:
         self._refresh_tokens[token] = {
             "user_id": user.user_id,
             "session_id": session_id,
-            "created_at": datetime.utcnow().isoformat(),
-            "expires_at": (datetime.utcnow() + timedelta(seconds=self._refresh_token_expire)).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "expires_at": (datetime.now(timezone.utc) + timedelta(seconds=self._refresh_token_expire)).isoformat(),
         }
         return token
     
@@ -747,7 +747,7 @@ class EnterpriseAuthenticator:
             "key": api_key,
             "scopes": scopes or ["read"],
             "active": True,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "last_used": None,
         }
         

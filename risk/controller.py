@@ -6,7 +6,7 @@ Orchestrates risk management across the trading system.
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Callable
 from collections import deque
@@ -38,7 +38,7 @@ class RiskMetrics:
     trades_today: int = 0
     warnings: List[str] = field(default_factory=list)
     violations: List[str] = field(default_factory=list)
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -62,7 +62,7 @@ class RiskEvent:
     event_type: str
     severity: RiskLevel
     message: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     details: Dict[str, Any] = field(default_factory=dict)
     
     def to_dict(self) -> Dict[str, Any]:
@@ -127,7 +127,7 @@ class RiskController:
     def update_account(self, account: AccountSnapshot) -> None:
         """Update account state for risk calculations"""
         self._current_account = account
-        self._last_account_update = datetime.utcnow()
+        self._last_account_update = datetime.now(timezone.utc)
         
         # Update metrics
         self._metrics.daily_pnl = account.daily_pnl
@@ -135,7 +135,7 @@ class RiskController:
         self._metrics.consecutive_losses = account.consecutive_losses
         self._metrics.active_positions = account.open_positions
         self._metrics.total_exposure = account.total_exposure
-        self._metrics.last_updated = datetime.utcnow()
+        self._metrics.last_updated = datetime.now(timezone.utc)
         
         # Check for kill switch conditions
         if self._validator.check_kill_switch_conditions(account):

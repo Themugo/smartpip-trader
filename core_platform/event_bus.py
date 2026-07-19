@@ -33,7 +33,7 @@ class Event:
     """Platform event"""
     type: str
     data: Any = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     priority: EventPriority = EventPriority.NORMAL
     request_id: Optional[str] = None
     source: str = ""
@@ -198,7 +198,7 @@ class EventBus:
         event = Event(
             type=event_type,
             data=data,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             priority=priority,
             request_id=request_id_ctx.get(),
             source=source,
@@ -240,7 +240,7 @@ class EventBus:
         event = Event(
             type=event_type,
             data=data,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             priority=priority,
             request_id=request_id_ctx.get(),
             source=source,

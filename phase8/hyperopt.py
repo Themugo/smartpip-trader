@@ -8,7 +8,7 @@ import logging
 import random
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -74,7 +74,7 @@ class OptimizationResult:
     successful_trials: int = 0
     
     # Timing
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     duration_seconds: float = 0
     
@@ -181,7 +181,7 @@ class HyperparameterOptimizer:
                     "trial": i + 1,
                     "parameters": params.copy(),
                     "score": score,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
                 result.trials.append(trial_result)
                 result.convergence_history.append(score)
@@ -211,7 +211,7 @@ class HyperparameterOptimizer:
                     "error": str(e),
                 })
         
-        result.completed_at = datetime.utcnow()
+        result.completed_at = datetime.now(timezone.utc)
         result.duration_seconds = time.time() - start_time
         
         self._results[result.id] = result

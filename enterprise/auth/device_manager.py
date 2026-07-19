@@ -12,7 +12,7 @@ Manages user devices with:
 import hashlib
 import secrets
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from enterprise.models.user import UserDevice
@@ -94,7 +94,7 @@ class DeviceManager:
             existing_device = self._devices[existing_device_id]
             if existing_device.user_id == user_id:
                 # Existing device for same user
-                existing_device.last_seen = datetime.utcnow()
+                existing_device.last_seen = datetime.now(timezone.utc)
                 existing_device.touch()
                 return existing_device, False
         
@@ -146,7 +146,7 @@ class DeviceManager:
     
     def get_active_devices(self, user_id: str) -> List[UserDevice]:
         """Get active devices (seen recently)"""
-        threshold = datetime.utcnow() - timedelta(days=self._device_age_threshold_days)
+        threshold = datetime.now(timezone.utc) - timedelta(days=self._device_age_threshold_days)
         devices = self.get_user_devices(user_id)
         return [
             d for d in devices
@@ -268,7 +268,7 @@ class DeviceManager:
         """Update device last seen timestamp"""
         device = self._devices.get(device_id)
         if device:
-            device.last_seen = datetime.utcnow()
+            device.last_seen = datetime.now(timezone.utc)
             return True
         return False
     
@@ -291,7 +291,7 @@ class DeviceManager:
         devices = self.get_user_devices(user_id)
         
         trusted = [d for d in devices if d.is_trusted]
-        recent = [d for d in devices if d.last_seen >= datetime.utcnow() - timedelta(days=7)]
+        recent = [d for d in devices if d.last_seen >= datetime.now(timezone.utc) - timedelta(days=7)]
         current = [d for d in devices if d.is_current]
         
         return {

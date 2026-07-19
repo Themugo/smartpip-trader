@@ -8,7 +8,7 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -35,7 +35,7 @@ class MetricRecord:
     name: str
     value: float
     metric_type: MetricType
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: Dict[str, str] = field(default_factory=dict)
     
     def to_dict(self) -> Dict[str, Any]:
@@ -133,8 +133,8 @@ class ExperimentTracker:
             "name": name,
             "config": config,
             "status": "pending",
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         self._save_index()
         logger.info(f"Registered experiment: {experiment_id}")
@@ -147,7 +147,7 @@ class ExperimentTracker:
         """Update experiment status"""
         if experiment_id in self._experiments:
             self._experiments[experiment_id]["status"] = status
-            self._experiments[experiment_id]["updated_at"] = datetime.utcnow().isoformat()
+            self._experiments[experiment_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_index()
     
     def get_experiment(self, experiment_id: str) -> Optional[Dict[str, Any]]:

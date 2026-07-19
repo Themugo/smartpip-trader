@@ -7,7 +7,7 @@ Background task scheduling with cron-like expressions.
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 import threading
@@ -37,7 +37,7 @@ class ScheduledTask:
     cron_expression: str = ""
     
     # Timing
-    next_run: datetime = field(default_factory=datetime.utcnow)
+    next_run: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_run: Optional[datetime] = None
     
     # Status
@@ -83,7 +83,7 @@ class TaskScheduler:
             func=func,
             schedule_type=ScheduleType.INTERVAL,
             interval_seconds=interval_seconds,
-            next_run=datetime.utcnow(),
+            next_run=datetime.now(timezone.utc),
             enabled=enabled,
         )
         
@@ -152,7 +152,7 @@ class TaskScheduler:
     def _run_loop(self):
         """Main scheduler loop"""
         while self._running:
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             
             with self._lock:
                 tasks_to_run = [
@@ -170,12 +170,12 @@ class TaskScheduler:
         """Execute a task"""
         try:
             task.func()
-            task.last_run = datetime.utcnow()
+            task.last_run = datetime.now(timezone.utc)
             task.run_count += 1
             
             # Schedule next run for interval tasks
             if task.schedule_type == ScheduleType.INTERVAL:
-                task.next_run = datetime.utcnow() + timedelta(seconds=task.interval_seconds)
+                task.next_run = datetime.now(timezone.utc) + timedelta(seconds=task.interval_seconds)
             
             # Check if task should be disabled
             if task.max_runs > 0 and task.run_count >= task.max_runs:

@@ -49,7 +49,7 @@ class StrategyIssue:
     recommendations: List[str] = field(default_factory=list)
     
     # Context
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     backtest_id: Optional[str] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -93,7 +93,7 @@ class CoachAnalysis:
     benchmarks: Dict[str, float] = field(default_factory=dict)
     
     # Analysis metadata
-    analyzed_at: datetime = field(default_factory=datetime.utcnow)
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     analysis_duration_seconds: float = 0
     
     def to_dict(self) -> Dict[str, Any]:

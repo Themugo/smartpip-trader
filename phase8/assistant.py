@@ -7,7 +7,7 @@ Built-in assistant for explanations, searches, and suggestions.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -47,7 +47,7 @@ class AssistantCommand:
     # Status
     status: str = "pending"  # pending, processing, completed, failed
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -146,7 +146,7 @@ class AIAssistant:
             command.response = f"An error occurred: {str(e)}"
             command.status = "failed"
         
-        command.completed_at = datetime.utcnow()
+        command.completed_at = datetime.now(timezone.utc)
         
         # Add to history
         self._history.append(command)

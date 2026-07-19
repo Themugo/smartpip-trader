@@ -72,7 +72,7 @@ class WalkForwardReport:
     is_robust: bool = False
     
     # Generated at
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {

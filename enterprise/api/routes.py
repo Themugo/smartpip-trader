@@ -263,7 +263,7 @@ def setup_enterprise_routes(app, config: Optional[Dict[str, Any]] = None):
             "slug": "acme-trading-abc123",
             "status": "active",
             "subscription_tier": "free",
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
     
     @org_router.get("/{org_id}", summary="Get organization")
@@ -363,7 +363,7 @@ def setup_enterprise_routes(app, config: Optional[Dict[str, Any]] = None):
             "team_id": "team_abc123",
             "name": name,
             "description": description,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
     
     @team_router.post("/{team_id}/invitations", summary="Invite to team")
@@ -415,7 +415,7 @@ def setup_enterprise_routes(app, config: Optional[Dict[str, Any]] = None):
             "strategy_id": "strat_abc123",
             "name": name,
             "type": type,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
     
     @strategy_router.get("/{strategy_id}", summary="Get strategy")
@@ -600,7 +600,7 @@ def setup_enterprise_routes(app, config: Optional[Dict[str, Any]] = None):
         """Get system health status"""
         return {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "services": {
                 "api": "healthy",
                 "database": "healthy",

@@ -196,7 +196,7 @@ class StrategyComparisonCenter:
         comparison = StrategyComparison(
             id=comparison_id,
             name=name or f"Comparison {len(self._comparisons) + 1}",
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             dataset_name=dataset_name,
             start_date=start_date,
             end_date=end_date,

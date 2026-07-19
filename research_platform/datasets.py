@@ -16,7 +16,7 @@ import hashlib
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -91,7 +91,7 @@ class DataStatistics:
     unique_counts: Dict[str, int] = field(default_factory=dict)
     
     # Computed at
-    computed_at: datetime = field(default_factory=datetime.utcnow)
+    computed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         stats = {
@@ -130,7 +130,7 @@ class DataQualityReport:
     outlier_count: int = 0
     
     # Computed at
-    validated_at: datetime = field(default_factory=datetime.utcnow)
+    validated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -164,7 +164,7 @@ class DataLineageNode:
     children: List[str] = field(default_factory=list)  # Node IDs
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
     
@@ -258,7 +258,7 @@ class DataLineage:
 class DatasetVersion:
     """A version of a dataset"""
     version: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     
     # Data info
@@ -333,8 +333,8 @@ class DatasetMetadata:
     tags: List[str] = field(default_factory=list)
     source: str = ""  # Data source
     license: str = ""  # Data license
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Access
     is_public: bool = False
@@ -480,7 +480,7 @@ class DatasetManager:
         
         data = {
             "datasets": [ds.metadata.to_dict() for ds in self._datasets.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(catalog_file, "w") as f:
@@ -557,7 +557,7 @@ class DatasetManager:
             dataset.metadata.start_date = pd.to_datetime(data["timestamp"]).min()
             dataset.metadata.end_date = pd.to_datetime(data["timestamp"]).max()
         
-        dataset.metadata.updated_at = datetime.utcnow()
+        dataset.metadata.updated_at = datetime.now(timezone.utc)
         self._save_catalog()
         
         return True
@@ -595,7 +595,7 @@ class DatasetManager:
                 dataset.metadata.start_date = pd.to_datetime(data["timestamp"]).min()
                 dataset.metadata.end_date = pd.to_datetime(data["timestamp"]).max()
             
-            dataset.metadata.updated_at = datetime.utcnow()
+            dataset.metadata.updated_at = datetime.now(timezone.utc)
             self._save_catalog()
             
             return True
@@ -682,7 +682,7 @@ class DatasetManager:
         
         dataset.metadata.versions[version] = version_obj
         dataset.metadata.current_version = version
-        dataset.metadata.updated_at = datetime.utcnow()
+        dataset.metadata.updated_at = datetime.now(timezone.utc)
         
         self._save_catalog()
         return version_obj

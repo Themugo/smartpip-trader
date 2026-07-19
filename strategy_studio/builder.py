@@ -157,8 +157,8 @@ class StrategyGraph:
     # Metadata
     version: str = "1.0.0"
     author: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # State
     is_valid: bool = False
@@ -508,7 +508,7 @@ class VisualBuilder:
         )
         
         self._current_graph.blocks.append(block)
-        self._current_graph.updated_at = datetime.utcnow()
+        self._current_graph.updated_at = datetime.now(timezone.utc)
         
         return block
     
@@ -528,7 +528,7 @@ class VisualBuilder:
             if c.source_block_id != block_id and c.target_block_id != block_id
         ]
         
-        self._current_graph.updated_at = datetime.utcnow()
+        self._current_graph.updated_at = datetime.now(timezone.utc)
         return True
     
     def connect(
@@ -570,7 +570,7 @@ class VisualBuilder:
         )
         
         self._current_graph.connections.append(connection)
-        self._current_graph.updated_at = datetime.utcnow()
+        self._current_graph.updated_at = datetime.now(timezone.utc)
         
         return connection
     

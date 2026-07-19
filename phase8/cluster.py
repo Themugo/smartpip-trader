@@ -9,7 +9,7 @@ import logging
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -72,7 +72,7 @@ class BacktestJob:
     # Priority
     priority: int = 0
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -272,7 +272,7 @@ class BacktestingCluster:
             
             self._running_jobs[job.id] = job
             job.status = JobStatus.RUNNING
-            job.started_at = datetime.utcnow()
+            job.started_at = datetime.now(timezone.utc)
             
             # Start job execution
             asyncio.create_task(self._execute_job(job))
@@ -306,7 +306,7 @@ class BacktestingCluster:
                 job.status = JobStatus.COMPLETED
                 job.progress = 100
             
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             job.execution_time_seconds = time.time() - start_time
             
             # Store result
@@ -318,7 +318,7 @@ class BacktestingCluster:
             logger.error(f"Backtest job failed: {job.id} - {e}")
             job.status = JobStatus.FAILED
             job.errors.append(str(e))
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             job.execution_time_seconds = time.time() - start_time
         
         finally:

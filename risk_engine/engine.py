@@ -8,7 +8,7 @@ import logging
 import time
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -69,13 +69,13 @@ class Position:
     entry_price: float
     current_price: float = 0
     pnl: float = 0
-    opened_at: datetime = field(default_factory=datetime.utcnow)
+    opened_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
 class PortfolioRisk:
     """Current portfolio risk metrics"""
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Exposure
     total_exposure: float = 0
@@ -235,8 +235,8 @@ class RiskEngine:
             return False, "Kill switch active", RiskLevel.CRITICAL
         
         # Check cooldown
-        if self._cooldown_until and datetime.utcnow() < self._cooldown_until:
-            remaining = (self._cooldown_until - datetime.utcnow()).total_seconds()
+        if self._cooldown_until and datetime.now(timezone.utc) < self._cooldown_until:
+            remaining = (self._cooldown_until - datetime.now(timezone.utc)).total_seconds()
             return False, f"In cooldown ({remaining:.0f}s remaining)", self._risk_level
         
         # Check circuit breakers
@@ -281,7 +281,7 @@ class RiskEngine:
         
         # Add cooldown if risk is high
         if risk_level == RiskLevel.HIGH:
-            self._cooldown_until = datetime.utcnow() + timedelta(seconds=5)
+            self._cooldown_until = datetime.now(timezone.utc) + timedelta(seconds=5)
         
         return True, "Trade approved", risk_level
     
@@ -307,7 +307,7 @@ class RiskEngine:
         breaker = self._circuit_breakers[name]
         breaker.state = CircuitBreakerState.OPEN
         breaker.triggered_count += 1
-        breaker.last_triggered = datetime.utcnow()
+        breaker.last_triggered = datetime.now(timezone.utc)
         breaker.consecutive_breaks += 1
         
         self._logger.warning(f"Circuit breaker triggered: {name}")
@@ -350,7 +350,7 @@ class RiskEngine:
     def enter_recovery_mode(self, duration_seconds: int = 300) -> None:
         """Enter recovery mode with reduced risk"""
         self._recovery_mode = True
-        self._cooldown_until = datetime.utcnow() + timedelta(seconds=duration_seconds)
+        self._cooldown_until = datetime.now(timezone.utc) + timedelta(seconds=duration_seconds)
         
         self._logger.warning(f"Entered recovery mode for {duration_seconds}s")
     
@@ -366,7 +366,7 @@ class RiskEngine:
         self._monthly_pnl += pnl
         
         trade_record = {
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "pnl": pnl,
             "is_win": is_win,
         }
@@ -380,7 +380,7 @@ class RiskEngine:
             self._peak_equity = equity
         
         self._equity_history.append({
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "equity": equity,
         })
         
@@ -396,7 +396,7 @@ class RiskEngine:
     
     def get_portfolio_risk(self) -> PortfolioRisk:
         """Get current portfolio risk metrics"""
-        risk = PortfolioRisk(timestamp=datetime.utcnow())
+        risk = PortfolioRisk(timestamp=datetime.now(timezone.utc))
         
         risk.total_exposure = self.get_total_exposure()
         risk.daily_pnl = self._daily_pnl
@@ -411,7 +411,7 @@ class RiskEngine:
         risk.max_drawdown = risk.current_drawdown
         
         # Trade counts
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         risk.trades_today = sum(
             1 for t in self._daily_trades
             if t["timestamp"].date() == today

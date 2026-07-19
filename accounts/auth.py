@@ -16,7 +16,7 @@ import secrets
 import time
 from base64 import b64decode, b64encode
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlencode, urlparse, parse_qs
 
@@ -71,12 +71,12 @@ class AuthorizationCode:
     state: str
     redirect_uri: str
     code_challenge: Optional[str] = None
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(minutes=10))
+    expires_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(minutes=10))
     used: bool = False
     
     @property
     def is_expired(self) -> bool:
-        return datetime.utcnow() >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
     
     @property
     def is_valid(self) -> bool:
@@ -391,7 +391,7 @@ class TokenManager:
         """
         expires_at = None
         if expires_in:
-            expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+            expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
         
         auth_token = AuthToken(
             token_type=token_type,
@@ -461,7 +461,7 @@ class TokenManager:
         
         # Check if refresh is needed (within 5 minutes of expiry)
         if token.expires_at:
-            time_until_expiry = (token.expires_at - datetime.utcnow()).total_seconds()
+            time_until_expiry = (token.expires_at - datetime.now(timezone.utc)).total_seconds()
             if time_until_expiry > 300:  # More than 5 minutes
                 return None
         

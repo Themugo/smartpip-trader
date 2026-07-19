@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional, List, Set, Literal
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, validator, Field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 
 
 # Pydantic schema validation models
@@ -302,7 +302,7 @@ class InputSanitizer:
         try:
             # Check timestamp freshness (prevent replay attacks)
             payload_time = datetime.fromisoformat(timestamp)
-            if datetime.utcnow() - payload_time > timedelta(minutes=5):
+            if datetime.now(timezone.utc) - payload_time > timedelta(minutes=5):
                 return False
             
             # Create signature

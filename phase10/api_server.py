@@ -15,7 +15,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import parse_qs, urlparse
@@ -69,7 +69,7 @@ class APIResponse:
             "status": self.status.value,
             "data": self.data,
             "message": self.message,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 

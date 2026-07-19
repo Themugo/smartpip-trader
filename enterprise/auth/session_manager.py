@@ -11,7 +11,7 @@ Manages user sessions with:
 
 import secrets
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 from collections import OrderedDict
 
@@ -78,7 +78,7 @@ class SessionManager:
             device_id=device_id,
             device_name=device_name,
             device_type=device_type,
-            expires_at=datetime.utcnow() + timedelta(hours=self._config.session_timeout_hours),
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=self._config.session_timeout_hours),
             metadata=metadata or {},
         )
         
@@ -131,7 +131,7 @@ class SessionManager:
             return False, None, "Session has expired"
         
         # Check absolute timeout
-        age_hours = (datetime.utcnow() - session.created_at).total_seconds() / 3600
+        age_hours = (datetime.now(timezone.utc) - session.created_at).total_seconds() / 3600
         if age_hours > self._config.absolute_timeout_hours:
             session.status = SessionStatus.EXPIRED
             return False, None, "Session has exceeded maximum lifetime"

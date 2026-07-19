@@ -127,8 +127,8 @@ class UserRole:
     permissions: Set[str] = field(default_factory=set)
     is_system_role: bool = False
     is_default: bool = False
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @classmethod
     def create(
@@ -241,8 +241,8 @@ class Organization:
     features: Dict[str, bool] = field(default_factory=dict)
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     trial_ends_at: Optional[datetime] = None
     
     # Settings
@@ -272,7 +272,7 @@ class Organization:
         """Generate URL-safe slug from name"""
         slug = name.lower().replace(" ", "-")
         slug = "".join(c if c.isalnum() or c in "-_" else "" for c in slug)
-        suffix = hashlib.md5(str(datetime.utcnow()).encode()).hexdigest()[:6]
+        suffix = hashlib.md5(str(datetime.now(timezone.utc)).encode()).hexdigest()[:6]
         return f"{slug}-{suffix}"
     
     @staticmethod
@@ -391,8 +391,8 @@ class Team:
     name: str
     description: str
     created_by: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     settings: Dict[str, Any] = field(default_factory=dict)
     
     @classmethod
@@ -435,7 +435,7 @@ class TeamMembership:
     status: TeamStatus
     invited_by: str
     joined_at: Optional[datetime] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @classmethod
     def create(
@@ -492,8 +492,8 @@ class Workspace:
     max_storage_mb: int = 100
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     settings: Dict[str, Any] = field(default_factory=dict)
     
     @classmethod
@@ -564,8 +564,8 @@ class BillingAccount:
     tax_id: Optional[str] = None
     
     # Usage tracking
-    current_period_start: datetime = field(default_factory=datetime.utcnow)
-    current_period_end: datetime = field(default_factory=lambda: datetime.utcnow())
+    current_period_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    current_period_end: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     api_calls_this_period: int = 0
     storage_used_gb: float = 0
     
@@ -574,8 +574,8 @@ class BillingAccount:
     stripe_subscription_id: Optional[str] = None
     
     # History
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @classmethod
     def create(cls, organization_id: str, billing_email: str) -> "BillingAccount":
@@ -585,7 +585,7 @@ class BillingAccount:
             organization_id=organization_id,
             payment_method="card",
             billing_email=billing_email,
-            current_period_end=datetime.utcnow(),
+            current_period_end=datetime.now(timezone.utc),
         )
     
     def to_dict(self) -> Dict[str, Any]:
@@ -619,7 +619,7 @@ class TenantNamespace:
     row_level_security_enabled: bool = True
     encryption_key_id: Optional[str] = None
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @classmethod
     def create(

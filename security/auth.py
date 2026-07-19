@@ -1,6 +1,6 @@
 import os
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Dict, Any, Optional
 from passlib.context import CryptContext
 import secrets
@@ -33,7 +33,7 @@ class SecurityManager:
     def create_access_token(self, data: Dict[str, Any]) -> str:
         """Create JWT access token"""
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=self.access_token_expire_minutes)
         to_encode.update({"exp": expire, "type": "access"})
         
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
@@ -42,7 +42,7 @@ class SecurityManager:
     def create_refresh_token(self, data: Dict[str, Any]) -> str:
         """Create JWT refresh token"""
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(days=self.refresh_token_expire_days)
+        expire = datetime.now(timezone.utc) + timedelta(days=self.refresh_token_expire_days)
         to_encode.update({"exp": expire, "type": "refresh"})
         
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)

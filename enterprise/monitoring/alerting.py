@@ -6,7 +6,7 @@ Alert management with rules, channels, and notifications.
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -59,8 +59,8 @@ class AlertRule:
     # Status
     enabled: bool = True
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -99,7 +99,7 @@ class Alert:
     
     # Status
     status: AlertStatus = AlertStatus.ACTIVE
-    triggered_at: datetime = field(default_factory=datetime.utcnow)
+    triggered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     acknowledged_at: Optional[datetime] = None
     resolved_at: Optional[datetime] = None
     
@@ -108,11 +108,11 @@ class Alert:
     
     def acknowledge(self):
         self.status = AlertStatus.ACKNOWLEDGED
-        self.acknowledged_at = datetime.utcnow()
+        self.acknowledged_at = datetime.now(timezone.utc)
     
     def resolve(self):
         self.status = AlertStatus.RESOLVED
-        self.resolved_at = datetime.utcnow()
+        self.resolved_at = datetime.now(timezone.utc)
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -145,7 +145,7 @@ class AlertChannel:
     
     # Status
     enabled: bool = True
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -212,7 +212,7 @@ class AlertManager:
             if key in updates:
                 setattr(rule, key, updates[key])
         
-        rule.updated_at = datetime.utcnow()
+        rule.updated_at = datetime.now(timezone.utc)
         return rule
     
     def delete_rule(self, rule_id: str) -> bool:
@@ -259,14 +259,14 @@ class AlertManager:
             last_eval = self._last_evaluations.get(rule.rule_id)
             if last_eval:
                 period_minutes = int(rule.evaluation_period.rstrip("m"))
-                if datetime.utcnow() - last_eval < timedelta(minutes=period_minutes):
+                if datetime.now(timezone.utc) - last_eval < timedelta(minutes=period_minutes):
                     continue
             
             # Evaluate condition
             value = metrics[rule.metric_name]
             should_trigger = self._check_condition(value, rule.condition, rule.threshold)
             
-            self._last_evaluations[rule.rule_id] = datetime.utcnow()
+            self._last_evaluations[rule.rule_id] = datetime.now(timezone.utc)
             
             if should_trigger:
                 alert = self._trigger_alert(rule, value)

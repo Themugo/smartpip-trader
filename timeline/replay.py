@@ -12,7 +12,7 @@ import asyncio
 import logging
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Iterator
 
@@ -160,7 +160,7 @@ class ReplayEngine:
             return True
         
         self._current_state.playback_state = PlaybackState.PLAYING
-        self._current_state.start_time = datetime.utcnow()
+        self._current_state.start_time = datetime.now(timezone.utc)
         
         # Start playback task
         self._playback_task = asyncio.create_task(self._playback_loop())
@@ -354,7 +354,7 @@ class ReplayEngine:
             return
         
         base_delay = 0.1  # 100ms base delay
-        last_update = datetime.utcnow()
+        last_update = datetime.now(timezone.utc)
         
         while (
             self._current_state.playback_state == PlaybackState.PLAYING and
@@ -403,7 +403,7 @@ class ReplayEngine:
         data = {
             "session_id": self._current_state.session_id,
             "events": [e.to_dict() for e in self._events],
-            "exported_at": datetime.utcnow().isoformat(),
+            "exported_at": datetime.now(timezone.utc).isoformat(),
         }
         
         try:

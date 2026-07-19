@@ -10,7 +10,7 @@ Manages:
 
 import secrets
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -54,8 +54,8 @@ class Invitation:
     token: str
     
     # Timestamps (defaults first)
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(days=7))
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    expires_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(days=7))
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     accepted_at: Optional[datetime] = None
     declined_at: Optional[datetime] = None
     
@@ -64,7 +64,7 @@ class Invitation:
     
     @property
     def is_expired(self) -> bool:
-        return datetime.utcnow() >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
     
     @property
     def is_valid(self) -> bool:
@@ -177,7 +177,7 @@ class TeamManager:
         if "description" in updates:
             team.description = updates["description"]
         
-        team.updated_at = datetime.utcnow()
+        team.updated_at = datetime.now(timezone.utc)
         
         self._audit.log_team(
             team_id=team_id,
@@ -389,7 +389,7 @@ class InvitationManager:
             invited_by=invited_by,
             invited_by_name=invited_by_name,
             token=token,
-            expires_at=datetime.utcnow() + self._invitation_ttl,
+            expires_at=datetime.now(timezone.utc) + self._invitation_ttl,
             personal_message=personal_message,
         )
         
@@ -509,7 +509,7 @@ class InvitationManager:
         
         if success:
             invitation.status = InvitationStatus.ACCEPTED
-            invitation.accepted_at = datetime.utcnow()
+            invitation.accepted_at = datetime.now(timezone.utc)
             
             # Update indexes
             self._pending_by_email.get(invitation.email, []).remove(invitation_id)
@@ -536,7 +536,7 @@ class InvitationManager:
             return False
         
         invitation.status = InvitationStatus.DECLINED
-        invitation.declined_at = datetime.utcnow()
+        invitation.declined_at = datetime.now(timezone.utc)
         
         # Update indexes
         if invitation.email in self._pending_by_email:
@@ -584,7 +584,7 @@ class InvitationManager:
         if not invitation or invitation.status != InvitationStatus.PENDING:
             return False
         
-        invitation.expires_at = datetime.utcnow() + self._invitation_ttl
+        invitation.expires_at = datetime.now(timezone.utc) + self._invitation_ttl
         
         return True
     

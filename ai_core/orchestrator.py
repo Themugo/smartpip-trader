@@ -39,7 +39,7 @@ class DecisionStatus(Enum):
 @dataclass
 class DecisionContext:
     """Context for a decision"""
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Market data
     symbol: str = ""
@@ -119,7 +119,7 @@ class Decision:
     error: Optional[str] = None
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     processed_at: Optional[datetime] = None
     executed_at: Optional[datetime] = None
     
@@ -281,7 +281,7 @@ class AICoreOrchestrator:
                     reasoning_chain=reasoning_chain,
                 )
             
-            decision.processed_at = datetime.utcnow()
+            decision.processed_at = datetime.now(timezone.utc)
             decision.processing_time_ms = (time.time() - start_time) * 1000
             
             # Add to history

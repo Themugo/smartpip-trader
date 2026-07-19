@@ -11,7 +11,7 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Optional, TypeVar, Generic
 
@@ -45,7 +45,7 @@ class RetryState:
     attempt: int = 0
     total_delay: float = 0.0
     last_error: Optional[Exception] = None
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     @property
@@ -108,7 +108,7 @@ class RetryEngine:
                 if state.attempt > 1:
                     self._stats["successful_retries"] += 1
                 
-                state.completed_at = datetime.utcnow()
+                state.completed_at = datetime.now(timezone.utc)
                 return result
                 
             except cfg.retry_on as e:
@@ -188,7 +188,7 @@ class RetryEngine:
                 if state.attempt > 1:
                     self._stats["successful_retries"] += 1
                 
-                state.completed_at = datetime.utcnow()
+                state.completed_at = datetime.now(timezone.utc)
                 return result
                 
             except cfg.retry_on as e:

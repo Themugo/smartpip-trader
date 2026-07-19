@@ -54,7 +54,7 @@ class FeatureDefinition:
     parameters: Dict[str, Any] = field(default_factory=dict)
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: List[str] = field(default_factory=list)
     is_active: bool = True
     
@@ -80,8 +80,8 @@ class FeatureSet:
     description: str
     features: List[FeatureDefinition] = field(default_factory=list)
     version: int = 1
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {

@@ -6,7 +6,7 @@ Automated validation checks before strategy deployment.
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -96,7 +96,7 @@ class GateReport:
     skipped_gates: int = 0
     
     # Generated at
-    checked_at: datetime = field(default_factory=datetime.utcnow)
+    checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -275,7 +275,7 @@ class QualityGates:
             gate_check.status = result["status"]
             gate_check.value = result.get("value")
             gate_check.message = result.get("message", "")
-            gate_check.checked_at = datetime.utcnow()
+            gate_check.checked_at = datetime.now(timezone.utc)
             
             report.gates.append(gate_check)
             

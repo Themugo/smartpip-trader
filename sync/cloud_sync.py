@@ -11,7 +11,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Callable
 from uuid import uuid4
@@ -66,7 +66,7 @@ class SyncableData:
     key: str
     data: Any
     version: int = 1
-    last_modified: datetime = field(default_factory=datetime.utcnow)
+    last_modified: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     checksum: Optional[str] = None
     source: str = "local"  # "local" or "cloud"
     
@@ -99,7 +99,7 @@ class SyncableData:
             key=data["key"],
             data=data["data"],
             version=data.get("version", 1),
-            last_modified=datetime.fromisoformat(data["last_modified"]) if "last_modified" in data else datetime.utcnow(),
+            last_modified=datetime.fromisoformat(data["last_modified"]) if "last_modified" in data else datetime.now(timezone.utc),
             checksum=data.get("checksum"),
             source=data.get("source", "local"),
         )
@@ -111,7 +111,7 @@ class SyncConflict:
     key: str
     local_data: SyncableData
     remote_data: SyncableData
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     resolution: Optional[str] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -196,7 +196,7 @@ class CloudSync:
         try:
             data = {
                 "items": {key: item.to_dict() for key, item in self._data.items()},
-                "last_updated": datetime.utcnow().isoformat(),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
             
             with open(data_file, "w") as f:
@@ -223,7 +223,7 @@ class CloudSync:
             existing = self._data[key]
             existing.data = data
             existing.version += 1
-            existing.last_modified = datetime.utcnow()
+            existing.last_modified = datetime.now(timezone.utc)
             existing.checksum = existing._calculate_checksum()
         else:
             # Create new
@@ -313,7 +313,7 @@ class CloudSync:
             # Upload local changes
             await self._upload_local_changes(remote_data)
             
-            self._last_sync = datetime.utcnow()
+            self._last_sync = datetime.now(timezone.utc)
             self._set_status(SyncStatus.SUCCESS)
             logger.info("Synchronization completed successfully")
             return True

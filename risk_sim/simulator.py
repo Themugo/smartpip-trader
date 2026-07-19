@@ -118,7 +118,7 @@ class TestResult:
 @dataclass
 class DeploymentReadinessReport:
     """Comprehensive deployment readiness report"""
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Overall readiness
     is_ready: bool = True
@@ -267,7 +267,7 @@ class RiskSimulator:
         
         result = TestResult(
             scenario_name=scenario.name,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             duration_ms=0,
             initial_balance=self._initial_balance,
             final_balance=self._initial_balance,

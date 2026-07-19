@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional
 
 from config import Settings
@@ -240,7 +240,7 @@ class TradingSystem:
         active_intel = self.research if self.research is not None else self.intelligence
         if active_intel is not None:
             try:
-                hour = datetime.utcnow().hour
+                hour = datetime.now(timezone.utc).hour
                 intel = active_intel.evaluate_tick(
                     price_history=list(self.price_history),
                     digit_history=list(self.last_20_digits),
@@ -417,7 +417,7 @@ class TradingSystem:
 
                         trade_record = TradeRecord(
                             trade_id=contract_id,
-                            timestamp=datetime.utcnow().timestamp(),
+                            timestamp=datetime.now(timezone.utc).timestamp(),
                             market=intel_data.get("market", ""),
                             direction=intel_data.get("direction", ""),
                             amount=intel_data.get("amount", 1.0),

@@ -6,7 +6,7 @@ Comprehensive reporting system with scheduled reports and multiple formats.
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -98,7 +98,7 @@ class Report:
     
     # Metadata
     created_by: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     # Error
@@ -227,7 +227,7 @@ class ReportGenerator:
             
             # Mark complete
             report.status = ReportStatus.COMPLETED
-            report.completed_at = datetime.utcnow()
+            report.completed_at = datetime.now(timezone.utc)
             
         except Exception as e:
             report.status = ReportStatus.FAILED
@@ -340,7 +340,7 @@ class ReportGenerator:
         return {
             "report_type": "monthly_report",
             "period": {
-                "month": datetime.utcnow().strftime("%Y-%m"),
+                "month": datetime.now(timezone.utc).strftime("%Y-%m"),
             },
             "performance": PerformanceMetrics(
                 total_trades=600,
@@ -456,7 +456,7 @@ class ReportGenerator:
         </head>
         <body>
             <h1>{report.config.title}</h1>
-            <p>Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</p>
+            <p>Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}</p>
             <div class="metrics">
                 {self._render_metrics(report.data)}
             </div>

@@ -11,7 +11,7 @@ Handles organization lifecycle:
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -63,7 +63,7 @@ class OrganizationSettings:
     date_format: str = "YYYY-MM-DD"
     currency_display: str = "USD"
     
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -112,7 +112,7 @@ class OrganizationMember:
     role_name: str
     email: str
     full_name: str
-    joined_at: datetime = field(default_factory=datetime.utcnow)
+    joined_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     invited_by: Optional[str] = None
     last_active: Optional[datetime] = None
     is_owner: bool = False
@@ -250,7 +250,7 @@ class OrganizationManager:
                 elif key == "billing_email":
                     org.billing_email = updates[key]
         
-        org.updated_at = datetime.utcnow()
+        org.updated_at = datetime.now(timezone.utc)
         
         self._audit.log_organization(
             org_id=org_id,
@@ -278,7 +278,7 @@ class OrganizationManager:
                 if isinstance(section_obj, dict):
                     section_obj.update(values)
         
-        org_settings.updated_at = datetime.utcnow()
+        org_settings.updated_at = datetime.now(timezone.utc)
         return org_settings
     
     def get_settings(self, org_id: str) -> Optional[OrganizationSettings]:
@@ -297,7 +297,7 @@ class OrganizationManager:
             return False
         
         org.status = OrganizationStatus.SUSPENDED
-        org.updated_at = datetime.utcnow()
+        org.updated_at = datetime.now(timezone.utc)
         
         self._audit.log_organization(
             org_id=org_id,
@@ -315,7 +315,7 @@ class OrganizationManager:
             return False
         
         org.status = OrganizationStatus.CLOSED
-        org.updated_at = datetime.utcnow()
+        org.updated_at = datetime.now(timezone.utc)
         
         self._audit.log_organization(
             org_id=org_id,
@@ -536,7 +536,7 @@ class OrganizationManager:
         if "permissions" in updates:
             role.permissions = set(updates["permissions"])
         
-        role.updated_at = datetime.utcnow()
+        role.updated_at = datetime.now(timezone.utc)
         return role
     
     def get_roles(self, org_id: str) -> List[UserRole]:
@@ -565,7 +565,7 @@ class OrganizationManager:
         import hashlib
         slug = name.lower().replace(" ", "-")
         slug = "".join(c if c.isalnum() or c in "-_" else "" for c in slug)
-        suffix = hashlib.md5(str(datetime.utcnow()).encode()).hexdigest()[:6]
+        suffix = hashlib.md5(str(datetime.now(timezone.utc)).encode()).hexdigest()[:6]
         return f"{slug}-{suffix}"
     
     def get_stats(self, org_id: str) -> Dict[str, Any]:

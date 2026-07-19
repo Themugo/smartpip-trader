@@ -12,7 +12,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -109,7 +109,7 @@ class WorkspaceState:
     view_settings: Dict[str, Any] = field(default_factory=dict)
     filters: Dict[str, Any] = field(default_factory=dict)
     sort_order: Dict[str, str] = field(default_factory=dict)
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     version: str = "1.0"
     
     def to_dict(self) -> Dict[str, Any]:
@@ -135,14 +135,14 @@ class WorkspaceState:
             view_settings=data.get("view_settings", {}),
             filters=data.get("filters", {}),
             sort_order=data.get("sort_order", {}),
-            last_updated=datetime.fromisoformat(data["last_updated"]) if "last_updated" in data else datetime.utcnow(),
+            last_updated=datetime.fromisoformat(data["last_updated"]) if "last_updated" in data else datetime.now(timezone.utc),
             version=data.get("version", "1.0"),
         )
     
     def add_panel(self, panel: PanelConfig) -> None:
         """Add a panel to the workspace"""
         self.panels.append(panel)
-        self.last_updated = datetime.utcnow()
+        self.last_updated = datetime.now(timezone.utc)
     
     def remove_panel(self, panel_id: str) -> bool:
         """Remove a panel from the workspace"""
@@ -151,7 +151,7 @@ class WorkspaceState:
                 self.panels.pop(i)
                 # Also remove widgets in this panel
                 self.widgets = [w for w in self.widgets if w.panel_id != panel_id]
-                self.last_updated = datetime.utcnow()
+                self.last_updated = datetime.now(timezone.utc)
                 return True
         return False
     
@@ -162,21 +162,21 @@ class WorkspaceState:
                 for key, value in updates.items():
                     if hasattr(panel, key):
                         setattr(panel, key, value)
-                self.last_updated = datetime.utcnow()
+                self.last_updated = datetime.now(timezone.utc)
                 return True
         return False
     
     def add_widget(self, widget: WidgetConfig) -> None:
         """Add a widget to the workspace"""
         self.widgets.append(widget)
-        self.last_updated = datetime.utcnow()
+        self.last_updated = datetime.now(timezone.utc)
     
     def remove_widget(self, widget_id: str) -> bool:
         """Remove a widget from the workspace"""
         for i, widget in enumerate(self.widgets):
             if widget.id == widget_id:
                 self.widgets.pop(i)
-                self.last_updated = datetime.utcnow()
+                self.last_updated = datetime.now(timezone.utc)
                 return True
         return False
     
@@ -187,7 +187,7 @@ class WorkspaceState:
                 for key, value in updates.items():
                     if hasattr(widget, key):
                         setattr(widget, key, value)
-                self.last_updated = datetime.utcnow()
+                self.last_updated = datetime.now(timezone.utc)
                 return True
         return False
     

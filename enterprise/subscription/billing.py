@@ -10,7 +10,7 @@ Handles:
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -53,9 +53,9 @@ class UsageRecord:
     """Usage record for a metric"""
     metric: UsageMetric
     value: float
-    timestamp: datetime = field(default_factory=datetime.utcnow)
-    period_start: datetime = field(default_factory=datetime.utcnow)
-    period_end: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(days=1))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    period_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    period_end: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(days=1))
 
 
 @dataclass
@@ -108,7 +108,7 @@ class SubscriptionInfo:
     
     def days_remaining(self) -> int:
         """Days remaining in current period"""
-        remaining = (self.current_period_end - datetime.utcnow()).total_seconds()
+        remaining = (self.current_period_end - datetime.now(timezone.utc)).total_seconds()
         return max(0, int(remaining / 86400))
     
     def to_dict(self) -> Dict[str, Any]:
@@ -148,7 +148,7 @@ class UsageTracker:
     
     def record_usage(self, metric: UsageMetric, value: float, timestamp: Optional[datetime] = None) -> None:
         """Record usage for a metric"""
-        now = timestamp or datetime.utcnow()
+        now = timestamp or datetime.now(timezone.utc)
         
         record = UsageRecord(
             metric=metric,
@@ -162,7 +162,7 @@ class UsageTracker:
     
     def get_current_usage(self, metric: UsageMetric, window_hours: int = 24) -> float:
         """Get current usage for a metric within time window"""
-        cutoff = datetime.utcnow() - timedelta(hours=window_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=window_hours)
         
         return sum(
             r.value for r in self._usage[metric]
@@ -175,7 +175,7 @@ class UsageTracker:
         days: int = 30,
     ) -> List[Dict[str, Any]]:
         """Get usage history for a metric"""
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         
         return [
             {
@@ -259,7 +259,7 @@ class QuotaManager:
         is_exceeded = new_usage > limit
         
         # Calculate reset time (assume daily reset)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         reset_at = datetime.combine(
             now.date() + timedelta(days=1),
             datetime.min.time(),
@@ -324,7 +324,7 @@ class SubscriptionManager:
         """Create a new subscription"""
         plan = get_plan_by_tier(tier)
         
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         period_end = now + timedelta(days=30 if interval == BillingInterval.MONTHLY else 365)
         
         trial_ends_at = None
@@ -377,7 +377,7 @@ class SubscriptionManager:
         
         if interval:
             # Update billing period
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             if interval == BillingInterval.MONTHLY:
                 subscription.current_period_end = now + timedelta(days=30)
                 subscription.next_payment_amount = subscription.plan.pricing.monthly_price
@@ -399,7 +399,7 @@ class SubscriptionManager:
         
         if cancel_at_period_end:
             subscription.cancel_at_period_end = True
-            subscription.canceled_at = datetime.utcnow()
+            subscription.canceled_at = datetime.now(timezone.utc)
         else:
             subscription.status = SubscriptionStatus.CANCELED
         
@@ -427,8 +427,8 @@ class SubscriptionManager:
         subscription.is_trial = False
         subscription.trial_ends_at = None
         subscription.status = SubscriptionStatus.ACTIVE
-        subscription.current_period_start = datetime.utcnow()
-        subscription.current_period_end = datetime.utcnow() + timedelta(days=30)
+        subscription.current_period_start = datetime.now(timezone.utc)
+        subscription.current_period_end = datetime.now(timezone.utc) + timedelta(days=30)
         subscription.next_payment_date = subscription.current_period_end
         
         return True
@@ -521,8 +521,8 @@ class BillingService:
             "description": description,
             "items": items or [],
             "status": "pending",
-            "created_at": datetime.utcnow().isoformat(),
-            "due_date": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "due_date": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
             "paid_at": None,
         }
         
@@ -561,7 +561,7 @@ class BillingService:
         # Stub: In production, integrate with Stripe
         # Simulate successful payment
         invoice["status"] = "paid"
-        invoice["paid_at"] = datetime.utcnow().isoformat()
+        invoice["paid_at"] = datetime.now(timezone.utc).isoformat()
         
         return True, None
     
@@ -579,7 +579,7 @@ class BillingService:
             "type": method_type,
             "details": details,
             "is_default": len(self._payment_methods.get(organization_id, [])) == 0,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
         
         if organization_id not in self._payment_methods:

@@ -15,7 +15,7 @@ import logging
 import os
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -49,7 +49,7 @@ class MetricValue:
     """A single metric value"""
     name: str
     value: float
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: Dict[str, str] = field(default_factory=dict)
     
     def to_dict(self) -> Dict[str, Any]:
@@ -118,7 +118,7 @@ class Experiment:
     id: str
     config: ExperimentConfig
     status: ExperimentStatus = ExperimentStatus.PENDING
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     created_by: Optional[str] = None
@@ -315,7 +315,7 @@ class ResearchLab:
             return False
         
         experiment.status = ExperimentStatus.RUNNING
-        experiment.started_at = datetime.utcnow()
+        experiment.started_at = datetime.now(timezone.utc)
         
         self._fire_callback("on_experiment_start", experiment)
         
@@ -344,7 +344,7 @@ class ResearchLab:
             self._rank_results(experiment)
             
             experiment.status = ExperimentStatus.COMPLETED
-            experiment.completed_at = datetime.utcnow()
+            experiment.completed_at = datetime.now(timezone.utc)
             
             self._fire_callback("on_experiment_complete", experiment)
             self._save_experiments()
@@ -355,7 +355,7 @@ class ResearchLab:
         except Exception as e:
             logger.error(f"Experiment {experiment_id} failed: {e}")
             experiment.status = ExperimentStatus.FAILED
-            experiment.completed_at = datetime.utcnow()
+            experiment.completed_at = datetime.now(timezone.utc)
             self._fire_callback("on_experiment_fail", experiment, str(e))
             self._save_experiments()
             return False
@@ -393,7 +393,7 @@ class ResearchLab:
             return False
         
         experiment.status = ExperimentStatus.CANCELLED
-        experiment.completed_at = datetime.utcnow()
+        experiment.completed_at = datetime.now(timezone.utc)
         self._save_experiments()
         
         return True

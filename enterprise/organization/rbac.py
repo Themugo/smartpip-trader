@@ -111,7 +111,7 @@ class RoleManager:
         if "permissions" in updates:
             role.permissions = set(updates["permissions"])
         
-        role.updated_at = datetime.utcnow()
+        role.updated_at = datetime.now(timezone.utc)
         return role
     
     def delete_role(self, org_id: str, role_id: str) -> bool:

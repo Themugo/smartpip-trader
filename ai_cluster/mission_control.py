@@ -15,7 +15,7 @@ Central dashboard showing:
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -62,7 +62,7 @@ class AgentSnapshot:
     heartbeat_age_seconds: float = 0
     error_count: int = 0
     
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -119,7 +119,7 @@ class SystemHealth:
     uptime_seconds: float = 0
     error_rate: float = 0
     
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -206,7 +206,7 @@ class MissionControl:
     def _get_agent_status(self, reg) -> AgentStatus:
         """Determine agent status"""
         # Check heartbeat age
-        heartbeat_age = (datetime.utcnow() - reg.last_heartbeat).total_seconds()
+        heartbeat_age = (datetime.now(timezone.utc) - reg.last_heartbeat).total_seconds()
         
         if heartbeat_age > 60:
             return AgentStatus.OFFLINE

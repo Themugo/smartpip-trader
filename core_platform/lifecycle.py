@@ -67,7 +67,7 @@ class LifecycleManager:
     @property
     def uptime(self) -> float:
         if self._start_time:
-            return (datetime.utcnow() - self._start_time).total_seconds()
+            return (datetime.now(timezone.utc) - self._start_time).total_seconds()
         return 0
     
     def add_hook(
@@ -118,7 +118,7 @@ class LifecycleManager:
             self._phase = target_phase
             
             if target_phase == LifecyclePhase.RUNNING:
-                self._start_time = datetime.utcnow()
+                self._start_time = datetime.now(timezone.utc)
             
             logger.info(f"Transitioned to {target_phase.value}")
             return True

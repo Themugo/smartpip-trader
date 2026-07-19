@@ -9,7 +9,7 @@ import time
 import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class DashboardData:
     def get_comprehensive_dashboard(self) -> Dict[str, Any]:
         """Get all dashboard data"""
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "resources": self.get_resource_usage(),
             "queue": self.get_queue_health(),
             "websocket": self.get_websocket_health(),

@@ -7,7 +7,7 @@ Market data collection, processing, and distribution pipeline.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -119,7 +119,7 @@ class DataPipeline:
             return False
         
         feed.is_active = True
-        feed.last_update = datetime.utcnow()
+        feed.last_update = datetime.now(timezone.utc)
         logger.info(f"Started feed: {feed.name}")
         return True
     
@@ -186,7 +186,7 @@ class DataPipeline:
             return
         
         feed.messages_received += 1
-        feed.last_update = datetime.utcnow()
+        feed.last_update = datetime.now(timezone.utc)
         
         # Apply transformers
         transformed_data = self._apply_transformers(feed.data_type, data)
@@ -218,7 +218,7 @@ class DataPipeline:
         
         self._data_cache[symbol].append({
             **data,
-            "cached_at": datetime.utcnow(),
+            "cached_at": datetime.now(timezone.utc),
         })
         
         # Enforce cache size limit

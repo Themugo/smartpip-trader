@@ -1,7 +1,7 @@
 import logging
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional
 from contextlib import contextmanager
 
@@ -64,7 +64,7 @@ class JsonFormatter(logging.Formatter):
     def format(self, record):
         """Format log record as JSON"""
         log_data = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage()

@@ -10,7 +10,7 @@ import os
 import uuid
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -97,7 +97,7 @@ class MemoryLayer:
         """Add an entry to this layer"""
         # Check TTL
         if self.ttl_seconds:
-            age = (datetime.utcnow() - entry.timestamp).total_seconds()
+            age = (datetime.now(timezone.utc) - entry.timestamp).total_seconds()
             if age > self.ttl_seconds:
                 return
         
@@ -125,7 +125,7 @@ class MemoryLayer:
         entry = self._entries.get(entry_id)
         if entry:
             entry.access_count += 1
-            entry.last_access = datetime.utcnow()
+            entry.last_access = datetime.now(timezone.utc)
         return entry
     
     def search(
@@ -268,7 +268,7 @@ class MemoryManager:
         entry = MemoryEntry(
             id=str(uuid.uuid4()),
             memory_type=memory_type,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             key=key,
             value=value,
             tags=tags or [],
@@ -335,7 +335,7 @@ class MemoryManager:
         """Get recent trades"""
         trades = self.recall(
             MemoryType.TRADE,
-            since=datetime.utcnow() - timedelta(days=30),
+            since=datetime.now(timezone.utc) - timedelta(days=30),
             limit=limit * 2,
         )
         

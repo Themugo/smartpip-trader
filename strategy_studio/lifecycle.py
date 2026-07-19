@@ -261,8 +261,8 @@ class LifecycleManager:
             "state": LifecycleState.DRAFT,
             "graph": graph.to_dict(),
             "author": author,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
             "versions": [],
             "metrics": LifecycleMetrics(),
             "criteria": {},
@@ -293,7 +293,7 @@ class LifecycleManager:
             version=version,
             graph_data=graph.to_dict(),
             source_code="",  # Would be filled by compiler
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             author=author,
             changelog=changelog,
         )
@@ -333,7 +333,7 @@ class LifecycleManager:
             return False
         
         strategy["metrics"] = metrics
-        strategy["updated_at"] = datetime.utcnow()
+        strategy["updated_at"] = datetime.now(timezone.utc)
         return True
     
     def can_transition(
@@ -412,13 +412,13 @@ class LifecycleManager:
         
         # Perform transition
         strategy["state"] = target_state
-        strategy["updated_at"] = datetime.utcnow()
+        strategy["updated_at"] = datetime.now(timezone.utc)
         
         # Record transition
         transition = StateTransition(
             from_state=current_state,
             to_state=target_state,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             reason=reason,
             triggered_by=triggered_by,
             criteria_results=criteria_results,
@@ -467,7 +467,7 @@ class LifecycleManager:
         strategy["notes"].append({
             "text": note,
             "author": author,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         })
         return True
     

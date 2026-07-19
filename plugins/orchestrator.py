@@ -10,7 +10,7 @@ Combines signals from multiple strategy plugins using configurable consensus mec
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Callable
 from collections import Counter
@@ -43,7 +43,7 @@ class ConsensusResult:
     agreement_ratio: float  # 0-1, how many agree
     is_consensus: bool
     reasoning: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     consensus_mode: ConsensusMode = ConsensusMode.VOTING
     
     def to_dict(self) -> Dict[str, Any]:
@@ -230,7 +230,7 @@ class StrategyOrchestrator:
     def _can_trade(self) -> tuple[bool, str]:
         """Check if trading is allowed (cooldown check)"""
         if self._last_trade_time and self._config.cooldown_period > 0:
-            elapsed = (datetime.utcnow() - self._last_trade_time).total_seconds()
+            elapsed = (datetime.now(timezone.utc) - self._last_trade_time).total_seconds()
             if elapsed < self._config.cooldown_period:
                 return False, f"Cooldown active: {self._config.cooldown_period - elapsed:.1f}s remaining"
         
@@ -565,7 +565,7 @@ class StrategyOrchestrator:
     
     def on_trade_executed(self, result: ConsensusResult) -> None:
         """Called when a trade is executed from consensus"""
-        self._last_trade_time = datetime.utcnow()
+        self._last_trade_time = datetime.now(timezone.utc)
     
     def get_signal_history(
         self,

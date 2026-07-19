@@ -7,7 +7,7 @@ REST API for mobile companion applications.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -37,8 +37,8 @@ class Device:
     notification_types: List[str] = field(default_factory=lambda: ["all"])
     
     # Timestamps
-    registered_at: datetime = field(default_factory=datetime.utcnow)
-    last_active: datetime = field(default_factory=datetime.utcnow)
+    registered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_active: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -62,7 +62,7 @@ class PushNotification:
     delivered: int = 0
     failed: int = 0
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class MobileAPI:
@@ -128,7 +128,7 @@ class MobileAPI:
         if "notification_types" in updates:
             device.notification_types = updates["notification_types"]
         
-        device.last_active = datetime.utcnow()
+        device.last_active = datetime.now(timezone.utc)
         return device
     
     def unregister_device(self, device_id: str) -> bool:
@@ -181,7 +181,7 @@ class MobileAPI:
     def _deliver_notification(self, notification: PushNotification) -> None:
         """Deliver notification to devices"""
         # In production, would call FCM/APNS API
-        notification.sent_at = datetime.utcnow()
+        notification.sent_at = datetime.now(timezone.utc)
         notification.delivered = len(notification.device_ids)
         
         logger.info(f"Sent notification: {notification.id} to {notification.delivered} devices")
@@ -305,7 +305,7 @@ class MobileAPI:
         return {
             "success": True,
             "message": "Emergency stop activated",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     
     def switch_account(self, user_id: str, account_id: str) -> Dict[str, Any]:
@@ -313,7 +313,7 @@ class MobileAPI:
         return {
             "success": True,
             "active_account": account_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     
     # =========================================================================

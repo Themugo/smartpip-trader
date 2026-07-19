@@ -14,7 +14,7 @@ import logging
 import os
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -64,7 +64,7 @@ class Alert:
     source_id: Optional[str] = None
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     acknowledged_at: Optional[datetime] = None
     resolved_at: Optional[datetime] = None
     
@@ -121,7 +121,7 @@ class AlertRule:
             return False
         
         if self._last_triggered:
-            elapsed = (datetime.utcnow() - self._last_triggered).total_seconds()
+            elapsed = (datetime.now(timezone.utc) - self._last_triggered).total_seconds()
             if elapsed < self.cooldown_seconds:
                 return False
         
@@ -129,7 +129,7 @@ class AlertRule:
     
     def trigger(self) -> Alert:
         """Trigger the rule and create an alert"""
-        self._last_triggered = datetime.utcnow()
+        self._last_triggered = datetime.now(timezone.utc)
         
         return Alert(
             id=self.alert_template.get("id", ""),
@@ -326,7 +326,7 @@ class AlertCenter:
         for alert in self._alerts:
             if alert.id == alert_id:
                 alert.status = AlertStatus.ACKNOWLEDGED
-                alert.acknowledged_at = datetime.utcnow()
+                alert.acknowledged_at = datetime.now(timezone.utc)
                 self._fire_callbacks("on_acknowledge", alert)
                 self._save_alerts()
                 return True
@@ -337,7 +337,7 @@ class AlertCenter:
         for alert in self._alerts:
             if alert.id == alert_id:
                 alert.status = AlertStatus.RESOLVED
-                alert.resolved_at = datetime.utcnow()
+                alert.resolved_at = datetime.now(timezone.utc)
                 self._fire_callbacks("on_resolve", alert)
                 self._save_alerts()
                 return True
@@ -490,7 +490,7 @@ class AlertCenter:
     
     def cleanup_old_alerts(self, before: datetime) -> int:
         """Remove old resolved/dismissed alerts"""
-        before = before or datetime.utcnow() - timedelta(days=7)
+        before = before or datetime.now(timezone.utc) - timedelta(days=7)
         
         original_count = len(self._alerts)
         

@@ -88,7 +88,7 @@ class ChaosEngine:
         result = {
             "experiment": name,
             "fault_type": fault_type,
-            "start_time": datetime.utcnow().isoformat(),
+            "start_time": datetime.now(timezone.utc).isoformat(),
             "status": "running"
         }
         
@@ -118,13 +118,13 @@ class ChaosEngine:
         # Test recovery
         recovery_result = await self._test_recovery(target_system)
         result["recovery"] = recovery_result
-        result["end_time"] = datetime.utcnow().isoformat()
+        result["end_time"] = datetime.now(timezone.utc).isoformat()
         result["duration"] = time.time() - start_time
         
         self.results[name] = result
         self.active_experiments.remove(name)
         
-        experiment["last_run"] = datetime.utcnow().isoformat()
+        experiment["last_run"] = datetime.now(timezone.utc).isoformat()
         
         logger.info(f"Chaos experiment completed: {name}")
         

@@ -17,7 +17,7 @@ import logging
 import secrets
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -111,7 +111,7 @@ class User:
     failed_login_attempts: int = 0
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_login: Optional[datetime] = None
     
     def has_permission(self, permission: Permission) -> bool:
@@ -135,9 +135,9 @@ class Session:
     
     # Status
     is_active: bool = True
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(hours=24))
-    last_activity: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(hours=24))
+    last_activity: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Metadata
     ip_address: str = ""
@@ -166,7 +166,7 @@ class AuditLog:
     success: bool = True
     error_message: str = ""
     
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -378,7 +378,7 @@ class SecurityModule:
         
         # Reset failed attempts
         user.failed_login_attempts = 0
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.now(timezone.utc)
         self._save_users()
         
         # Create session
@@ -434,12 +434,12 @@ class SecurityModule:
         if not session or not session.is_active:
             return None
         
-        if datetime.utcnow() > session.expires_at:
+        if datetime.now(timezone.utc) > session.expires_at:
             session.is_active = False
             return None
         
         # Update last activity
-        session.last_activity = datetime.utcnow()
+        session.last_activity = datetime.now(timezone.utc)
         
         return session
     
@@ -702,7 +702,7 @@ class SecurityModule:
         
         Returns True if allowed, False if rate limited.
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=window_seconds)
         
         if identifier not in self._rate_limits:

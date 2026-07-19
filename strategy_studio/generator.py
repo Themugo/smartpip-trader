@@ -292,6 +292,6 @@ class GeneratedStrategy:
         """Execute trading signals"""
         # Add execution logic here
         pass
-'''.format(timestamp=datetime.utcnow().isoformat())
+'''.format(timestamp=datetime.now(timezone.utc).isoformat())
         
         return template

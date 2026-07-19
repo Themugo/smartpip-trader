@@ -7,7 +7,7 @@ Generate detailed explanations for every trade decision.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -90,7 +90,7 @@ class TradeExplanation:
     # Metadata
     regime: str = "unknown"
     market_conditions: Dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -343,7 +343,7 @@ class DecisionExplainer:
             if similarity > 0.6:  # Threshold for being considered similar
                 analogue = HistoricalAnalogue(
                     trade_id=trade.get("id", ""),
-                    timestamp=trade.get("timestamp", datetime.utcnow()),
+                    timestamp=trade.get("timestamp", datetime.now(timezone.utc)),
                     similarity_score=similarity * 100,
                     outcome="Won" if trade.get("pnl", 0) > 0 else "Lost",
                     outcome_value=trade.get("pnl", 0),

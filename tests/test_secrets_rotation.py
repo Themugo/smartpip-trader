@@ -3,7 +3,7 @@ import os
 import sys
 import tempfile
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from unittest.mock import patch, mock_open
 
 # Add project root to path
@@ -95,7 +95,7 @@ class TestSecretsRotation(unittest.TestCase):
         rotation.secret_metadata["old_key"] = {
             "name": "old_key",
             "type": "api_key",
-            "next_rotation": (datetime.utcnow() - timedelta(days=1)).isoformat(),
+            "next_rotation": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),
             "rotation_interval_days": 30,
             "status": "active"
         }
@@ -216,7 +216,7 @@ class TestSecretsRotation(unittest.TestCase):
         rotation.secret_metadata["expired_key"] = {
             "name": "expired_key",
             "type": "api_key",
-            "next_rotation": (datetime.utcnow() - timedelta(days=1)).isoformat(),
+            "next_rotation": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),
             "rotation_interval_days": 30,
             "status": "active",
             "version": 1
@@ -398,7 +398,7 @@ class TestJWTKeyRotation(unittest.TestCase):
         time.sleep(0.1)  # Ensure different timestamp
         rotation.previous_keys["expired_key"] = {
             "key": "old_secret",
-            "expires_at": (datetime.utcnow() - timedelta(days=1)).isoformat()
+            "expires_at": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
         }
         
         valid_keys = rotation.get_valid_keys()

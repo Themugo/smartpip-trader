@@ -38,7 +38,7 @@ class ServiceDescriptor:
     singleton: bool = True
     status: ServiceStatus = ServiceStatus.REGISTERED
     metadata: Dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_access: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -144,7 +144,7 @@ class ServiceRegistry:
         if not descriptor:
             return None
         
-        descriptor.last_access = datetime.utcnow()
+        descriptor.last_access = datetime.now(timezone.utc)
         
         # Return existing instance for singletons
         if descriptor.singleton and descriptor.instance is not None:

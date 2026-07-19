@@ -9,7 +9,7 @@ import psutil
 import time
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class ObservabilityDashboard:
             self._metrics[name] = deque(maxlen=1000)
         
         snapshot = MetricSnapshot(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metric_name=name,
             value=value,
             unit=unit,
@@ -80,7 +80,7 @@ class ObservabilityDashboard:
         """Record a custom metric value"""
         self._custom_metrics[key] = {
             "value": value,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     
     def get_metric(
@@ -188,7 +188,7 @@ class ObservabilityDashboard:
         system = self.collect_system_metrics()
         
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "system": {
                 "cpu_percent": system.get("cpu_percent", 0),
                 "memory_percent": system.get("memory_percent", 0),

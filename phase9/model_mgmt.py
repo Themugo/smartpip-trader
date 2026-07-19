@@ -8,7 +8,7 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -49,7 +49,7 @@ class ModelVersion:
     test_data: str = ""
     
     # Timing
-    trained_at: datetime = field(default_factory=datetime.utcnow)
+    trained_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     trained_by: str = ""
     
     # Status
@@ -93,8 +93,8 @@ class ModelMetadata:
     status: ModelStatus = ModelStatus.DRAFT
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -172,7 +172,7 @@ class ModelManager:
         
         data = {
             "models": [m.to_dict() for m in self._models.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -228,7 +228,7 @@ class ModelManager:
         )
         
         model.versions.append(model_version)
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         
         # Set as current if first version
         if not model.current_version:
@@ -281,7 +281,7 @@ class ModelManager:
             return False
         
         model.current_version = version
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_models()
         
         logger.info(f"Set current version for {model.name}: {version}")
@@ -308,7 +308,7 @@ class ModelManager:
                 elif status == ModelStatus.DEPLOYED:
                     self._fire_callback("on_deploy", model_id, v)
                 
-                model.updated_at = datetime.utcnow()
+                model.updated_at = datetime.now(timezone.utc)
                 self._save_models()
                 return True
         
@@ -369,7 +369,7 @@ class ModelManager:
                 # Set to second-to-last deployed
                 model.current_version = deployed_versions[-2].version
         
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_models()
         
         self._fire_callback("on_rollback", model_id, None)

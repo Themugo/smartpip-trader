@@ -9,7 +9,7 @@ import logging
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -72,7 +72,7 @@ class Recommendation:
     # Metadata
     priority: Priority = Priority.NORMAL
     tags: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -213,7 +213,7 @@ class BaseAgent(ABC):
             self._logger.error(f"Error handling message: {e}")
             self.state = AgentState.ERROR
             self.metrics.tasks_failed += 1
-            self.metrics.last_failure_at = datetime.utcnow()
+            self.metrics.last_failure_at = datetime.now(timezone.utc)
     
     def register_handler(self, action: str, handler: callable) -> None:
         """Register a message handler"""
@@ -330,7 +330,7 @@ class ResearchAgent(BaseAgent):
         
         self.metrics.discoveries += len(hypotheses)
         self.metrics.tasks_completed += 1
-        self.metrics.last_success_at = datetime.utcnow()
+        self.metrics.last_success_at = datetime.now(timezone.utc)
         
         return {
             "status": "success",
@@ -625,7 +625,7 @@ class MarketRegimeAgent(BaseAgent):
             "status": "success",
             "regime": regime,
             "confidence": confidence,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "recommendation": self._create_regime_recommendation(regime, confidence),
         }
     

@@ -6,7 +6,7 @@ Comprehensive monitoring and dashboard data for operations center.
 
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -33,7 +33,7 @@ class ServiceHealth:
     latency_ms: float
     error_rate: float
     uptime_percent: float
-    last_check: datetime = field(default_factory=datetime.utcnow)
+    last_check: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     message: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
@@ -117,7 +117,7 @@ class BackgroundJob:
     job_type: str
     status: str  # pending, running, completed, failed
     tenant_id: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     progress_percent: float = 0
@@ -147,7 +147,7 @@ class SecurityEvent:
     user_id: Optional[str]
     ip_address: Optional[str]
     description: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     resolved: bool = False
     
     def to_dict(self) -> Dict[str, Any]:
@@ -295,7 +295,7 @@ class ResourceMonitor:
         """Get resource history"""
         # In production, query from time-series database
         return [
-            {"timestamp": datetime.utcnow().isoformat(), "value": 45.2}
+            {"timestamp": datetime.now(timezone.utc).isoformat(), "value": 45.2}
             for _ in range(hours)
         ]
 
@@ -315,7 +315,7 @@ class OperationsDashboard:
     def get_overview(self) -> Dict[str, Any]:
         """Get operations overview"""
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "health": self._health_monitor.get_all_health(),
             "resources": self._resource_monitor.get_current_resources(),
             "active_jobs": len([j for j in self._jobs if j.status == "running"]),

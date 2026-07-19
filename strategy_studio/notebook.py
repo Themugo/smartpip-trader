@@ -8,7 +8,7 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -37,7 +37,7 @@ class NotebookCell:
     
     # Metadata
     order: int = 0
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -67,8 +67,8 @@ class ResearchNotebook:
     tags: List[str] = field(default_factory=list)
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -132,7 +132,7 @@ class ResearchNotebookManager:
         
         data = {
             "notebooks": [n.to_dict() for n in self._notebooks.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -218,7 +218,7 @@ class ResearchNotebookManager:
         for i, c in enumerate(notebook.cells):
             c.order = i
         
-        notebook.updated_at = datetime.utcnow()
+        notebook.updated_at = datetime.now(timezone.utc)
         self._save_notebooks()
         
         return cell
@@ -237,7 +237,7 @@ class ResearchNotebookManager:
         for cell in notebook.cells:
             if cell.id == cell_id:
                 cell.content = content
-                notebook.updated_at = datetime.utcnow()
+                notebook.updated_at = datetime.now(timezone.utc)
                 self._save_notebooks()
                 return True
         
@@ -255,7 +255,7 @@ class ResearchNotebookManager:
         for i, c in enumerate(notebook.cells):
             c.order = i
         
-        notebook.updated_at = datetime.utcnow()
+        notebook.updated_at = datetime.now(timezone.utc)
         self._save_notebooks()
         
         return True

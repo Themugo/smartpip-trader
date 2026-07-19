@@ -15,7 +15,7 @@ import logging
 import uuid
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -75,8 +75,8 @@ class Hypothesis:
     
     # Metadata
     author: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: List[str] = field(default_factory=list)
     
     def to_dict(self) -> Dict[str, Any]:
@@ -162,7 +162,7 @@ class Conclusion:
     
     # Metadata
     author: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: List[str] = field(default_factory=list)
     
     def to_dict(self) -> Dict[str, Any]:
@@ -193,7 +193,7 @@ class DatasetAttachment:
     description: str
     version: str
     attachment_type: str = "snapshot"  # "snapshot", "link", "reference"
-    added_at: datetime = field(default_factory=datetime.utcnow)
+    added_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     added_by: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
@@ -229,7 +229,7 @@ class Visualization:
     linked_observations: List[str] = field(default_factory=list)
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -265,8 +265,8 @@ class NotebookCell:
     
     # Metadata
     order: int = 0
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     execution_count: int = 0
     last_executed_at: Optional[datetime] = None
     
@@ -313,8 +313,8 @@ class ResearchWorkspace:
     description: str = ""
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # State
     is_locked: bool = False
@@ -439,7 +439,7 @@ class ResearchWorkspaceManager:
         
         data = {
             "workspaces": [ws.to_dict() for ws in self._workspaces.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -535,7 +535,7 @@ class ResearchWorkspaceManager:
         )
         
         workspace.hypotheses.append(hypothesis)
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         workspace.checksum = workspace.compute_checksum()
         self._save_workspaces()
         
@@ -562,8 +562,8 @@ class ResearchWorkspaceManager:
                     h.evidence.extend(evidence)
                 if counter_evidence:
                     h.counter_evidence.extend(counter_evidence)
-                h.updated_at = datetime.utcnow()
-                workspace.updated_at = datetime.utcnow()
+                h.updated_at = datetime.now(timezone.utc)
+                workspace.updated_at = datetime.now(timezone.utc)
                 workspace.checksum = workspace.compute_checksum()
                 self._save_workspaces()
                 return True
@@ -588,7 +588,7 @@ class ResearchWorkspaceManager:
         
         observation = Observation(
             id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             description=description,
             category=category,
             data_points=data_points or [],
@@ -598,7 +598,7 @@ class ResearchWorkspaceManager:
         )
         
         workspace.observations.append(observation)
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         workspace.checksum = workspace.compute_checksum()
         self._save_workspaces()
         
@@ -619,7 +619,7 @@ class ResearchWorkspaceManager:
             if o.id == observation_id:
                 if hypothesis_id not in o.related_hypotheses:
                     o.related_hypotheses.append(hypothesis_id)
-                workspace.updated_at = datetime.utcnow()
+                workspace.updated_at = datetime.now(timezone.utc)
                 self._save_workspaces()
                 return True
         
@@ -681,7 +681,7 @@ class ResearchWorkspaceManager:
         )
         
         workspace.conclusions.append(conclusion)
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         workspace.checksum = workspace.compute_checksum()
         self._save_workspaces()
         
@@ -713,7 +713,7 @@ class ResearchWorkspaceManager:
         )
         
         workspace.attached_datasets.append(attachment)
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         self._save_workspaces()
         
         return True
@@ -747,7 +747,7 @@ class ResearchWorkspaceManager:
         )
         
         workspace.visualizations.append(visualization)
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         self._save_workspaces()
         
         return visualization
@@ -781,7 +781,7 @@ class ResearchWorkspaceManager:
         for i, c in enumerate(workspace.cells):
             c.order = i
         
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         workspace.checksum = workspace.compute_checksum()
         self._save_workspaces()
         
@@ -808,10 +808,10 @@ class ResearchWorkspaceManager:
                     cell.outputs = outputs
                 if metrics is not None:
                     cell.metrics = metrics
-                cell.updated_at = datetime.utcnow()
+                cell.updated_at = datetime.now(timezone.utc)
                 cell.execution_count += 1
-                cell.last_executed_at = datetime.utcnow()
-                workspace.updated_at = datetime.utcnow()
+                cell.last_executed_at = datetime.now(timezone.utc)
+                workspace.updated_at = datetime.now(timezone.utc)
                 workspace.checksum = workspace.compute_checksum()
                 self._save_workspaces()
                 return True

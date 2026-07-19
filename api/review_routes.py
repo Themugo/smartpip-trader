@@ -221,7 +221,7 @@ def setup_review_routes(app: FastAPI, trading_system) -> None:
         total_lines = sum(m["lines"] for m in modules)
 
         return JSONResponse({
-            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.now(timezone.utc).isoformat() + "Z",
             "uptime_seconds": round(time.time() - _boot),
             "python_version": platform.python_version(),
             "system": {

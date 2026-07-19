@@ -8,7 +8,7 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -135,8 +135,8 @@ class Benchmark:
     # Metadata
     author: str = ""
     tags: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Usage
     comparison_count: int = 0
@@ -199,7 +199,7 @@ class BenchmarkResult:
     confidence_level: float = 0.0  # Statistical confidence
     
     # Metadata
-    compared_at: datetime = field(default_factory=datetime.utcnow)
+    compared_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -298,7 +298,7 @@ class BenchmarkLibrary:
         data = {
             "benchmarks": [b.to_dict() for b in self._benchmarks.values()],
             "results": [r.to_dict() for r in self._results[-100:]],  # Keep last 100 results
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(library_file, "w") as f:
@@ -315,8 +315,8 @@ class BenchmarkLibrary:
             name="Buy and Hold",
             description="Traditional buy and hold strategy",
             benchmark_type=BenchmarkType.BUY_AND_HOLD,
-            start_date=datetime.utcnow() - timedelta(days=365),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc) - timedelta(days=365),
+            end_date=datetime.now(timezone.utc),
             status=BenchmarkStatus.ACTIVE,
             author="System",
             metrics=BenchmarkMetrics(
@@ -338,8 +338,8 @@ class BenchmarkLibrary:
             name="Random Trading",
             description="Random entry/exit benchmark",
             benchmark_type=BenchmarkType.RANDOM,
-            start_date=datetime.utcnow() - timedelta(days=365),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc) - timedelta(days=365),
+            end_date=datetime.now(timezone.utc),
             status=BenchmarkStatus.ACTIVE,
             author="System",
             metrics=BenchmarkMetrics(
@@ -362,8 +362,8 @@ class BenchmarkLibrary:
             name="Momentum Strategy",
             description="Simple momentum following benchmark",
             benchmark_type=BenchmarkType.MOMENTUM,
-            start_date=datetime.utcnow() - timedelta(days=365),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc) - timedelta(days=365),
+            end_date=datetime.now(timezone.utc),
             status=BenchmarkStatus.ACTIVE,
             author="System",
             metrics=BenchmarkMetrics(
@@ -431,7 +431,7 @@ class BenchmarkLibrary:
         if status is not None:
             benchmark.status = status
         
-        benchmark.updated_at = datetime.utcnow()
+        benchmark.updated_at = datetime.now(timezone.utc)
         self._save_library()
         return True
     
@@ -461,7 +461,7 @@ class BenchmarkLibrary:
         )
         
         benchmark.periods.append(period)
-        benchmark.updated_at = datetime.utcnow()
+        benchmark.updated_at = datetime.now(timezone.utc)
         self._save_library()
         return True
     
@@ -522,7 +522,7 @@ class BenchmarkLibrary:
         
         # Update benchmark usage
         benchmark.comparison_count += 1
-        benchmark.last_compared_at = datetime.utcnow()
+        benchmark.last_compared_at = datetime.now(timezone.utc)
         
         self._results.append(result)
         self._save_library()

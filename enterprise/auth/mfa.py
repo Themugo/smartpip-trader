@@ -12,7 +12,7 @@ Multi-factor authentication service with:
 import secrets
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 import pyotp
@@ -116,7 +116,7 @@ class MFAService:
         self._pending_codes[user_id] = {
             "code": code,
             "method": MFAType.EMAIL,
-            "expires_at": datetime.utcnow() + timedelta(seconds=self._code_ttl),
+            "expires_at": datetime.now(timezone.utc) + timedelta(seconds=self._code_ttl),
             "attempts": 0,
             "destination": email,
         }
@@ -137,7 +137,7 @@ class MFAService:
         self._pending_codes[user_id] = {
             "code": code,
             "method": MFAType.SMS,
-            "expires_at": datetime.utcnow() + timedelta(seconds=self._code_ttl),
+            "expires_at": datetime.now(timezone.utc) + timedelta(seconds=self._code_ttl),
             "attempts": 0,
             "destination": phone,
         }
@@ -178,7 +178,7 @@ class MFAService:
             return False, "Invalid code method"
         
         # Check expiration
-        if datetime.utcnow() > stored["expires_at"]:
+        if datetime.now(timezone.utc) > stored["expires_at"]:
             del self._pending_codes[user_id]
             return False, "Code has expired"
         
@@ -206,7 +206,7 @@ class MFAService:
         if not stored:
             return False
         
-        if datetime.utcnow() > stored["expires_at"]:
+        if datetime.now(timezone.utc) > stored["expires_at"]:
             del self._pending_codes[user_id]
             return False
         
@@ -218,7 +218,7 @@ class MFAService:
         if not stored:
             return None
         
-        if datetime.utcnow() > stored["expires_at"]:
+        if datetime.now(timezone.utc) > stored["expires_at"]:
             return None
         
         return {
@@ -356,7 +356,7 @@ class EmailProvider:
         self._codes[user_id] = {
             "code": code,
             "email": email,
-            "expires_at": datetime.utcnow() + timedelta(seconds=self._ttl),
+            "expires_at": datetime.now(timezone.utc) + timedelta(seconds=self._ttl),
             "attempts": 0,
         }
         
@@ -379,7 +379,7 @@ class EmailProvider:
         if not stored:
             return False, "No code requested"
         
-        if datetime.utcnow() > stored["expires_at"]:
+        if datetime.now(timezone.utc) > stored["expires_at"]:
             del self._codes[user_id]
             return False, "Code expired"
         

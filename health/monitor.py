@@ -18,7 +18,7 @@ import psutil
 import time
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -58,7 +58,7 @@ class ComponentHealth:
     metrics: Dict[str, float] = field(default_factory=dict)
     
     # Timing
-    last_check: datetime = field(default_factory=datetime.utcnow)
+    last_check: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_failure: Optional[datetime] = None
     uptime_seconds: float = 0
     
@@ -89,7 +89,7 @@ class ComponentHealth:
 @dataclass
 class HealthMetrics:
     """Current system health metrics"""
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # System resources
     cpu_percent: float = 0
@@ -160,7 +160,7 @@ class ModelDrift:
     current_value: float
     drift_percent: float
     is_significant: bool
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -286,7 +286,7 @@ class HealthMonitor:
             return
         
         component.success_count += 1
-        component.last_check = datetime.utcnow()
+        component.last_check = datetime.now(timezone.utc)
         
         if latency_ms is not None:
             component.metrics["last_latency_ms"] = latency_ms
@@ -308,8 +308,8 @@ class HealthMonitor:
             return
         
         component.failure_count += 1
-        component.last_check = datetime.utcnow()
-        component.last_failure = datetime.utcnow()
+        component.last_check = datetime.now(timezone.utc)
+        component.last_failure = datetime.now(timezone.utc)
         
         # Calculate failure rate
         total = component.success_count + component.failure_count
@@ -338,7 +338,7 @@ class HealthMonitor:
     
     async def check_health(self) -> HealthMetrics:
         """Perform comprehensive health check"""
-        self._metrics.timestamp = datetime.utcnow()
+        self._metrics.timestamp = datetime.now(timezone.utc)
         
         # Check system resources
         await self._check_system_resources()
@@ -393,7 +393,7 @@ class HealthMonitor:
                     system.status = HealthStatus.HEALTHY
                     system.message = "Resources normal"
                 
-                system.last_check = datetime.utcnow()
+                system.last_check = datetime.now(timezone.utc)
             
             # Try GPU metrics (if available)
             try:
@@ -427,7 +427,7 @@ class HealthMonitor:
             api = self._components.get("deriv_api")
             if api:
                 api.metrics["latency_ms"] = latency
-                api.last_check = datetime.utcnow()
+                api.last_check = datetime.now(timezone.utc)
                 
                 if latency > 1000:
                     api.status = HealthStatus.CRITICAL
@@ -444,7 +444,7 @@ class HealthMonitor:
             if api:
                 api.status = HealthStatus.CRITICAL
                 api.message = f"API unreachable: {str(e)}"
-                api.last_failure = datetime.utcnow()
+                api.last_failure = datetime.now(timezone.utc)
     
     def _update_component_metrics(self) -> None:
         """Update aggregated component metrics"""
@@ -479,7 +479,7 @@ class HealthMonitor:
         history_entry = {
             "predicted": predicted_confidence,
             "actual": 1.0 if actual_outcome else 0.0,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         
         self._calibration.calibration_history.append(history_entry)
@@ -575,7 +575,7 @@ class HealthMonitor:
             "severity": severity,
             "component": component,
             "message": message,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         
         self._alerts.append(alert)

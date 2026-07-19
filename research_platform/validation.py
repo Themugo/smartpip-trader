@@ -15,7 +15,7 @@ import logging
 import uuid
 import numpy as np
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -216,7 +216,7 @@ class ValidationResult:
     failures: List[str] = field(default_factory=list)
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     execution_time_seconds: float = 0.0
     
@@ -264,8 +264,8 @@ class ValidationSuite:
     results: List[ValidationResult] = field(default_factory=list)
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -353,7 +353,7 @@ class ValidationCenter:
         
         data = {
             "results": [r.to_dict() for r in self._results.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(results_file, "w") as f:
@@ -387,7 +387,7 @@ class ValidationCenter:
             end_date=end_date,
         )
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Generate windows
         current_train_end = start_date + timedelta(days=train_period_days)
@@ -472,7 +472,7 @@ class ValidationCenter:
         result.robustness_score = self._calculate_robustness_score(result)
         result.is_robust = result.robustness_score >= 70
         
-        result.completed_at = datetime.utcnow()
+        result.completed_at = datetime.now(timezone.utc)
         result.execution_time_seconds = (result.completed_at - start_time).total_seconds()
         
         self._results[result.result_id] = result
@@ -498,11 +498,11 @@ class ValidationCenter:
             config={
                 "num_simulations": num_simulations,
             },
-            start_date=datetime.utcnow(),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc),
+            end_date=datetime.now(timezone.utc),
         )
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Extract trade returns
         returns = [t.get("pnl", 0) for t in trades]
@@ -575,7 +575,7 @@ class ValidationCenter:
         # Confidence level
         result.confidence_level = 1.0 - result.avg_test_metrics["probability_of_loss"]
         
-        result.completed_at = datetime.utcnow()
+        result.completed_at = datetime.now(timezone.utc)
         result.execution_time_seconds = (result.completed_at - start_time).total_seconds()
         
         self._results[result.result_id] = result
@@ -603,11 +603,11 @@ class ValidationCenter:
                 "base_params": base_params,
                 "param_ranges": {k: list(v) for k, v in param_ranges.items()},
             },
-            start_date=datetime.utcnow(),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc),
+            end_date=datetime.now(timezone.utc),
         )
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         for param_name, (min_val, max_val, num_steps) in param_ranges.items():
             sensitivity = SensitivityResult(
@@ -662,7 +662,7 @@ class ValidationCenter:
         result.robustness_score = max(0, 100 - avg_sensitivity * 100)
         result.is_robust = result.robustness_score >= 70
         
-        result.completed_at = datetime.utcnow()
+        result.completed_at = datetime.now(timezone.utc)
         result.execution_time_seconds = (result.completed_at - start_time).total_seconds()
         
         self._results[result.result_id] = result
@@ -684,8 +684,8 @@ class ValidationCenter:
             validation_type=ValidationType.STABILITY,
             strategy_id=strategy_id,
             strategy_name=strategy_name,
-            start_date=datetime.utcnow(),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc),
+            end_date=datetime.now(timezone.utc),
         )
         
         # Aggregate metrics across validation results

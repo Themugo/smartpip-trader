@@ -6,7 +6,7 @@ Defines the standard lifecycle interface and data structures for all trading str
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import UUID, uuid4
@@ -42,8 +42,8 @@ class PluginMetadata:
     license: str = "MIT"
     api_version: str = "1.0"
     dependencies: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -81,7 +81,7 @@ class TickData:
     """Standardized tick data for strategy consumption"""
     symbol: str
     price: float
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     bid: Optional[float] = None
     ask: Optional[float] = None
     volume: Optional[float] = None
@@ -93,7 +93,7 @@ class TickData:
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp)
         elif timestamp is None:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
         return cls(
             symbol=data.get("symbol", ""),
             price=float(data.get("price", data.get("quote", 0))),
@@ -126,7 +126,7 @@ class Signal:
     confidence: float = 0.0
     reason: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     price: float = 0.0
     market: str = ""
     valid_until: Optional[datetime] = None
@@ -166,7 +166,7 @@ class RiskValidation:
     risk_score: float = 0.0
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -198,7 +198,7 @@ class PerformanceMetrics:
     win_rate: float = 0.0
     profit_factor: float = 0.0
     sharpe_ratio: float = 0.0
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @property
     def net_profit(self) -> float:
@@ -254,7 +254,7 @@ class PerformanceMetrics:
             self.avg_win = self.total_profit / max(self.winning_trades, 1)
             self.avg_loss = abs(self.total_loss) / max(self.losing_trades, 1)
         
-        self.last_updated = datetime.utcnow()
+        self.last_updated = datetime.now(timezone.utc)
 
 
 class StrategyPlugin(ABC):

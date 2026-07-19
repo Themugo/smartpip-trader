@@ -12,7 +12,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Callable
 from uuid import uuid4
@@ -49,8 +49,8 @@ class Workspace:
     requires_auth: bool = True
     permissions: List[str] = field(default_factory=list)
     settings: Dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -83,8 +83,8 @@ class Workspace:
             requires_auth=data.get("requires_auth", True),
             permissions=data.get("permissions", []),
             settings=data.get("settings", {}),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(timezone.utc),
         )
 
 

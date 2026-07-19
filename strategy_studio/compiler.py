@@ -6,7 +6,7 @@ Compiles strategy graphs into executable Python code.
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -261,7 +261,7 @@ async def block_{id}(context, signal):
         lines = [
             '"""',
             f'Auto-generated strategy: {graph.name}',
-            f'Generated: {datetime.utcnow().isoformat()}',
+            f'Generated: {datetime.now(timezone.utc).isoformat()}',
             '"""',
             '',
             'import asyncio',

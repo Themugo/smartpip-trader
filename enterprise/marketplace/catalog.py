@@ -47,7 +47,7 @@ class PluginVersion:
     changelog: str = ""
     min_platform_version: str = "1.0.0"
     max_platform_version: str = "2.0.0"
-    release_date: datetime = field(default_factory=datetime.utcnow)
+    release_date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     download_url: str = ""
     file_hash: str = ""
     file_size: int = 0
@@ -109,8 +109,8 @@ class Plugin:
     license_type: str = "MIT"
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     published_at: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -146,7 +146,7 @@ class PluginReview:
     rating: int  # 1-5
     title: str
     content: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     helpful_count: int = 0
     
     def to_dict(self) -> Dict[str, Any]:

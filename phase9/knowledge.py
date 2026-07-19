@@ -7,7 +7,7 @@ Graph database connecting markets, patterns, trades, strategies, indicators, mod
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -56,7 +56,7 @@ class Node:
     properties: Dict[str, Any] = field(default_factory=dict)
     
     # Temporal data
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     valid_from: Optional[datetime] = None
     valid_to: Optional[datetime] = None
     
@@ -96,7 +96,7 @@ class Relationship:
     strength: float = 1.0  # 0-1
     
     # Temporal
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -434,5 +434,5 @@ class KnowledgeGraph:
         return {
             "nodes": [n.to_dict() for n in self._nodes.values()],
             "relationships": [r.to_dict() for r in self._relationships.values()],
-            "exported_at": datetime.utcnow().isoformat(),
+            "exported_at": datetime.now(timezone.utc).isoformat(),
         }

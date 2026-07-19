@@ -97,8 +97,8 @@ class PanelState:
     configuration: Dict[str, Any] = field(default_factory=dict)
     data_source: Optional[str] = None
     refresh_interval: int = 5  # seconds
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -141,8 +141,8 @@ class PanelState:
             configuration=data.get("configuration", {}),
             data_source=data.get("data_source"),
             refresh_interval=data.get("refresh_interval", 5),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.utcnow(),
-            last_updated=datetime.fromisoformat(data["last_updated"]) if "last_updated" in data else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(timezone.utc),
+            last_updated=datetime.fromisoformat(data["last_updated"]) if "last_updated" in data else datetime.now(timezone.utc),
         )
 
 
@@ -189,8 +189,8 @@ class WorkspaceLayout:
     grid_config: Dict[str, Any] = field(default_factory=dict)
     version: int = 1
     is_template: bool = False
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: Optional[str] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -229,8 +229,8 @@ class WorkspaceLayout:
             grid_config=data.get("grid_config", {}),
             version=data.get("version", 1),
             is_template=data.get("is_template", False),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.utcnow(),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.utcnow(),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(timezone.utc),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(timezone.utc),
             created_by=data.get("created_by"),
         )
 
@@ -303,7 +303,7 @@ class WorkspaceManager:
         data = {
             "workspace_ids": list(self._workspaces.keys()),
             "active_workspace_id": self._active_workspace_id,
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -407,7 +407,7 @@ class WorkspaceManager:
             workspace.notifications_enabled = updates["notifications_enabled"]
         
         workspace.version += 1
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         
         self._save_workspace(workspace)
         self._notify_change(workspace_id, workspace)
@@ -498,7 +498,7 @@ class WorkspaceManager:
         
         workspace.panels.append(panel)
         workspace.version += 1
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         
         self._save_workspace(workspace)
         self._notify_change(workspace_id, workspace)
@@ -517,7 +517,7 @@ class WorkspaceManager:
         
         workspace.panels = [p for p in workspace.panels if p.id != panel_id]
         workspace.version += 1
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         
         self._save_workspace(workspace)
         self._notify_change(workspace_id, workspace)
@@ -553,9 +553,9 @@ class WorkspaceManager:
                 if "is_maximized" in updates:
                     panel.is_maximized = updates["is_maximized"]
                 
-                panel.last_updated = datetime.utcnow()
+                panel.last_updated = datetime.now(timezone.utc)
                 workspace.version += 1
-                workspace.updated_at = datetime.utcnow()
+                workspace.updated_at = datetime.now(timezone.utc)
                 
                 self._save_workspace(workspace)
                 self._notify_change(workspace_id, workspace)
@@ -584,7 +584,7 @@ class WorkspaceManager:
         
         workspace.charts.append(chart)
         workspace.version += 1
-        workspace.updated_at = datetime.utcnow()
+        workspace.updated_at = datetime.now(timezone.utc)
         
         self._save_workspace(workspace)
         self._notify_change(workspace_id, workspace)
@@ -608,8 +608,8 @@ class WorkspaceManager:
                 data["name"] = new_name
             
             workspace = WorkspaceLayout.from_dict(data)
-            workspace.created_at = datetime.utcnow()
-            workspace.updated_at = datetime.utcnow()
+            workspace.created_at = datetime.now(timezone.utc)
+            workspace.updated_at = datetime.now(timezone.utc)
             
             self._workspaces[workspace.id] = workspace
             self._save_workspace(workspace)

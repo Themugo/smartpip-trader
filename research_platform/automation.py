@@ -17,7 +17,7 @@ import logging
 import uuid
 import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -105,7 +105,7 @@ class PipelineTask:
 class PipelineRun:
     """A single pipeline execution"""
     run_id: str
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     # Configuration
@@ -178,7 +178,7 @@ class DeploymentRecommendation:
     next_steps: List[str] = field(default_factory=list)
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -288,7 +288,7 @@ class NightlyPipeline:
         
         data = {
             "runs": [r.to_dict() for r in list(self._pipeline_runs.values())[-50:]],  # Keep last 50
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(history_file, "w") as f:
@@ -381,7 +381,7 @@ class NightlyPipeline:
         pipeline.status = PipelineStatus.RUNNING
         logger.info(f"Starting pipeline: {pipeline.run_id}")
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         try:
             if parallel:
@@ -407,7 +407,7 @@ class NightlyPipeline:
             pipeline.status = PipelineStatus.FAILED
             logger.error(f"Pipeline failed: {e}")
         
-        pipeline.completed_at = datetime.utcnow()
+        pipeline.completed_at = datetime.now(timezone.utc)
         pipeline.total_duration_seconds = (pipeline.completed_at - start_time).total_seconds()
         
         self._save_history()
@@ -461,7 +461,7 @@ class NightlyPipeline:
     async def _run_task(self, task: PipelineTask) -> None:
         """Run a single task"""
         task.status = TaskStatus.RUNNING
-        task.started_at = datetime.utcnow()
+        task.started_at = datetime.now(timezone.utc)
         
         handler = self._handlers.get(task.stage)
         
@@ -479,7 +479,7 @@ class NightlyPipeline:
             task.error = str(e)
             logger.error(f"Task {task.name} failed: {e}")
         
-        task.completed_at = datetime.utcnow()
+        task.completed_at = datetime.now(timezone.utc)
         task.duration_seconds = (task.completed_at - task.started_at).total_seconds()
     
     def _run_task_sync(self, task: PipelineTask) -> None:
@@ -590,7 +590,7 @@ class NightlyPipeline:
         """Handle report generation"""
         report = {
             "report_id": str(uuid.uuid4()),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "sections": {
                 "executive_summary": "...",
                 "model_performance": "...",

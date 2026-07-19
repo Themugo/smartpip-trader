@@ -16,7 +16,7 @@ import logging
 import uuid
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -68,8 +68,8 @@ class EquityCurve:
     
     # Metadata
     strategy_id: str = ""
-    period_start: datetime = field(default_factory=datetime.utcnow)
-    period_end: datetime = field(default_factory=datetime.utcnow)
+    period_start: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    period_end: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -393,7 +393,7 @@ class PerformanceAnalytics:
             return ts
         if isinstance(ts, str):
             return datetime.fromisoformat(ts.replace("Z", "+00:00"))
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
     
     def get_equity_curve(self, curve_id: str) -> Optional[EquityCurve]:
         """Get equity curve by ID"""
@@ -776,7 +776,7 @@ class PerformanceAnalytics:
         """Generate comprehensive performance report"""
         report = {
             "strategy_id": strategy_id,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "period": {},
             "equity_curve": {},
             "risk_metrics": {},

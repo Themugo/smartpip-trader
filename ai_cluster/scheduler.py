@@ -8,7 +8,7 @@ import asyncio
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -82,7 +82,7 @@ class Job:
     
     # Metadata
     created_by: str = "system"
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: List[str] = field(default_factory=list)
     
     def to_dict(self) -> Dict[str, Any]:
@@ -261,7 +261,7 @@ class TaskScheduler:
         
         job.status = JobStatus.RUNNING
         job.worker_id = worker.id
-        job.started_at = datetime.utcnow()
+        job.started_at = datetime.now(timezone.utc)
         
         worker.is_busy = True
         worker.current_job_id = job.id
@@ -289,7 +289,7 @@ class TaskScheduler:
             
             job.status = JobStatus.COMPLETED
             job.result = result
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             job.progress = 100
             
             worker.jobs_completed += 1
@@ -370,7 +370,7 @@ class TaskScheduler:
         
         if job.status in [JobStatus.PENDING, JobStatus.QUEUED, JobStatus.RETRYING]:
             job.status = JobStatus.CANCELLED
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             return True
         
         return False

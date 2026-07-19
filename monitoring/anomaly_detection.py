@@ -5,7 +5,7 @@ Detects unusual patterns and triggers security alerts
 
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Dict, Any, List, Optional, Callable
 from collections import deque
 import logging
@@ -46,7 +46,7 @@ class AnomalyDetector:
         alert = {
             "type": alert_type,
             "severity": severity,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "details": details
         }
         
@@ -250,7 +250,7 @@ class SecurityAlertManager:
         recent_alerts = [
             a for a in self.alert_history
             if a["type"] == alert_type
-            and datetime.fromisoformat(a["timestamp"]) > datetime.utcnow() - timedelta(hours=1)
+            and datetime.fromisoformat(a["timestamp"]) > datetime.now(timezone.utc) - timedelta(hours=1)
         ]
         
         threshold = self.alert_thresholds.get(alert_type, 10)
@@ -260,14 +260,14 @@ class SecurityAlertManager:
     
     def _create_incident(self, alert_type: str, severity: str, alert_count: int):
         """Create a security incident"""
-        incident_id = f"INC-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}-{alert_type}"
+        incident_id = f"INC-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-{alert_type}"
         
         self.active_incidents[incident_id] = {
             "id": incident_id,
             "type": alert_type,
             "severity": severity,
             "alert_count": alert_count,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "status": "active",
             "actions_taken": []
         }
@@ -278,7 +278,7 @@ class SecurityAlertManager:
         """Resolve a security incident"""
         if incident_id in self.active_incidents:
             self.active_incidents[incident_id]["status"] = "resolved"
-            self.active_incidents[incident_id]["resolved_at"] = datetime.utcnow().isoformat()
+            self.active_incidents[incident_id]["resolved_at"] = datetime.now(timezone.utc).isoformat()
             self.active_incidents[incident_id]["resolution"] = resolution
             logger.info(f"Incident resolved: {incident_id}")
     
@@ -291,7 +291,7 @@ class SecurityAlertManager:
     
     def get_alert_history(self, hours: int = 24) -> List[Dict[str, Any]]:
         """Get alert history for specified time period"""
-        cutoff = datetime.utcnow() - timedelta(hours=hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
         return [
             alert for alert in self.alert_history
             if datetime.fromisoformat(alert["timestamp"]) > cutoff

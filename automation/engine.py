@@ -8,7 +8,7 @@ import asyncio
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -100,7 +100,7 @@ class Workflow:
     
     # Status
     enabled: bool = True
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_run: Optional[datetime] = None
     
     # Execution tracking
@@ -256,7 +256,7 @@ class AutomationEngine:
     ) -> bool:
         """Execute a workflow"""
         workflow.total_runs += 1
-        workflow.last_run = datetime.utcnow()
+        workflow.last_run = datetime.now(timezone.utc)
         
         self._logger.info(f"Executing workflow: {workflow.name}")
         

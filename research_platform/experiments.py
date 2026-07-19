@@ -14,7 +14,7 @@ import logging
 import uuid
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -159,7 +159,7 @@ class MetricValue:
     higher_is_better: bool = True
     tags: Dict[str, str] = field(default_factory=dict)
     
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -201,7 +201,7 @@ class MetricSummary:
 class ExecutionRecord:
     """Record of a single experiment execution"""
     run_id: str
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     # Parameters used
@@ -279,8 +279,8 @@ class Experiment:
     # Metadata
     author: str = ""
     tags: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     
@@ -402,7 +402,7 @@ class ExperimentResult:
     total_runs: int = 0
     successful_runs: int = 0
     execution_time: float = 0.0
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -497,7 +497,7 @@ class ExperimentManager:
         
         data = {
             "experiments": [exp.to_dict() for exp in self._experiments.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -554,7 +554,7 @@ class ExperimentManager:
             "python_version": sys.version,
             "platform": platform.platform(),
             "processor": platform.processor(),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     
     def get_experiment(self, experiment_id: str) -> Optional[Experiment]:
@@ -580,11 +580,11 @@ class ExperimentManager:
         if status is not None:
             exp.status = status
             if status == ExperimentStatus.RUNNING and not exp.started_at:
-                exp.started_at = datetime.utcnow()
+                exp.started_at = datetime.now(timezone.utc)
             elif status in [ExperimentStatus.COMPLETED, ExperimentStatus.FAILED, ExperimentStatus.CANCELLED]:
-                exp.completed_at = datetime.utcnow()
+                exp.completed_at = datetime.now(timezone.utc)
         
-        exp.updated_at = datetime.utcnow()
+        exp.updated_at = datetime.now(timezone.utc)
         self._save_experiments()
         return True
     
@@ -624,7 +624,7 @@ class ExperimentManager:
         )
         
         exp.runs.append(run)
-        exp.updated_at = datetime.utcnow()
+        exp.updated_at = datetime.now(timezone.utc)
         
         return run
     
@@ -647,7 +647,7 @@ class ExperimentManager:
                 if status is not None:
                     run.status = status
                     if status in [ExperimentStatus.COMPLETED, ExperimentStatus.FAILED, ExperimentStatus.CANCELLED]:
-                        run.completed_at = datetime.utcnow()
+                        run.completed_at = datetime.now(timezone.utc)
                 
                 if metrics is not None:
                     run.summary_metrics = metrics
@@ -662,7 +662,7 @@ class ExperimentManager:
                 if artifacts is not None:
                     run.artifacts.update(artifacts)
                 
-                exp.updated_at = datetime.utcnow()
+                exp.updated_at = datetime.now(timezone.utc)
                 self._save_experiments()
                 return True
         

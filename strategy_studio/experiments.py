@@ -45,7 +45,7 @@ class Experiment:
     notes: str = ""
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -115,7 +115,7 @@ class ExperimentTracker:
         
         data = {
             "experiments": [e.to_dict() for e in self._experiments.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -167,7 +167,7 @@ class ExperimentTracker:
         exp.status = "completed"
         exp.outcome = outcome
         exp.notes = notes
-        exp.completed_at = datetime.utcnow()
+        exp.completed_at = datetime.now(timezone.utc)
         exp.execution_time_seconds = (
             exp.completed_at - exp.created_at
         ).total_seconds()
@@ -186,7 +186,7 @@ class ExperimentTracker:
         exp.status = "failed"
         exp.outcome = "failure"
         exp.notes = error
-        exp.completed_at = datetime.utcnow()
+        exp.completed_at = datetime.now(timezone.utc)
         
         self._save_experiments()
         return True

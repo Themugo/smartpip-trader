@@ -8,7 +8,7 @@ import logging
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -43,7 +43,7 @@ class AnalyticsResult:
     summary: str = ""
     
     # Timestamps
-    calculated_at: datetime = field(default_factory=datetime.utcnow)
+    calculated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     period_start: Optional[datetime] = None
     period_end: Optional[datetime] = None
     
@@ -96,7 +96,7 @@ class AnalyticsDashboard:
             "type": widget_type,
             "title": title,
             "data": data,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),
         }
     
     def get_dashboard(self) -> Dict[str, Any]:
@@ -104,7 +104,7 @@ class AnalyticsDashboard:
         return {
             "widgets": self._widgets,
             "refresh_interval": self._refresh_interval,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -502,7 +502,7 @@ class AdvancedAnalytics:
     ) -> Dict[str, Any]:
         """Generate analytics dashboard"""
         dashboard = {
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "widgets": {},
         }
         

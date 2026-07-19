@@ -7,7 +7,7 @@ Comprehensive validation checks for system health.
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 from collections import deque
@@ -93,7 +93,7 @@ class ValidationCheck:
 @dataclass
 class ValidationResult:
     """Result of a validation run"""
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     duration_ms: float = 0
     
     # Overall status
@@ -320,7 +320,7 @@ class QualityAssurance:
             check.fail_count += 1
             check.message = f"Error: {str(e)}"
         
-        check.last_run = datetime.utcnow()
+        check.last_run = datetime.now(timezone.utc)
         check.last_duration_ms = (time.time() - start_time) * 1000
         
         self._fire_callbacks("on_check_complete", check)

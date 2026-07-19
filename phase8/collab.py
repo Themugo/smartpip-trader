@@ -7,7 +7,7 @@ Multi-user collaboration with comments, reviews, and approvals.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -39,7 +39,7 @@ class User:
     role: UserRole = UserRole.VIEWER
     avatar_url: Optional[str] = None
     is_active: bool = True
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -75,8 +75,8 @@ class Comment:
     resolved_by: Optional[str] = None
     resolved_at: Optional[datetime] = None
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -115,7 +115,7 @@ class ChangeRecord:
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -144,7 +144,7 @@ class Approval:
     approved: bool
     reason: str = ""
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class CollaborationLayer:
@@ -270,7 +270,7 @@ class CollaborationLayer:
         
         comment.is_resolved = True
         comment.resolved_by = user_id
-        comment.resolved_at = datetime.utcnow()
+        comment.resolved_at = datetime.now(timezone.utc)
         return True
     
     # =========================================================================
@@ -333,7 +333,7 @@ class CollaborationLayer:
         
         change.review_status = status
         change.reviewed_by = reviewer_id
-        change.reviewed_at = datetime.utcnow()
+        change.reviewed_at = datetime.now(timezone.utc)
         
         return True
     

@@ -10,7 +10,7 @@ import signal
 import sys
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -119,7 +119,7 @@ class StrategySandbox:
         self._active_sandboxes[sandbox_id] = {
             "id": sandbox_id,
             "strategy_id": strategy_id,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "status": SandboxStatus.READY,
             "config": self._config.to_dict(),
         }

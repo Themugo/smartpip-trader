@@ -15,7 +15,7 @@ import uuid
 import hashlib
 import pickle
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 from collections import defaultdict
@@ -100,8 +100,8 @@ class ApprovalWorkflow:
     status: str = "pending"  # pending, in_progress, approved, rejected, cancelled
     
     # History
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -140,7 +140,7 @@ class ApprovalWorkflow:
 class ModelVersion:
     """A version of a model"""
     version: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     
     # Model artifact
@@ -227,8 +227,8 @@ class RegisteredModel:
     last_monitored_at: Optional[datetime] = None
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -272,7 +272,7 @@ class DeploymentRecord:
     
     # Deployment info
     environment: str  # "production", "staging", "development"
-    deployed_at: datetime = field(default_factory=datetime.utcnow)
+    deployed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     deployed_by: str = ""
     
     # Status
@@ -367,7 +367,7 @@ class ModelRegistry:
                             v_data["approval_workflow"] = ApprovalWorkflow(**wf_data)
                         
                         v_data["created_at"] = datetime.fromisoformat(v_data["created_at"])
-                        v_data["created_at"] = datetime.fromisoformat(v_data.get("created_at", datetime.utcnow().isoformat()))
+                        v_data["created_at"] = datetime.fromisoformat(v_data.get("created_at", datetime.now(timezone.utc).isoformat()))
                     
                     model_data["versions"] = {
                         k: ModelVersion(**v) for k, v in model_data.get("versions", {}).items()
@@ -395,7 +395,7 @@ class ModelRegistry:
         data = {
             "models": [m.to_dict() for m in self._models.values()],
             "deployments": [d.to_dict() for d in self._deployments.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(registry_file, "w") as f:
@@ -478,7 +478,7 @@ class ModelRegistry:
         
         model.versions[version] = version_obj
         model.current_version = version
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         
         self._save_registry()
         return version_obj
@@ -538,7 +538,7 @@ class ModelRegistry:
         )
         
         version_obj.approval_workflow = workflow
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_registry()
         
         return workflow
@@ -560,10 +560,10 @@ class ModelRegistry:
         
         workflow = version_obj.approval_workflow
         workflow.status = "in_progress"
-        workflow.updated_at = datetime.utcnow()
+        workflow.updated_at = datetime.now(timezone.utc)
         
         model.status = ModelStatus.VALIDATING
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_registry()
         
         logger.info(f"Submitted {model.name} v{version} for approval")
@@ -592,19 +592,19 @@ class ModelRegistry:
             if step.step_id == step_id:
                 step.status = "approved"
                 step.approver = approver
-                step.approved_at = datetime.utcnow()
+                step.approved_at = datetime.now(timezone.utc)
                 step.comment = comment
                 break
         
-        workflow.updated_at = datetime.utcnow()
+        workflow.updated_at = datetime.now(timezone.utc)
         
         # Check if all required steps are approved
         if workflow.is_complete():
             workflow.status = "approved"
-            workflow.completed_at = datetime.utcnow()
+            workflow.completed_at = datetime.now(timezone.utc)
             model.status = ModelStatus.APPROVED
         
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_registry()
         
         return True
@@ -627,8 +627,8 @@ class ModelRegistry:
         
         workflow = version_obj.approval_workflow
         workflow.status = "rejected"
-        workflow.completed_at = datetime.utcnow()
-        workflow.updated_at = datetime.utcnow()
+        workflow.completed_at = datetime.now(timezone.utc)
+        workflow.updated_at = datetime.now(timezone.utc)
         
         # Add rejection to current step
         current_step = workflow.get_current_step()
@@ -638,7 +638,7 @@ class ModelRegistry:
             current_step.comment = reason
         
         model.status = ModelStatus.CANDIDATE
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_registry()
         
         logger.info(f"Rejected {model.name} v{version}: {reason}")
@@ -680,7 +680,7 @@ class ModelRegistry:
         # Update model
         model.production_deployment_id = deployment.deployment_id
         model.status = ModelStatus.PRODUCTION
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         
         # Add to deployment history
         model.deployment_history.append({
@@ -735,7 +735,7 @@ class ModelRegistry:
         # Mark current deployment as rolled back
         if current_deployment:
             current_deployment.status = "rolled_back"
-            current_deployment.rolled_back_at = datetime.utcnow()
+            current_deployment.rolled_back_at = datetime.now(timezone.utc)
             current_deployment.rolled_back_by = rolled_back_by
             current_deployment.rollback_reason = reason
         
@@ -793,7 +793,7 @@ class ModelRegistry:
             # Archive entire model
             model.status = ModelStatus.ARCHIVED
         
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
         self._save_registry()
         
         logger.info(f"Archived model: {model.name}")
@@ -816,7 +816,7 @@ class ModelRegistry:
         version_obj = model.versions.get(version_str)
         
         model.inference_count += 1
-        model.last_inference_at = datetime.utcnow()
+        model.last_inference_at = datetime.now(timezone.utc)
         
         # Update average latency
         n = model.inference_count
@@ -849,7 +849,7 @@ class ModelRegistry:
             return False
         
         model.drift_score = drift_score
-        model.last_monitored_at = datetime.utcnow()
+        model.last_monitored_at = datetime.now(timezone.utc)
         self._save_registry()
         
         # Alert if drift is high

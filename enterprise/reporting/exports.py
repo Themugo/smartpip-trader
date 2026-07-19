@@ -124,7 +124,7 @@ class PDFExporter:
         <body>
             <h1>{title}</h1>
             <p style="color: #718096; font-size: 10pt;">
-                Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC
+                Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC
             </p>
             
             {self._render_content(data)}

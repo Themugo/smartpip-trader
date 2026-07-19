@@ -110,7 +110,7 @@ class ValidationResult:
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
     recommendation: str = "EXECUTE"
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -168,7 +168,7 @@ class AccountSnapshot:
     consecutive_losses: int = 0
     consecutive_wins: int = 0
     max_drawdown: float = 0.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -462,7 +462,7 @@ class RiskValidator:
     
     def _check_frequency(self) -> Tuple[CheckResult, str]:
         """Check trading frequency limits"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         # Recent trades (last minute)
         recent = [t for t in self._trade_timestamps if (now - t).total_seconds() < 60]
@@ -511,7 +511,7 @@ class RiskValidator:
     
     def record_trade(self, amount: float, profit: Optional[float] = None) -> None:
         """Record a trade for frequency tracking"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         self._trade_timestamps.append(now)
         
         if profit is not None and profit < 0:
@@ -553,7 +553,7 @@ class RiskValidator:
     
     def get_state(self) -> Dict[str, Any]:
         """Get current risk state"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         return {
             "limits": self._limits.to_dict(),
             "kill_switch": self.get_kill_switch_status(),

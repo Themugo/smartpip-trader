@@ -71,7 +71,7 @@ class Order:
     commission: float = 0
     
     # Timing
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     submitted_at: Optional[datetime] = None
     filled_at: Optional[datetime] = None
     
@@ -132,7 +132,7 @@ class ExecutionReport:
     error_code: Optional[str] = None
     
     # Metadata
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -328,7 +328,7 @@ class ExecutionEngine:
         
         # Submit order
         order.status = OrderStatus.SUBMITTED
-        order.submitted_at = datetime.utcnow()
+        order.submitted_at = datetime.now(timezone.utc)
         self._orders[order.id] = order
         self._pending_orders[order.id] = order
         self._recent_hashes.append(order.order_hash)
@@ -419,7 +419,7 @@ class ExecutionEngine:
         order.status = OrderStatus.FILLED
         order.filled_amount = order.amount
         order.average_price = order.price or 100
-        order.filled_at = datetime.utcnow()
+        order.filled_at = datetime.now(timezone.utc)
         
         return ExecutionReport(
             order=order,

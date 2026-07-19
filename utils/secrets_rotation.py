@@ -3,7 +3,7 @@ import json
 import hashlib
 import hmac
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Dict, Any, Optional
 import logging
 
@@ -62,9 +62,9 @@ class SecretsRotation:
             "name": secret_name,
             "type": secret_type,
             "environment": environment,
-            "created_at": datetime.utcnow().isoformat(),
-            "last_rotated": datetime.utcnow().isoformat(),
-            "next_rotation": (datetime.utcnow() + interval).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "last_rotated": datetime.now(timezone.utc).isoformat(),
+            "next_rotation": (datetime.now(timezone.utc) + interval).isoformat(),
             "rotation_interval_days": rotation_interval or 30,
             "status": "active",
             "version": 1
@@ -90,7 +90,7 @@ class SecretsRotation:
         metadata = self.secret_metadata[secret_name]
         next_rotation = datetime.fromisoformat(metadata["next_rotation"])
         
-        return datetime.utcnow() >= next_rotation
+        return datetime.now(timezone.utc) >= next_rotation
     
     def rotate_secret(self, secret_name: str, new_secret: str = None) -> str:
         """
@@ -114,8 +114,8 @@ class SecretsRotation:
         
         # Update metadata
         interval = timedelta(days=metadata["rotation_interval_days"])
-        metadata["last_rotated"] = datetime.utcnow().isoformat()
-        metadata["next_rotation"] = (datetime.utcnow() + interval).isoformat()
+        metadata["last_rotated"] = datetime.now(timezone.utc).isoformat()
+        metadata["next_rotation"] = (datetime.now(timezone.utc) + interval).isoformat()
         metadata["version"] += 1
         metadata["previous_rotation"] = metadata.get("last_rotated")
         
@@ -154,7 +154,7 @@ class SecretsRotation:
             raise ValueError(f"Secret not registered: {secret_name}")
         
         self.secret_metadata[secret_name]["status"] = "revoked"
-        self.secret_metadata[secret_name]["revoked_at"] = datetime.utcnow().isoformat()
+        self.secret_metadata[secret_name]["revoked_at"] = datetime.now(timezone.utc).isoformat()
         
         self._save_secret_metadata()
         logger.info(f"Revoked secret: {secret_name}")
@@ -179,14 +179,14 @@ class SecretsRotation:
             return {
                 **metadata,
                 "needs_rotation": needs_rotation,
-                "days_until_rotation": (datetime.fromisoformat(metadata["next_rotation"]) - datetime.utcnow()).days
+                "days_until_rotation": (datetime.fromisoformat(metadata["next_rotation"]) - datetime.now(timezone.utc)).days
             }
         else:
             return {
                 secret_name: {
                     **metadata,
                     "needs_rotation": self.check_rotation_needed(secret_name),
-                    "days_until_rotation": (datetime.fromisoformat(metadata["next_rotation"]) - datetime.utcnow()).days
+                    "days_until_rotation": (datetime.fromisoformat(metadata["next_rotation"]) - datetime.now(timezone.utc)).days
                 }
                 for secret_name, metadata in self.secret_metadata.items()
             }
@@ -264,7 +264,7 @@ class JWTKeyRotation(SecretsRotation):
         if self.current_key_id:
             self.previous_keys[self.current_key_id] = {
                 "key": os.getenv("JWT_SECRET_KEY"),
-                "expires_at": (datetime.utcnow() + timedelta(days=7)).isoformat()
+                "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
             }
         
         self.current_key_id = key_id
@@ -290,7 +290,7 @@ class JWTKeyRotation(SecretsRotation):
             valid_keys[self.current_key_id] = os.getenv("JWT_SECRET_KEY")
         
         # Add previous keys that haven't expired
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         for key_id, key_data in self.previous_keys.items():
             expires_at = datetime.fromisoformat(key_data["expires_at"])
             if current_time < expires_at:

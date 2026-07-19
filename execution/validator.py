@@ -49,7 +49,7 @@ class PreTradeValidator:
         
         # Counters
         self._daily_trade_count = 0
-        self._last_reset = datetime.utcnow()
+        self._last_reset = datetime.now(timezone.utc)
     
     def validate_order(
         self,
@@ -93,7 +93,7 @@ class PreTradeValidator:
     
     def _check_daily_reset(self):
         """Reset daily counter if needed"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if now.date() > self._last_reset.date():
             self._daily_trade_count = 0
             self._last_reset = now

@@ -11,7 +11,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any, Callable
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -566,7 +566,7 @@ class KPITracker:
         
         return {
             "categories": by_category,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 

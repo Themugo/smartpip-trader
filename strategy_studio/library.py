@@ -46,8 +46,8 @@ class StrategyMetadata:
     downloads: int = 0
     
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -124,7 +124,7 @@ class StrategyLibrary:
         
         data = {
             "strategies": [s.to_dict() for s in self._strategies.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(index_file, "w") as f:
@@ -213,7 +213,7 @@ class StrategyLibrary:
             if hasattr(meta, key):
                 setattr(meta, key, value)
         
-        meta.updated_at = datetime.utcnow()
+        meta.updated_at = datetime.now(timezone.utc)
         self._save_library()
         
         return meta
@@ -234,7 +234,7 @@ class StrategyLibrary:
             "version": version,
             "changelog": changelog,
             "data": data,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
         
         if strategy_id not in self._versions:
@@ -291,7 +291,7 @@ class StrategyLibrary:
                 meta_data["id"] = str(uuid.uuid4())
             
             meta_data["created_at"] = datetime.fromisoformat(meta_data["created_at"])
-            meta_data["updated_at"] = datetime.utcnow()
+            meta_data["updated_at"] = datetime.now(timezone.utc)
             
             meta = StrategyMetadata(**meta_data)
             self._strategies[meta.id] = meta
@@ -312,7 +312,7 @@ class StrategyLibrary:
         
         meta.rating = (meta.rating * meta.downloads + rating) / (meta.downloads + 1)
         meta.downloads += 1
-        meta.updated_at = datetime.utcnow()
+        meta.updated_at = datetime.now(timezone.utc)
         
         self._save_library()
         return True

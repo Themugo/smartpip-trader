@@ -12,7 +12,7 @@ import uuid
 import hashlib
 import secrets
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 
@@ -72,8 +72,8 @@ class EnterpriseUser:
     theme: str = "dark"
     
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_login: Optional[datetime] = None
     last_active: Optional[datetime] = None
     
@@ -144,7 +144,7 @@ class EnterpriseUser:
     
     def record_login(self, success: bool) -> None:
         """Record login attempt"""
-        self.last_login = datetime.utcnow()
+        self.last_login = datetime.now(timezone.utc)
         if success:
             self.failed_login_attempts = 0
         else:
@@ -216,9 +216,9 @@ class UserSession:
     status: SessionStatus = SessionStatus.ACTIVE
     
     # Timing
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(hours=24))
-    last_activity: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(hours=24))
+    last_activity: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Metadata
     created_by: str = "password"  # "password", "oauth", "api_key"
@@ -226,7 +226,7 @@ class UserSession:
     
     @property
     def is_expired(self) -> bool:
-        return datetime.utcnow() >= self.expires_at
+        return datetime.now(timezone.utc) >= self.expires_at
     
     @property
     def is_valid(self) -> bool:
@@ -234,12 +234,12 @@ class UserSession:
     
     @property
     def age_seconds(self) -> float:
-        return (datetime.utcnow() - self.created_at).total_seconds()
+        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
     
     def extend(self, hours: int = 24) -> None:
         """Extend session expiration"""
-        self.expires_at = datetime.utcnow() + timedelta(hours=hours)
-        self.last_activity = datetime.utcnow()
+        self.expires_at = datetime.now(timezone.utc) + timedelta(hours=hours)
+        self.last_activity = datetime.now(timezone.utc)
     
     def revoke(self) -> None:
         """Revoke this session"""
@@ -247,7 +247,7 @@ class UserSession:
     
     def touch(self) -> None:
         """Update last activity timestamp"""
-        self.last_activity = datetime.utcnow()
+        self.last_activity = datetime.now(timezone.utc)
     
     def to_dict(self, include_tokens: bool = False) -> Dict[str, Any]:
         result = {
@@ -303,8 +303,8 @@ class UserDevice:
     # Status
     is_trusted: bool = False
     is_current: bool = False
-    last_seen: datetime = field(default_factory=datetime.utcnow)
-    first_seen: datetime = field(default_factory=datetime.utcnow)
+    last_seen: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    first_seen: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Sessions on this device
     active_sessions: int = 0
@@ -443,7 +443,7 @@ class UserPreferences:
     api_key_rotation_days: int = 90
     api_rate_limit_override: Optional[int] = None
     
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     @classmethod
     def create(cls, user_id: str) -> "UserPreferences":

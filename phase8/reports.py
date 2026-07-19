@@ -7,7 +7,7 @@ Generate comprehensive reports in multiple formats.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -52,7 +52,7 @@ class ReportTemplate:
     default_format: ReportFormat = ReportFormat.PDF
     include_charts: bool = True
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -90,7 +90,7 @@ class Report:
     status: str = "pending"  # pending, generating, completed, failed
     generated_at: Optional[datetime] = None
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
@@ -241,7 +241,7 @@ class ReportingEngine:
             
             report.file_path = file_path
             report.status = "completed"
-            report.generated_at = datetime.utcnow()
+            report.generated_at = datetime.now(timezone.utc)
             
             # Get file size
             import os
@@ -308,7 +308,7 @@ class ReportingEngine:
 </head>
 <body>
     <h1>{report.name}</h1>
-    <p>Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <p>Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}</p>
     
     <h2>Summary</h2>
     <div class="metric">{report.data.get('total_return', 0):.2f}%</div>

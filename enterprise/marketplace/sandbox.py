@@ -10,7 +10,7 @@ import os
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Callable
 
@@ -41,7 +41,7 @@ class ExecutionResult:
     version: str
     
     # Timing
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     duration_ms: int = 0
     
@@ -201,7 +201,7 @@ class SandboxExecutor:
                 cmd = self._build_command(language, code_file, tmpdir, effective_limits)
                 
                 # Execute with timeout
-                start_time = datetime.utcnow()
+                start_time = datetime.now(timezone.utc)
                 
                 try:
                     process = subprocess.Popen(
@@ -224,7 +224,7 @@ class SandboxExecutor:
                     result.error_message = f"Execution timed out after {effective_timeout} seconds"
                 
                 # Calculate duration
-                result.completed_at = datetime.utcnow()
+                result.completed_at = datetime.now(timezone.utc)
                 result.duration_ms = int(
                     (result.completed_at - start_time).total_seconds() * 1000
                 )
@@ -240,7 +240,7 @@ class SandboxExecutor:
         except Exception as e:
             result.status = ExecutionStatus.FAILED
             result.error_message = str(e)
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
         
         return result
     
@@ -360,13 +360,13 @@ if __name__ == '__main__':
         result = self._executions.get(execution_id)
         if result and result.status == ExecutionStatus.RUNNING:
             result.status = ExecutionStatus.CANCELLED
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
             return True
         return False
     
     def cleanup_old_executions(self, max_age_hours: int = 24) -> int:
         """Remove old execution records"""
-        cutoff = datetime.utcnow() - timedelta(hours=max_age_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
         to_remove = [
             eid for eid, result in self._executions.items()
             if result.completed_at and result.completed_at < cutoff

@@ -14,7 +14,7 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -126,7 +126,7 @@ class ModelOutput:
     
     # Metadata
     inference_time_ms: float = 0.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -324,7 +324,7 @@ class DecisionSnapshot:
     # Metadata
     session_id: str = ""
     strategy_id: str = ""
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -451,7 +451,7 @@ class DecisionReplayEngine:
         
         data = {
             "snapshots": [s.to_dict() for s in self._snapshots.values()],
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         
         with open(data_file, "w") as f:

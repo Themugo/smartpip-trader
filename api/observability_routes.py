@@ -7,7 +7,7 @@ Provides endpoints for metrics, logs, traces, events, KPIs, and dashboards.
 
 import time
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
@@ -324,7 +324,7 @@ async def get_health_metrics():
     from observability.dashboards import dashboard_data
     
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "websocket": dashboard_data.get_websocket_health(),
         "api": dashboard_data.get_api_health(),
         "strategy": dashboard_data.get_strategy_health(),
@@ -444,7 +444,7 @@ async def get_overall_health():
     
     return {
         "status": status,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "active_alerts": len(active_alerts),
         "resources": resources,
     }

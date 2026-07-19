@@ -8,7 +8,7 @@ import asyncio
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -64,7 +64,7 @@ class AgentMessage:
     priority: Priority = Priority.NORMAL
     
     # Tracking
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: Optional[datetime] = None
     retry_count: int = 0
     max_retries: int = 3
@@ -100,7 +100,7 @@ class AgentRegistration:
     
     # Status
     is_active: bool = True
-    last_heartbeat: datetime = field(default_factory=datetime.utcnow)
+    last_heartbeat: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     # Resources
     max_concurrent_tasks: int = 5
@@ -200,7 +200,7 @@ class AICollaborationBus:
     ) -> None:
         """Send a message to an agent or topic"""
         message.id = message.id or str(uuid.uuid4())
-        message.created_at = datetime.utcnow()
+        message.created_at = datetime.now(timezone.utc)
         
         async with self._lock:
             self._messages_sent += 1
@@ -367,7 +367,7 @@ class AICollaborationBus:
     async def heartbeat(self, agent_id: str) -> None:
         """Send heartbeat from agent"""
         if agent_id in self._agents:
-            self._agents[agent_id].last_heartbeat = datetime.utcnow()
+            self._agents[agent_id].last_heartbeat = datetime.now(timezone.utc)
     
     def get_active_agents(self) -> List[AgentRegistration]:
         """Get all active agents"""

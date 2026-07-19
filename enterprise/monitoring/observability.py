@@ -9,7 +9,7 @@ import time
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 import threading
@@ -92,7 +92,7 @@ class Span:
     logs: List[Dict[str, Any]] = field(default_factory=list)
     
     def finish(self):
-        self.end_time = datetime.utcnow()
+        self.end_time = datetime.now(timezone.utc)
         self.duration_ms = (self.end_time - self.start_time).total_seconds() * 1000
 
 
@@ -118,7 +118,7 @@ class LogAggregator:
     ):
         """Log an entry"""
         entry = LogEntry(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             level=level,
             message=message,
             logger=logger,
@@ -216,7 +216,7 @@ class MetricsCollector:
                 metrics.append(Metric(
                     name=name,
                     value=value,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     labels=labels,
                     metric_type=MetricType.COUNTER,
                 ))
@@ -227,7 +227,7 @@ class MetricsCollector:
                 metrics.append(Metric(
                     name=name,
                     value=value,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     labels=labels,
                     metric_type=MetricType.GAUGE,
                 ))
@@ -239,13 +239,13 @@ class MetricsCollector:
                     metrics.append(Metric(
                         name=f"{name}_sum",
                         value=sum(values),
-                        timestamp=datetime.utcnow(),
+                        timestamp=datetime.now(timezone.utc),
                         labels=labels,
                     ))
                     metrics.append(Metric(
                         name=f"{name}_count",
                         value=len(values),
-                        timestamp=datetime.utcnow(),
+                        timestamp=datetime.now(timezone.utc),
                         labels=labels,
                     ))
         
@@ -293,7 +293,7 @@ class Tracer:
             span_id=span_id,
             trace_id=trace_id,
             operation_name=operation_name,
-            start_time=datetime.utcnow(),
+            start_time=datetime.now(timezone.utc),
             parent_id=parent_id,
         )
         

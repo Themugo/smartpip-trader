@@ -7,7 +7,7 @@ Automated strategy optimization and continuous improvement.
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
@@ -84,7 +84,7 @@ class OptimizationCandidate:
     actual_improvement: float = 0
     actual_metrics: Dict[str, float] = field(default_factory=dict)
     
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -155,11 +155,11 @@ class StrategyOptimizer:
         # Check interval
         last_check = self._last_check.get(strategy_id)
         if last_check:
-            hours_since = (datetime.utcnow() - last_check).total_seconds() / 3600
+            hours_since = (datetime.now(timezone.utc) - last_check).total_seconds() / 3600
             if hours_since < self._config.check_interval_hours:
                 return []
         
-        self._last_check[strategy_id] = datetime.utcnow()
+        self._last_check[strategy_id] = datetime.now(timezone.utc)
         
         # Get baseline
         baseline = self._strategy_baselines.get(strategy_id)
@@ -324,7 +324,7 @@ class StrategyOptimizer:
         try:
             # In production, would actually deploy the changes
             candidate.status = OptimizationStatus.RUNNING
-            candidate.deployed_at = datetime.utcnow()
+            candidate.deployed_at = datetime.now(timezone.utc)
             
             # Simulate deployment
             logger.info(f"Deployed candidate: {candidate_id}")
@@ -367,7 +367,7 @@ class StrategyOptimizer:
             return
         
         candidate.actual_metrics = actual_metrics
-        candidate.completed_at = datetime.utcnow()
+        candidate.completed_at = datetime.now(timezone.utc)
         
         # Calculate actual improvement
         baseline = self._strategy_baselines.get(candidate.strategy_id, {})

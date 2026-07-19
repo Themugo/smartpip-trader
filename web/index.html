@@ -1077,30 +1077,30 @@
     </style>
 </head>
 <body>
-    <nav class="nav" id="navbar">
+    <nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
         <div class="container">
             <div class="nav-inner">
-                <a href="#" class="nav-brand">
-                    <div class="nav-logo">
+                <a href="#" class="nav-brand" aria-label="SmartPip home">
+                    <div class="nav-logo" aria-hidden="true">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    SmartPip
+                    <span>SmartPip</span>
                 </a>
                 
-                <div class="nav-links" id="navLinks">
-                    <a href="#benefits" class="nav-link">Why SmartPip</a>
-                    <a href="#preview" class="nav-link">Platform</a>
-                    <a href="#pricing" class="nav-link">Pricing</a>
-                    <a href="#faq" class="nav-link">FAQ</a>
+                <div class="nav-links" id="navLinks" role="menubar" aria-label="Main menu">
+                    <a href="#benefits" class="nav-link" role="menuitem">Why SmartPip</a>
+                    <a href="#preview" class="nav-link" role="menuitem">Platform</a>
+                    <a href="#pricing" class="nav-link" role="menuitem">Pricing</a>
+                    <a href="#faq" class="nav-link" role="menuitem">FAQ</a>
                 </div>
                 
                 <div class="nav-actions">
-                    <a href="#" class="btn btn-ghost">Sign In</a>
-                    <a href="#" class="btn btn-primary">Get Started Free</a>
-                    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                    <a href="#" class="btn btn-ghost" aria-label="Sign in to your account">Sign In</a>
+                    <a href="#" class="btn btn-primary" aria-label="Get started with SmartPip for free">Get Started Free</a>
+                    <button class="nav-toggle" id="navToggle" aria-label="Toggle mobile menu" aria-expanded="false">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
             </div>
