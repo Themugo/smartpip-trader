@@ -3,87 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SmartPip - Trade Smarter. Execute with Confidence. AI-powered trading platform with institutional-grade risk management, backtesting, and intelligent trade execution.">
-    <meta name="keywords" content="AI trading, automated trading, Deriv, trading bot, risk management, backtesting">
-    <meta property="og:title" content="SmartPip - AI-Powered Trading Platform">
-    <meta property="og:description" content="Trade Smarter. Execute with Confidence. SmartPip combines AI analysis, backtesting, and risk management in one unified platform.">
+    <meta name="description" content="SmartPip - AI-Assisted Trading Platform. Analyze markets, practice with paper trading, review performance, and make smarter trading decisions.">
+    <meta name="keywords" content="AI trading, paper trading, trading analytics, risk management, Deriv, trading platform">
+    <meta property="og:title" content="SmartPip - AI-Assisted Trading, Built for Smarter Decisions">
+    <meta property="og:description" content="SmartPip helps traders analyze markets, practice safely with paper trading, review performance, and make informed trading decisions.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <title>SmartPip - Trade Smarter. Execute with Confidence.</title>
+    <title>SmartPip - AI-Assisted Trading, Built for Smarter Decisions</title>
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-        /* ========================================
-           CSS VARIABLES & THEME
-           ======================================== */
+        /* ==========================================
+           CSS VARIABLES & THEME - Modern SaaS
+           ========================================== */
         :root {
-            /* Colors - Dark Trading Terminal Theme */
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-tertiary: #1a1a25;
-            --bg-card: #16161f;
-            --bg-card-hover: #1e1e2a;
-            --bg-glass: rgba(22, 22, 31, 0.8);
+            /* Colors - Clean Light Theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --bg-elevated: #ffffff;
             
-            /* Accent Colors - Electric Cyan & Purple */
-            --accent-primary: #00d4ff;
-            --accent-secondary: #7c3aed;
-            --accent-tertiary: #06b6d4;
-            --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #ec4899 100%);
+            /* Primary Brand - Deep Indigo */
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
             
-            /* Status Colors */
+            /* Accent - Teal */
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            
+            /* Neutral */
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            /* Text */
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --text-inverse: #ffffff;
+            
+            /* Status */
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
             --info: #3b82f6;
             
-            /* Text Colors */
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
-            --text-accent: #00d4ff;
-            
-            /* Border & Effects */
-            --border-subtle: rgba(255, 255, 255, 0.06);
-            --border-glow: rgba(0, 212, 255, 0.3);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
-            --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.15);
-            
-            /* Typography */
-            --font-display: 'Outfit', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            
-            /* Spacing */
-            --space-xs: 0.25rem;
-            --space-sm: 0.5rem;
-            --space-md: 1rem;
-            --space-lg: 1.5rem;
-            --space-xl: 2rem;
-            --space-2xl: 3rem;
-            --space-3xl: 4rem;
-            --space-4xl: 6rem;
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-card-hover: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
             
             /* Border Radius */
-            --radius-sm: 0.375rem;
-            --radius-md: 0.75rem;
-            --radius-lg: 1rem;
-            --radius-xl: 1.5rem;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
             --radius-full: 9999px;
             
             /* Transitions */
             --transition-fast: 150ms ease;
-            --transition-normal: 300ms ease;
-            --transition-slow: 500ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 400ms ease;
+            --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* ========================================
+        /* ==========================================
            RESET & BASE
-           ======================================== */
+           ========================================== */
         *, *::before, *::after {
             margin: 0;
             padding: 0;
@@ -97,17 +106,22 @@
         }
 
         body {
-            font-family: var(--font-display);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
         }
 
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
         a {
             text-decoration: none;
             color: inherit;
-            transition: color var(--transition-fast);
         }
 
         button {
@@ -122,156 +136,117 @@
             height: auto;
         }
 
-        /* ========================================
+        /* ==========================================
            UTILITIES
-           ======================================== */
+           ========================================== */
         .container {
             width: 100%;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 var(--space-lg);
+            padding: 0 24px;
         }
 
         .container-xl {
-            max-width: 1536px;
-        }
-
-        .text-gradient {
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .text-accent {
-            color: var(--accent-primary);
+            max-width: 1400px;
         }
 
         .section {
-            padding: var(--space-4xl) 0;
+            padding: 100px 0;
         }
 
         .section-sm {
-            padding: var(--space-3xl) 0;
+            padding: 60px 0;
         }
 
         .text-center {
             text-align: center;
         }
 
-        /* ========================================
-           NAVIGATION
-           ======================================== */
+        /* ==========================================
+           NAVIGATION - Sticky & Clean
+           ========================================== */
         .nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            padding: var(--space-md) 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid transparent;
             transition: all var(--transition-normal);
         }
 
         .nav.scrolled {
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-subtle);
-            padding: var(--space-sm) 0;
+            border-bottom-color: var(--neutral-200);
+            box-shadow: var(--shadow-sm);
         }
 
         .nav-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: var(--space-xl);
+            height: 72px;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            font-size: 1.5rem;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.35rem;
             font-weight: 700;
             color: var(--text-primary);
         }
 
         .nav-brand-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--accent-gradient);
+            width: 38px;
+            height: 38px;
+            background: var(--brand-gradient);
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.125rem;
             color: white;
-            box-shadow: var(--shadow-glow);
+            font-size: 1rem;
         }
 
         .nav-menu {
             display: flex;
             align-items: center;
-            gap: var(--space-xl);
+            gap: 8px;
         }
 
         .nav-link {
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--text-secondary);
-            padding: var(--space-sm) 0;
-            position: relative;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent-gradient);
-            transition: width var(--transition-normal);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
         }
 
         .nav-link:hover {
             color: var(--text-primary);
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
+            background: var(--neutral-100);
         }
 
         .nav-actions {
             display: flex;
             align-items: center;
-            gap: var(--space-md);
+            gap: 12px;
         }
 
-        .nav-toggle {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            padding: var(--space-sm);
-        }
-
-        .nav-toggle span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--text-primary);
-            transition: var(--transition-fast);
-        }
-
-        /* ========================================
+        /* ==========================================
            BUTTONS
-           ======================================== */
+           ========================================== */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-sm);
-            padding: 0.75rem 1.5rem;
+            gap: 8px;
+            padding: 12px 24px;
             font-size: 0.9rem;
             font-weight: 600;
             border-radius: var(--radius-md);
@@ -281,58 +256,53 @@
         }
 
         .btn-primary {
-            background: var(--accent-gradient);
+            background: var(--brand-gradient);
             color: white;
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
         }
 
         .btn-secondary {
-            background: var(--bg-card);
+            background: white;
             color: var(--text-primary);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-xs);
         }
 
         .btn-secondary:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-primary);
+            background: var(--neutral-50);
+            border-color: var(--neutral-300);
         }
 
         .btn-ghost {
-            background: transparent;
             color: var(--text-secondary);
         }
 
         .btn-ghost:hover {
             color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--neutral-100);
         }
 
         .btn-lg {
-            padding: 1rem 2rem;
+            padding: 14px 28px;
             font-size: 1rem;
         }
 
-        .btn-icon {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            border-radius: var(--radius-full);
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
         }
 
-        /* ========================================
+        /* ==========================================
            HERO SECTION
-           ======================================== */
+           ========================================== */
         .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
+            padding: 140px 0 80px;
             position: relative;
-            padding-top: 80px;
             overflow: hidden;
         }
 
@@ -340,37 +310,21 @@
             position: absolute;
             inset: 0;
             background: 
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 80%, rgba(13, 148, 136, 0.04) 0%, transparent 50%),
                 var(--bg-primary);
         }
 
-        .hero-grid-pattern {
+        .hero-grid {
             position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
+                linear-gradient(var(--neutral-200) 1px, transparent 1px),
+                linear-gradient(90deg, var(--neutral-200) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.4;
             mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
             -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
-        }
-
-        .hero-glow {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 800px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
-            pointer-events: none;
-            animation: pulse-glow 4s ease-in-out infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
-            50% { opacity: 0.8; transform: translateX(-50%) scale(1.1); }
         }
 
         .hero-content {
@@ -384,85 +338,1021 @@
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: var(--space-sm);
-            padding: 0.5rem 1rem;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--neutral-100);
+            border: 1px solid var(--neutral-200);
             border-radius: var(--radius-full);
-            font-size: 0.85rem;
-            color: var(--accent-primary);
-            margin-bottom: var(--space-lg);
-            animation: fade-in-up 0.6s ease forwards;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--brand-secondary);
+            margin-bottom: 24px;
         }
 
         .hero-badge i {
-            animation: sparkle 2s ease-in-out infinite;
-        }
-
-        @keyframes sparkle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.9); }
+            font-size: 0.75rem;
         }
 
         .hero-title {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-size: clamp(2.5rem, 5vw, 3.75rem);
             font-weight: 800;
-            line-height: 1.1;
+            color: var(--text-primary);
+            margin-bottom: 24px;
             letter-spacing: -0.02em;
-            margin-bottom: var(--space-lg);
-            animation: fade-in-up 0.6s ease 0.1s forwards;
-            opacity: 0;
+        }
+
+        .hero-title span {
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero-subtitle {
-            font-size: clamp(1.1rem, 2vw, 1.35rem);
+            font-size: 1.2rem;
             color: var(--text-secondary);
             max-width: 640px;
-            margin: 0 auto var(--space-xl);
+            margin: 0 auto 40px;
             line-height: 1.7;
-            animation: fade-in-up 0.6s ease 0.2s forwards;
-            opacity: 0;
         }
 
         .hero-actions {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-md);
-            margin-bottom: var(--space-3xl);
-            animation: fade-in-up 0.6s ease 0.3s forwards;
-            opacity: 0;
-        }
-
-        .hero-trust {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-xl);
+            gap: 16px;
             flex-wrap: wrap;
-            animation: fade-in-up 0.6s ease 0.4s forwards;
-            opacity: 0;
         }
 
-        .hero-stat {
-            text-align: center;
-        }
-
-        .hero-stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-stat-label {
+        .hero-note {
+            margin-top: 20px;
             font-size: 0.85rem;
             color: var(--text-muted);
         }
 
-        @keyframes fade-in-up {
+        /* ==========================================
+           PLATFORM PREVIEW
+           ========================================== */
+        .preview {
+            padding: 20px 0 100px;
+        }
+
+        .preview-container {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .preview-window {
+            background: var(--bg-primary);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-2xl);
+            overflow: hidden;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: var(--neutral-50);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .preview-dot.red { background: #ff5f57; }
+        .preview-dot.yellow { background: #febc2e; }
+        .preview-dot.green { background: #28c840; }
+
+        .preview-body {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 500px;
+        }
+
+        .preview-sidebar {
+            background: var(--neutral-50);
+            border-right: 1px solid var(--neutral-200);
+            padding: 20px;
+        }
+
+        .preview-sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            transition: all var(--transition-fast);
+        }
+
+        .preview-sidebar-item.active {
+            background: white;
+            color: var(--brand-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .preview-sidebar-item i {
+            width: 18px;
+            text-align: center;
+        }
+
+        .preview-main {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .preview-card {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .preview-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .preview-card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .preview-card-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--neutral-100);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brand-secondary);
+        }
+
+        /* Portfolio Summary */
+        .portfolio-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .portfolio-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--success);
+            margin-top: 4px;
+        }
+
+        .portfolio-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .portfolio-stat {
+            flex: 1;
+        }
+
+        .portfolio-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .portfolio-stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Performance Chart */
+        .chart-placeholder {
+            height: 120px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            padding: 10px 0;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--brand-secondary), var(--brand-tertiary));
+            border-radius: 4px 4px 0 0;
+            opacity: 0.7;
+            transition: opacity var(--transition-fast);
+        }
+
+        .chart-bar:hover {
+            opacity: 1;
+        }
+
+        /* Market Watch */
+        .market-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .market-item:last-child {
+            border-bottom: none;
+        }
+
+        .market-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-symbol {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .market-price {
+            text-align: right;
+        }
+
+        .market-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-change {
+            font-size: 0.75rem;
+            color: var(--success);
+        }
+
+        /* AI Insights */
+        .insight-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .insight-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Paper Trading Badge */
+        .preview-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(13, 148, 136, 0.1);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+        }
+
+        /* ==========================================
+           FEATURES SECTION
+           ========================================== */
+        .features {
+            background: var(--bg-secondary);
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: white;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--brand-secondary);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-normal);
+            border: 1px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card-hover);
+            border-color: var(--neutral-200);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--brand-secondary), var(--brand-tertiary));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon.teal {
+            background: var(--accent-gradient);
+        }
+
+        .feature-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ==========================================
+           HOW IT WORKS
+           ========================================== */
+        .how-it-works {
+            background: white;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+
+        .step-card {
+            text-align: center;
+            max-width: 220px;
+        }
+
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: var(--brand-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .step-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .step-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neutral-300);
+            font-size: 1.5rem;
+            margin-top: 32px;
+        }
+
+        /* ==========================================
+           WHY SMARPIP
+           ========================================== */
+        .why-section {
+            background: var(--bg-secondary);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .benefit-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            display: flex;
+            gap: 20px;
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-normal);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .benefit-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--neutral-100);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brand-secondary);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .benefit-content {
+            flex: 1;
+        }
+
+        .benefit-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .benefit-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ==========================================
+           PRICING
+           ========================================== */
+        .pricing {
+            background: white;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            position: relative;
+            transition: all var(--transition-normal);
+        }
+
+        .pricing-card:hover {
+            border-color: var(--brand-secondary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 1px var(--brand-primary);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 16px;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .pricing-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .pricing-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .pricing-price {
+            margin-bottom: 24px;
+        }
+
+        .pricing-amount {
+            font-family: 'Sora', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .pricing-period {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features li i {
+            color: var(--success);
+            font-size: 0.85rem;
+        }
+
+        .pricing-cta {
+            width: 100%;
+        }
+
+        /* ==========================================
+           FAQ
+           ========================================== */
+        .faq {
+            background: var(--bg-secondary);
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 60px auto 0;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: var(--radius-lg);
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-xs);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .faq-question:hover {
+            background: var(--neutral-50);
+        }
+
+        .faq-question i {
+            color: var(--text-muted);
+            transition: transform var(--transition-normal);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 24px 20px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        /* ==========================================
+           CTA SECTION
+           ========================================== */
+        .cta-section {
+            background: var(--brand-gradient);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-bg-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .cta-content {
+            position: relative;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .cta-title {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .cta-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 32px;
+        }
+
+        .cta-section .btn-primary {
+            background: white;
+            color: var(--brand-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-section .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        /* ==========================================
+           FOOTER
+           ========================================== */
+        .footer {
+            background: var(--neutral-900);
+            color: var(--neutral-300);
+            padding: 60px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand {
+            max-width: 280px;
+        }
+
+        .footer-brand .nav-brand {
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .footer-brand .nav-brand-icon {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-brand p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--neutral-400);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .footer-social a {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neutral-400);
+            transition: all var(--transition-fast);
+        }
+
+        .footer-social a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .footer-column h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            font-size: 0.9rem;
+            color: var(--neutral-400);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 30px;
+            border-top: 1px solid var(--neutral-800);
+        }
+
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-legal a {
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-legal a:hover {
+            color: white;
+        }
+
+        /* ==========================================
+           MOBILE MENU
+           ========================================== */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 8px;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+        }
+
+        /* ==========================================
+           RESPONSIVE
+           ========================================== */
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 700px;
+            }
+            
+            .footer-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 30px;
+            }
+            
+            .footer-brand {
+                grid-column: span 3;
+                max-width: none;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--neutral-200);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .nav-toggle {
+                display: flex;
+            }
+
+            .nav-actions .btn:not(.btn-sm) {
+                display: none;
+            }
+
+            .hero {
+                padding: 120px 0 60px;
+            }
+
+            .hero-title {
+                font-size: 2.25rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .step-arrow {
+                transform: rotate(90deg);
+                margin: 0;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .pricing-card.featured {
+                order: -1;
+            }
+
+            .preview-body {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-sidebar {
+                display: none;
+            }
+
+            .preview-main {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-brand {
+                grid-column: span 2;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section {
+                padding: 60px 0;
+            }
+
+            .container {
+                padding: 0 16px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .benefit-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .benefit-icon {
+                margin: 0 auto;
+            }
+        }
+
+        /* ==========================================
+           ANIMATIONS
+           ========================================== */
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -473,948 +1363,255 @@
             }
         }
 
-        /* ========================================
-           DASHBOARD PREVIEW
-           ======================================== */
-        .dashboard-preview {
-            margin-top: var(--space-3xl);
-            animation: fade-in-up 0.8s ease 0.5s forwards;
-            opacity: 0;
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease forwards;
         }
 
-        .dashboard-frame {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-            position: relative;
-        }
-
-        .dashboard-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-md) var(--space-lg);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .dashboard-dots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dashboard-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: var(--radius-full);
-        }
-
-        .dashboard-dot:nth-child(1) { background: #ef4444; }
-        .dashboard-dot:nth-child(2) { background: #f59e0b; }
-        .dashboard-dot:nth-child(3) { background: #10b981; }
-
-        .dashboard-tabs {
-            display: flex;
-            gap: var(--space-sm);
-        }
-
-        .dashboard-tab {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            background: transparent;
-            border-radius: var(--radius-sm);
-            transition: var(--transition-fast);
-        }
-
-        .dashboard-tab.active {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-
-        .dashboard-body {
-            padding: var(--space-lg);
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
-        }
-
-        .dashboard-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: var(--space-md);
-            transition: var(--transition-normal);
-        }
-
-        .dashboard-card:hover {
-            border-color: var(--accent-primary);
-            transform: translateY(-2px);
-        }
-
-        .dashboard-card-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: var(--space-xs);
-        }
-
-        .dashboard-card-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-family: var(--font-mono);
-        }
-
-        .dashboard-card-value.positive { color: var(--success); }
-        .dashboard-card-value.negative { color: var(--danger); }
-        .dashboard-card-value.accent { color: var(--accent-primary); }
-
-        .dashboard-chart {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: var(--space-md);
-            height: 200px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chart-line {
-            position: absolute;
-            bottom: 20%;
-            left: 5%;
-            width: 90%;
-            height: 60%;
-        }
-
-        .chart-svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .chart-path {
-            fill: none;
-            stroke: url(#chartGradient);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .chart-area {
-            fill: url(#chartAreaGradient);
-        }
-
-        /* ========================================
-           SOCIAL PROOF BAR
-           ======================================== */
-        .social-proof {
-            padding: var(--space-2xl) 0;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-subtle);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .social-proof-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--space-2xl);
-            flex-wrap: wrap;
-        }
-
-        .social-proof-text {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .social-proof-logos {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2xl);
-            flex-wrap: wrap;
-        }
-
-        .social-proof-logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            opacity: 0.6;
-            transition: var(--transition-fast);
-        }
-
-        .social-proof-logo:hover {
-            opacity: 1;
-            color: var(--text-secondary);
-        }
-
-        /* ========================================
-           FEATURES SECTION
-           ======================================== */
-        .features {
-            background: var(--bg-primary);
-        }
-
-        .section-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--accent-primary);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: var(--space-md);
-        }
-
-        .section-title {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: var(--space-md);
-        }
-
-        .section-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--space-lg);
-        }
-
-        .feature-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--accent-gradient);
-            opacity: 0;
-            transition: var(--transition-normal);
-        }
-
-        .feature-card:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--border-glow);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .feature-card:hover::before {
-            opacity: 1;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: var(--accent-primary);
-            margin-bottom: var(--space-lg);
-        }
-
-        .feature-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: var(--space-sm);
-        }
-
-        .feature-description {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .feature-link {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-xs);
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--accent-primary);
-            margin-top: var(--space-md);
-        }
-
-        .feature-link:hover {
-            gap: var(--space-sm);
-        }
-
-        /* ========================================
-           HOW IT WORKS
-           ======================================== */
-        .how-it-works {
-            background: var(--bg-secondary);
-        }
-
-        .steps-container {
-            display: flex;
-            justify-content: center;
-            gap: var(--space-lg);
-            flex-wrap: wrap;
-        }
-
-        .step {
-            flex: 1;
-            min-width: 200px;
-            max-width: 280px;
-            text-align: center;
-            position: relative;
-        }
-
-        .step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 40px;
-            right: -30%;
-            width: 60%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent-primary), transparent);
-        }
-
-        .step-number {
-            width: 80px;
-            height: 80px;
-            background: var(--accent-gradient);
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: white;
-            margin: 0 auto var(--space-lg);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .step-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: var(--space-sm);
-        }
-
-        .step-description {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* ========================================
-           PRICING
-           ======================================== */
-        .pricing {
-            background: var(--bg-primary);
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-lg);
-            align-items: start;
-        }
-
-        .pricing-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: var(--space-xl);
-            position: relative;
-            transition: var(--transition-normal);
-        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
 
-        .pricing-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
+        /* ==========================================
+           SCROLLBAR
+           ========================================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
-        .pricing-card.featured {
-            background: linear-gradient(180deg, rgba(0, 212, 255, 0.1) 0%, var(--bg-card) 100%);
-            border-color: var(--accent-primary);
-            transform: scale(1.05);
+        ::-webkit-scrollbar-track {
+            background: var(--neutral-100);
         }
 
-        .pricing-card.featured:hover {
-            transform: scale(1.05) translateY(-4px);
+        ::-webkit-scrollbar-thumb {
+            background: var(--neutral-300);
+            border-radius: 4px;
         }
-
-        .pricing-badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent-gradient);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.375rem 1rem;
-            border-radius: var(--radius-full);
-        }
-
-        .pricing-name {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-md);
-        }
-
-        .pricing-price {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: var(--space-xs);
-        }
-
-        .pricing-price span {
-            font-size: 1rem;
-            font-weight: 400;
-            color: var(--text-muted);
-        }
-
-        .pricing-description {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: var(--space-lg);
-            min-height: 40px;
-        }
-
-        .pricing-features {
-            list-style: none;
-            margin-bottom: var(--space-xl);
-        }
-
-        .pricing-features li {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            padding: var(--space-sm) 0;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .pricing-features li:last-child {
-            border-bottom: none;
-        }
-
-        .pricing-features li i {
-            color: var(--success);
-        }
-
-        .pricing-features li.disabled {
-            color: var(--text-muted);
-            opacity: 0.5;
-        }
-
-        .pricing-features li.disabled i {
-            color: var(--text-muted);
-        }
-
-        /* ========================================
-           FAQ
-           ======================================== */
-        .faq {
-            background: var(--bg-secondary);
-        }
-
-        .faq-grid {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .faq-question {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: var(--space-lg) 0;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            text-align: left;
-            transition: var(--transition-fast);
-        }
-
-        .faq-question:hover {
-            color: var(--accent-primary);
-        }
-
-        .faq-question i {
-            transition: transform var(--transition-normal);
-            color: var(--text-muted);
-        }
-
-        .faq-item.active .faq-question i {
-            transform: rotate(180deg);
-            color: var(--accent-primary);
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height var(--transition-normal);
-        }
-
-        .faq-item.active .faq-answer {
-            max-height: 500px;
-        }
-
-        .faq-answer p {
-            padding-bottom: var(--space-lg);
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        /* ========================================
-           CTA SECTION
-           ======================================== */
-        .cta-section {
-            background: var(--bg-primary);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-bg {
-            position: absolute;
-            inset: 0;
-            background: 
-                radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
-        }
-
-        .cta-content {
-            position: relative;
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .cta-title {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 700;
-            margin-bottom: var(--space-md);
-        }
-
-        .cta-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-xl);
-        }
-
-        /* ========================================
-           FOOTER
-           ======================================== */
-        .footer {
-            background: var(--bg-secondary);
-            padding: var(--space-4xl) 0 var(--space-xl);
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr repeat(4, 1fr);
-            gap: var(--space-2xl);
-            margin-bottom: var(--space-3xl);
-        }
-
-        .footer-brand {
-            max-width: 300px;
-        }
-
-        .footer-brand p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: var(--space-md);
-            line-height: 1.7;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: var(--space-md);
-            margin-top: var(--space-lg);
-        }
-
-        .footer-social a {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            transition: var(--transition-fast);
-        }
-
-        .footer-social a:hover {
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
-            color: white;
-        }
-
-        .footer-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            margin-bottom: var(--space-lg);
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: var(--space-sm);
-        }
-
-        .footer-links a {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .footer-links a:hover {
-            color: var(--accent-primary);
-        }
-
-        .footer-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: var(--space-xl);
-            border-top: 1px solid var(--border-subtle);
-            flex-wrap: wrap;
-            gap: var(--space-md);
-        }
-
-        .footer-copyright {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .footer-legal {
-            display: flex;
-            gap: var(--space-lg);
-        }
-
-        .footer-legal a {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .footer-legal a:hover {
-            color: var(--text-secondary);
-        }
-
-        /* ========================================
-           RESPONSIVE DESIGN
-           ======================================== */
-        @media (max-width: 1280px) {
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .pricing-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .pricing-card.featured {
-                transform: scale(1);
-            }
-            
-            .pricing-card.featured:hover {
-                transform: translateY(-4px);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .nav-menu {
-                display: none;
-            }
-            
-            .nav-toggle {
-                display: flex;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .footer-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .footer-brand {
-                grid-column: span 3;
-            }
-            
-            .step:not(:last-child)::after {
-                display: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 var(--space-md);
-            }
-            
-            .hero {
-                padding-top: 100px;
-            }
-            
-            .hero-actions {
-                flex-direction: column;
-            }
-            
-            .hero-trust {
-                gap: var(--space-lg);
-            }
-            
-            .hero-stat-value {
-                font-size: 1.5rem;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .pricing-grid {
-                grid-template-columns: 1fr;
-                max-width: 400px;
-                margin: 0 auto;
-            }
-            
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .footer-brand {
-                grid-column: span 2;
-            }
-            
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-brand {
-                grid-column: span 1;
-            }
-        }
-
-        /* ========================================
-           ANIMATIONS
-           ======================================== */
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .animate-on-scroll.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .stagger-1 { transition-delay: 0.1s; }
-        .stagger-2 { transition-delay: 0.2s; }
-        .stagger-3 { transition-delay: 0.3s; }
-        .stagger-4 { transition-delay: 0.4s; }
-        .stagger-5 { transition-delay: 0.5s; }
-        .stagger-6 { transition-delay: 0.6s; }
 
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neutral-400);
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav" id="navbar">
-        <div class="container nav-container">
-            <a href="#" class="nav-brand">
-                <div class="nav-brand-icon">
-                    <i class="fas fa-chart-line"></i>
+        <div class="container">
+            <div class="nav-container">
+                <a href="#" class="nav-brand">
+                    <div class="nav-brand-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    SmartPip
+                </a>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#faq" class="nav-link">FAQ</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#contact" class="nav-link">Contact</a>
                 </div>
-                SmartPip
-            </a>
-            <div class="nav-menu">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
-                <a href="#" class="nav-link">Documentation</a>
-                <a href="#" class="nav-link">Blog</a>
+                
+                <div class="nav-actions">
+                    <a href="#" class="btn btn-ghost btn-sm">Login</a>
+                    <a href="#" class="btn btn-primary btn-sm">Get Started</a>
+                    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
             </div>
-            <div class="nav-actions">
-                <a href="#" class="btn btn-ghost">Login</a>
-                <a href="#" class="btn btn-primary">Start Free</a>
-            </div>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero" id="hero">
+    <section class="hero">
         <div class="hero-bg"></div>
-        <div class="hero-grid-pattern"></div>
-        <div class="hero-glow"></div>
+        <div class="hero-grid"></div>
         <div class="container">
             <div class="hero-content">
-                <div class="hero-badge">
-                    <i class="fas fa-bolt"></i>
+                <div class="hero-badge animate-fadeInUp">
+                    <i class="fas fa-sparkles"></i>
                     AI-Powered Trading Platform
                 </div>
-                <h1 class="hero-title">
-                    Trade Smarter.<br>
-                    <span class="text-gradient">Execute with Confidence.</span>
+                <h1 class="hero-title animate-fadeInUp delay-100">
+                    AI-Assisted Trading, Built for <span>Smarter Decisions</span>
                 </h1>
-                <p class="hero-subtitle">
-                    SmartPip combines AI-assisted analysis, backtesting, replay, risk management, and intelligent trade execution in one unified platform.
+                <p class="hero-subtitle animate-fadeInUp delay-200">
+                    SmartPip helps traders analyze markets, practice safely with paper trading, review performance, and make informed trading decisions from one intuitive platform.
                 </p>
-                <div class="hero-actions">
+                <div class="hero-actions animate-fadeInUp delay-300">
                     <a href="#" class="btn btn-primary btn-lg">
                         <i class="fas fa-rocket"></i>
-                        Start Free
+                        Get Started Free
                     </a>
-                    <a href="#" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-play"></i>
-                        Watch Demo
+                    <a href="#features" class="btn btn-secondary btn-lg">
+                        Explore Features
                     </a>
                 </div>
-                <div class="hero-trust">
-                    <div class="hero-stat">
-                        <div class="hero-stat-value" data-count="10000">0</div>
-                        <div class="hero-stat-label">Active Traders</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-value" data-count="94">0</div>
-                        <div class="hero-stat-label">Prediction Accuracy %</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-value">$<span data-count="50">0</span>M+</div>
-                        <div class="hero-stat-label">Traded Volume</div>
-                    </div>
-                </div>
-
-                <!-- Dashboard Preview -->
-                <div class="dashboard-preview">
-                    <div class="dashboard-frame">
-                        <div class="dashboard-header">
-                            <div class="dashboard-dots">
-                                <span class="dashboard-dot"></span>
-                                <span class="dashboard-dot"></span>
-                                <span class="dashboard-dot"></span>
-                            </div>
-                            <div class="dashboard-tabs">
-                                <button class="dashboard-tab active">Dashboard</button>
-                                <button class="dashboard-tab">Analytics</button>
-                                <button class="dashboard-tab">Trades</button>
-                            </div>
-                            <div></div>
-                        </div>
-                        <div class="dashboard-body">
-                            <div class="dashboard-grid">
-                                <div class="dashboard-card">
-                                    <div class="dashboard-card-label">Portfolio Value</div>
-                                    <div class="dashboard-card-value accent">$12,458.32</div>
-                                </div>
-                                <div class="dashboard-card">
-                                    <div class="dashboard-card-label">Today's P&L</div>
-                                    <div class="dashboard-card-value positive">+$342.18</div>
-                                </div>
-                                <div class="dashboard-card">
-                                    <div class="dashboard-card-label">Win Rate</div>
-                                    <div class="dashboard-card-value accent">87.5%</div>
-                                </div>
-                                <div class="dashboard-card">
-                                    <div class="dashboard-card-label">AI Confidence</div>
-                                    <div class="dashboard-card-value positive">94%</div>
-                                </div>
-                            </div>
-                            <div class="dashboard-chart">
-                                <svg class="chart-svg" viewBox="0 0 400 100" preserveAspectRatio="none">
-                                    <defs>
-                                        <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" style="stop-color:#00d4ff"/>
-                                            <stop offset="50%" style="stop-color:#7c3aed"/>
-                                            <stop offset="100%" style="stop-color:#ec4899"/>
-                                        </linearGradient>
-                                        <linearGradient id="chartAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" style="stop-color:rgba(0,212,255,0.3)"/>
-                                            <stop offset="100%" style="stop-color:rgba(0,212,255,0)"/>
-                                        </linearGradient>
-                                    </defs>
-                                    <path class="chart-area" d="M0,80 L50,60 L100,70 L150,40 L200,50 L250,30 L300,35 L350,20 L400,25 L400,100 L0,100 Z"/>
-                                    <path class="chart-path" d="M0,80 L50,60 L100,70 L150,40 L200,50 L250,30 L300,35 L350,20 L400,25"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <p class="hero-note animate-fadeInUp delay-400">
+                    <i class="fas fa-shield-halved"></i> No credit card required. Start with paper trading.
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- Social Proof -->
-    <section class="social-proof">
-        <div class="container">
-            <div class="social-proof-content">
-                <span class="social-proof-text">Trusted by traders worldwide</span>
-                <div class="social-proof-logos">
-                    <span class="social-proof-logo"><i class="fas fa-shield-halved"></i> Bank-Level Security</span>
-                    <span class="social-proof-logo"><i class="fas fa-lock"></i> 256-bit Encryption</span>
-                    <span class="social-proof-logo"><i class="fas fa-check-circle"></i> SOC2 Compliant</span>
-                    <span class="social-proof-logo"><i class="fas fa-clock"></i> 99.9% Uptime</span>
+    <!-- Platform Preview -->
+    <section class="preview">
+        <div class="preview-container">
+            <div class="preview-window">
+                <div class="preview-header">
+                    <div class="preview-dot red"></div>
+                    <div class="preview-dot yellow"></div>
+                    <div class="preview-dot green"></div>
+                </div>
+                <div class="preview-body">
+                    <div class="preview-sidebar">
+                        <div class="preview-sidebar-item active">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </div>
+                        <div class="preview-sidebar-item">
+                            <i class="fas fa-chart-pie"></i>
+                            Analytics
+                        </div>
+                        <div class="preview-sidebar-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            Paper Trading
+                        </div>
+                        <div class="preview-sidebar-item">
+                            <i class="fas fa-book"></i>
+                            Trade Journal
+                        </div>
+                        <div class="preview-sidebar-item">
+                            <i class="fas fa-brain"></i>
+                            AI Insights
+                        </div>
+                    </div>
+                    <div class="preview-main">
+                        <!-- Portfolio Summary -->
+                        <div class="preview-card">
+                            <div class="preview-card-header">
+                                <span class="preview-card-title">Portfolio Summary</span>
+                                <div class="preview-card-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                            </div>
+                            <div class="portfolio-value">$12,450.00</div>
+                            <div class="portfolio-change">
+                                <i class="fas fa-arrow-up"></i>
+                                +$1,234.50 (10.5%)
+                            </div>
+                            <div class="portfolio-stats">
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-stat-label">Trades</div>
+                                    <div class="portfolio-stat-value">156</div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-stat-label">Win Rate</div>
+                                    <div class="portfolio-stat-value">68%</div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-stat-label">P/L</div>
+                                    <div class="portfolio-stat-value">+$2,450</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Chart -->
+                        <div class="preview-card">
+                            <div class="preview-card-header">
+                                <span class="preview-card-title">Performance</span>
+                                <div class="preview-badge">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    Paper Trading
+                                </div>
+                            </div>
+                            <div class="chart-placeholder">
+                                <div class="chart-bar" style="height: 45%"></div>
+                                <div class="chart-bar" style="height: 60%"></div>
+                                <div class="chart-bar" style="height: 40%"></div>
+                                <div class="chart-bar" style="height: 75%"></div>
+                                <div class="chart-bar" style="height: 55%"></div>
+                                <div class="chart-bar" style="height: 80%"></div>
+                                <div class="chart-bar" style="height: 65%"></div>
+                                <div class="chart-bar" style="height: 90%"></div>
+                                <div class="chart-bar" style="height: 70%"></div>
+                                <div class="chart-bar" style="height: 85%"></div>
+                                <div class="chart-bar" style="height: 95%"></div>
+                                <div class="chart-bar" style="height: 100%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Market Watch -->
+                        <div class="preview-card">
+                            <div class="preview-card-header">
+                                <span class="preview-card-title">Market Watch</span>
+                                <div class="preview-card-icon">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-name">Volatility 75</div>
+                                    <div class="market-symbol">V-75</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">1,234.56</div>
+                                    <div class="market-change">+2.34%</div>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-name">Volatility 50</div>
+                                    <div class="market-symbol">V-50</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">856.78</div>
+                                    <div class="market-change">+1.12%</div>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-name">Boom 1000</div>
+                                    <div class="market-symbol">BOOM-1000</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">2,145.90</div>
+                                    <div class="market-change">+0.89%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Insights -->
+                        <div class="preview-card">
+                            <div class="preview-card-header">
+                                <span class="preview-card-title">AI Insights</span>
+                                <div class="preview-card-icon" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="insight-text">
+                                    <strong>Pattern Detected:</strong> Strong upward momentum on V-75. Consider long positions.
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon">
+                                    <i class="fas fa-shield-halved"></i>
+                                </div>
+                                <div class="insight-text">
+                                    <strong>Risk Alert:</strong> High volatility detected. Reduce position sizes by 20%.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1423,338 +1620,366 @@
     <!-- Features Section -->
     <section class="features section" id="features">
         <div class="container">
-            <div class="section-header animate-on-scroll">
-                <span class="section-label">
-                    <i class="fas fa-rocket"></i>
+            <div class="text-center">
+                <div class="section-label">
+                    <i class="fas fa-sparkles"></i>
                     Features
-                </span>
-                <h2 class="section-title">
-                    Everything you need to<br>
-                    <span class="text-gradient">trade smarter</span>
-                </h2>
+                </div>
+                <h2 class="section-title">Everything you need to trade smarter</h2>
                 <p class="section-subtitle">
-                    Powerful tools designed for both beginners and professional traders.
+                    Powerful tools designed to help you analyze, practice, and improve your trading performance.
                 </p>
             </div>
+
             <div class="features-grid">
-                <div class="feature-card animate-on-scroll stagger-1">
+                <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-brain"></i>
                     </div>
-                    <h3 class="feature-title">AI Trading Assistant</h3>
+                    <h3 class="feature-title">AI Market Analysis</h3>
                     <p class="feature-description">
-                        Advanced machine learning models analyze market patterns and provide actionable insights.
+                        Advanced AI algorithms analyze market patterns and provide actionable insights to inform your trading decisions.
                     </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-                <div class="feature-card animate-on-scroll stagger-2">
-                    <div class="feature-icon">
-                        <i class="fas fa-flask"></i>
+
+                <div class="feature-card">
+                    <div class="feature-icon teal">
+                        <i class="fas fa-graduation-cap"></i>
                     </div>
                     <h3 class="feature-title">Paper Trading</h3>
                     <p class="feature-description">
-                        Practice strategies risk-free with simulated market conditions before going live.
+                        Practice trading strategies risk-free with virtual funds before committing real capital.
                     </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-                <div class="feature-card animate-on-scroll stagger-3">
+
+                <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-rotate"></i>
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <h3 class="feature-title">Replay Engine</h3>
+                    <h3 class="feature-title">Performance Analytics</h3>
                     <p class="feature-description">
-                        Replay historical market data to validate strategies and learn from past trades.
+                        Track your trading performance with detailed analytics and visualize your progress over time.
                     </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-                <div class="feature-card animate-on-scroll stagger-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-vials"></i>
-                    </div>
-                    <h3 class="feature-title">Backtesting</h3>
-                    <p class="feature-description">
-                        Test strategies against years of historical data with comprehensive performance reports.
-                    </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                <div class="feature-card animate-on-scroll stagger-5">
-                    <div class="feature-icon">
+
+                <div class="feature-card">
+                    <div class="feature-icon teal">
                         <i class="fas fa-shield-halved"></i>
                     </div>
-                    <h3 class="feature-title">Risk Intelligence</h3>
+                    <h3 class="feature-title">Risk Management</h3>
                     <p class="feature-description">
-                        Institutional-grade risk management with real-time monitoring and automatic safeguards.
+                        Built-in risk management tools help protect your capital and minimize potential losses.
                     </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-                <div class="feature-card animate-on-scroll stagger-6">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                    <h3 class="feature-title">Portfolio Analytics</h3>
-                    <p class="feature-description">
-                        Track performance, analyze trends, and optimize your portfolio with detailed reports.
-                    </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                <div class="feature-card animate-on-scroll stagger-1">
-                    <div class="feature-icon">
-                        <i class="fas fa-diagram-project"></i>
-                    </div>
-                    <h3 class="feature-title">Strategy Builder</h3>
-                    <p class="feature-description">
-                        Build custom trading strategies with a visual interface, no coding required.
-                    </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                <div class="feature-card animate-on-scroll stagger-2">
+
+                <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-book"></i>
                     </div>
                     <h3 class="feature-title">Trade Journal</h3>
                     <p class="feature-description">
-                        Document trades, analyze decisions, and improve your trading over time.
+                        Document and review your trades to learn from both wins and losses systematically.
                     </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-                <div class="feature-card animate-on-scroll stagger-3">
-                    <div class="feature-icon">
-                        <i class="fas fa-robot"></i>
+
+                <div class="feature-card">
+                    <div class="feature-icon teal">
+                        <i class="fas fa-history"></i>
                     </div>
-                    <h3 class="feature-title">Automation</h3>
+                    <h3 class="feature-title">Strategy Replay</h3>
                     <p class="feature-description">
-                        Automate your trading strategies and execute trades automatically 24/7.
+                        Review past market conditions and replay your trades to understand what worked and what didn't.
                     </p>
-                    <a href="#" class="feature-link">
-                        Learn more <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- How It Works -->
-    <section class="how-it-works section" id="how-it-works">
+    <section class="how-it-works section" id="about">
         <div class="container">
-            <div class="section-header animate-on-scroll">
-                <span class="section-label">
+            <div class="text-center">
+                <div class="section-label">
                     <i class="fas fa-route"></i>
                     How It Works
-                </span>
-                <h2 class="section-title">
-                    Get started in<br>
-                    <span class="text-gradient">5 simple steps</span>
-                </h2>
-            </div>
-            <div class="steps-container">
-                <div class="step animate-on-scroll stagger-1">
-                    <div class="step-number">1</div>
-                    <h3 class="step-title">Create Account</h3>
-                    <p class="step-description">Sign up in seconds with just your email</p>
                 </div>
-                <div class="step animate-on-scroll stagger-2">
-                    <div class="step-number">2</div>
-                    <h3 class="step-title">Explore Paper Trading</h3>
-                    <p class="step-description">Practice with simulated funds first</p>
-                </div>
-                <div class="step animate-on-scroll stagger-3">
-                    <div class="step-number">3</div>
-                    <h3 class="step-title">Connect Broker</h3>
-                    <p class="step-description">Link your Deriv account securely</p>
-                </div>
-                <div class="step animate-on-scroll stagger-4">
-                    <div class="step-number">4</div>
-                    <h3 class="step-title">Validate Token</h3>
-                    <p class="step-description">Enter your API token for trading</p>
-                </div>
-                <div class="step animate-on-scroll stagger-5">
-                    <div class="step-number">5</div>
-                    <h3 class="step-title">Start Trading</h3>
-                    <p class="step-description">Execute with AI-powered insights</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section class="pricing section" id="pricing">
-        <div class="container">
-            <div class="section-header animate-on-scroll">
-                <span class="section-label">
-                    <i class="fas fa-tag"></i>
-                    Pricing
-                </span>
-                <h2 class="section-title">
-                    Simple, transparent<br>
-                    <span class="text-gradient">pricing</span>
-                </h2>
+                <h2 class="section-title">Get started in minutes</h2>
                 <p class="section-subtitle">
-                    Start free, upgrade when you're ready.
+                    Start exploring SmartPip right away. No broker connection required initially.
                 </p>
             </div>
+
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Create your account</h3>
+                    <p class="step-description">
+                        Sign up for free and access the platform immediately.
+                    </p>
+                </div>
+
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Explore with paper trading</h3>
+                    <p class="step-description">
+                        Practice trading strategies using virtual funds with real market data.
+                    </p>
+                </div>
+
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Connect your broker when ready</h3>
+                    <p class="step-description">
+                        Link your Deriv account to trade with real capital when you're confident.
+                    </p>
+                </div>
+
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Monitor and improve</h3>
+                    <p class="step-description">
+                        Track your performance and continuously refine your trading strategies.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why SmartPip -->
+    <section class="why-section section">
+        <div class="container">
+            <div class="text-center">
+                <div class="section-label">
+                    <i class="fas fa-star"></i>
+                    Why SmartPip
+                </div>
+                <h2 class="section-title">Trading insights, simplified</h2>
+                <p class="section-subtitle">
+                    Focus on making better trading decisions with clear insights and powerful tools.
+                </p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Clear Trading Insights</h3>
+                        <p class="benefit-description">
+                            Get AI-powered analysis and insights that help you understand market patterns without complexity.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Practice Before Risking Money</h3>
+                        <p class="benefit-description">
+                            Paper trading lets you develop and test strategies without financial risk.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Track Long-Term Performance</h3>
+                        <p class="benefit-description">
+                            Monitor your trading journey with detailed analytics and performance metrics.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-magnifying-glass-chart"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h3 class="benefit-title">Understand Every Decision</h3>
+                        <p class="benefit-description">
+                            Review your trades with full context to learn what drives your success.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing section" id="pricing">
+        <div class="container">
+            <div class="text-center">
+                <div class="section-label">
+                    <i class="fas fa-tag"></i>
+                    Pricing
+                </div>
+                <h2 class="section-title">Simple, transparent pricing</h2>
+                <p class="section-subtitle">
+                    Start free, upgrade when you need more.
+                </p>
+            </div>
+
             <div class="pricing-grid">
-                <div class="pricing-card animate-on-scroll stagger-1">
+                <div class="pricing-card">
                     <h3 class="pricing-name">Free</h3>
-                    <div class="pricing-price">$0<span>/month</span></div>
-                    <p class="pricing-description">Perfect for getting started</p>
+                    <p class="pricing-description">For beginners exploring trading</p>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$0</span>
+                        <span class="pricing-period">/ forever</span>
+                    </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Paper Trading</li>
-                        <li><i class="fas fa-check"></i> Basic AI Insights</li>
-                        <li><i class="fas fa-check"></i> 5 Strategies</li>
-                        <li><i class="fas fa-check"></i> Community Support</li>
-                        <li class="disabled"><i class="fas fa-xmark"></i> Backtesting</li>
-                        <li class="disabled"><i class="fas fa-xmark"></i> API Access</li>
+                        <li><i class="fas fa-check"></i> Paper trading with virtual funds</li>
+                        <li><i class="fas fa-check"></i> Basic AI market analysis</li>
+                        <li><i class="fas fa-check"></i> Trade journal</li>
+                        <li><i class="fas fa-check"></i> Basic performance tracking</li>
                     </ul>
-                    <a href="#" class="btn btn-secondary btn-block">Get Started</a>
+                    <a href="#" class="btn btn-secondary pricing-cta">Get Started</a>
                 </div>
-                <div class="pricing-card animate-on-scroll stagger-2">
+
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Popular</div>
                     <h3 class="pricing-name">Starter</h3>
-                    <div class="pricing-price">$29<span>/month</span></div>
                     <p class="pricing-description">For serious traders</p>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$19</span>
+                        <span class="pricing-period">/ month</span>
+                    </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Paper Trading</li>
-                        <li><i class="fas fa-check"></i> Advanced AI Insights</li>
-                        <li><i class="fas fa-check"></i> Unlimited Strategies</li>
-                        <li><i class="fas fa-check"></i> Backtesting</li>
-                        <li><i class="fas fa-check"></i> Priority Support</li>
-                        <li class="disabled"><i class="fas fa-xmark"></i> API Access</li>
+                        <li><i class="fas fa-check"></i> Everything in Free</li>
+                        <li><i class="fas fa-check"></i> Connect one broker account</li>
+                        <li><i class="fas fa-check"></i> Advanced AI insights</li>
+                        <li><i class="fas fa-check"></i> Strategy replay</li>
+                        <li><i class="fas fa-check"></i> Export trade data</li>
                     </ul>
-                    <a href="#" class="btn btn-secondary btn-block">Start Trial</a>
+                    <a href="#" class="btn btn-primary pricing-cta">Start Free Trial</a>
                 </div>
-                <div class="pricing-card featured animate-on-scroll stagger-3">
-                    <span class="pricing-badge">Recommended</span>
+
+                <div class="pricing-card">
                     <h3 class="pricing-name">Professional</h3>
-                    <div class="pricing-price">$79<span>/month</span></div>
                     <p class="pricing-description">For power traders</p>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$49</span>
+                        <span class="pricing-period">/ month</span>
+                    </div>
                     <ul class="pricing-features">
                         <li><i class="fas fa-check"></i> Everything in Starter</li>
-                        <li><i class="fas fa-check"></i> Premium AI Models</li>
-                        <li><i class="fas fa-check"></i> API Access</li>
-                        <li><i class="fas fa-check"></i> Custom Strategies</li>
-                        <li><i class="fas fa-check"></i> Advanced Analytics</li>
-                        <li><i class="fas fa-check"></i> White-label Reports</li>
+                        <li><i class="fas fa-check"></i> Multiple broker accounts</li>
+                        <li><i class="fas fa-check"></i> Priority AI processing</li>
+                        <li><i class="fas fa-check"></i> Custom alerts</li>
+                        <li><i class="fas fa-check"></i> API access</li>
                     </ul>
-                    <a href="#" class="btn btn-primary btn-block">Start Free Trial</a>
+                    <a href="#" class="btn btn-secondary pricing-cta">Contact Sales</a>
                 </div>
-                <div class="pricing-card animate-on-scroll stagger-4">
-                    <h3 class="pricing-name">Enterprise</h3>
-                    <div class="pricing-price">$199<span>/month</span></div>
-                    <p class="pricing-description">For teams and funds</p>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Everything in Pro</li>
-                        <li><i class="fas fa-check"></i> Unlimited Accounts</li>
-                        <li><i class="fas fa-check"></i> Dedicated Support</li>
-                        <li><i class="fas fa-check"></i> Custom Integrations</li>
-                        <li><i class="fas fa-check"></i> White Label Option</li>
-                        <li><i class="fas fa-check"></i> SLA Guarantee</li>
-                    </ul>
-                    <a href="#" class="btn btn-secondary btn-block">Contact Sales</a>
-                </div>
+            </div>
+
+            <div class="text-center" style="margin-top: 40px;">
+                <a href="#" class="btn btn-ghost">Compare Plans</a>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
+    <!-- FAQ -->
     <section class="faq section" id="faq">
         <div class="container">
-            <div class="section-header animate-on-scroll">
-                <span class="section-label">
+            <div class="text-center">
+                <div class="section-label">
                     <i class="fas fa-circle-question"></i>
                     FAQ
-                </span>
-                <h2 class="section-title">
-                    Frequently asked<br>
-                    <span class="text-gradient">questions</span>
-                </h2>
+                </div>
+                <h2 class="section-title">Frequently asked questions</h2>
             </div>
-            <div class="faq-grid">
-                <div class="faq-item animate-on-scroll stagger-1">
+
+            <div class="faq-list">
+                <div class="faq-item">
                     <button class="faq-question">
-                        Is SmartPip safe to use?
+                        Do I need a broker to use SmartPip?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        <p>Yes, safety is our top priority. SmartPip includes multiple risk management features like daily loss limits, automatic kill switches, and configurable position sizing. Your funds remain in your broker account - we never have access to withdraw them.</p>
+                        No, you can start with paper trading using virtual funds immediately after creating an account. Connect your broker (like Deriv) only when you're ready to trade with real capital.
                     </div>
                 </div>
-                <div class="faq-item animate-on-scroll stagger-2">
+
+                <div class="faq-item">
                     <button class="faq-question">
-                        Do I need trading experience?
+                        Can I practice trading without risking real money?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        <p>Not at all! SmartPip is designed for both beginners and experienced traders. Our AI handles the technical analysis, and our onboarding wizard guides you through every step.</p>
+                        Yes! SmartPip's paper trading feature lets you practice with virtual funds that simulate real market conditions. It's a great way to develop and test strategies risk-free.
                     </div>
                 </div>
-                <div class="faq-item animate-on-scroll stagger-3">
+
+                <div class="faq-item">
                     <button class="faq-question">
-                        How accurate are the predictions?
+                        Is my trading data secure?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        <p>Our AI typically achieves 85-94% prediction accuracy depending on market conditions. Each prediction includes a confidence score so you know when to trust the signal.</p>
+                        Absolutely. We use industry-standard encryption to protect your data. Your trading information is stored securely and we never share your personal data with third parties.
                     </div>
                 </div>
-                <div class="faq-item animate-on-scroll stagger-4">
+
+                <div class="faq-item">
                     <button class="faq-question">
-                        Can I lose money with SmartPip?
+                        Which brokers are supported?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        <p>Yes, like any trading platform, losses are possible. However, SmartPip's risk management features are designed to minimize losses. We strongly recommend starting with paper trading.</p>
+                        SmartPip currently supports Deriv. We're constantly working to add more broker integrations. You can start using the platform immediately with paper trading regardless.
                     </div>
                 </div>
-                <div class="faq-item animate-on-scroll stagger-5">
+
+                <div class="faq-item">
                     <button class="faq-question">
-                        How does pricing work?
+                        Can I upgrade or downgrade my plan later?
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        <p>You only pay the subscription fee - there are no hidden costs or commissions. Trading fees are charged directly by your broker. You can upgrade, downgrade, or cancel anytime.</p>
+                        Yes, you can change your plan at any time. Upgrades take effect immediately, and downgrades apply at the end of your billing period. No long-term commitments required.
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section section">
-        <div class="cta-bg"></div>
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-bg-pattern"></div>
         <div class="container">
-            <div class="cta-content animate-on-scroll">
-                <h2 class="cta-title">
-                    Ready to transform<br>
-                    <span class="text-gradient">your trading?</span>
-                </h2>
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to trade smarter?</h2>
                 <p class="cta-subtitle">
-                    Join 10,000+ traders already using SmartPip. Start free today.
+                    Join thousands of traders who use SmartPip to improve their trading decisions.
                 </p>
                 <a href="#" class="btn btn-primary btn-lg">
                     <i class="fas fa-rocket"></i>
-                    Start Trading for Free
+                    Get Started Free
                 </a>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" id="contact">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
@@ -1764,61 +1989,61 @@
                         </div>
                         SmartPip
                     </a>
-                    <p>AI-powered trading platform for Deriv Volatility Indices. Trade smarter with machine intelligence.</p>
+                    <p>AI-assisted trading platform that helps you analyze markets, practice safely, and make smarter trading decisions.</p>
                     <div class="footer-social">
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
                         <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
                         <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                        <a href="#" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
-                <div>
-                    <h4 class="footer-title">Product</h4>
+
+                <div class="footer-column">
+                    <h4>Product</h4>
                     <ul class="footer-links">
-                        <li><a href="#">Features</a></li>
-                        <li><a href="#">Pricing</a></li>
-                        <li><a href="#">API</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
                         <li><a href="#">Integrations</a></li>
                         <li><a href="#">Changelog</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="footer-title">Resources</h4>
+
+                <div class="footer-column">
+                    <h4>Resources</h4>
                     <ul class="footer-links">
                         <li><a href="#">Documentation</a></li>
                         <li><a href="#">Trading Guide</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Community</a></li>
+                        <li><a href="#">API Reference</a></li>
                         <li><a href="#">Support</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="footer-title">Company</h4>
+
+                <div class="footer-column">
+                    <h4>Company</h4>
                     <ul class="footer-links">
-                        <li><a href="#">About Us</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#contact">Contact</a></li>
                         <li><a href="#">Careers</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Press Kit</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="footer-title">Legal</h4>
+
+                <div class="footer-column">
+                    <h4>Legal</h4>
                     <ul class="footer-links">
                         <li><a href="#">Privacy Policy</a></li>
                         <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Risk Disclaimer</a></li>
                         <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Status</a></li>
                     </ul>
                 </div>
             </div>
+
             <div class="footer-bottom">
                 <p class="footer-copyright">2026 SmartPip. All rights reserved.</p>
                 <div class="footer-legal">
                     <a href="#">Terms</a>
                     <a href="#">Privacy</a>
                     <a href="#">Security</a>
-                    <a href="#">Status</a>
                 </div>
             </div>
         </div>
@@ -1828,11 +2053,26 @@
         // Navigation scroll effect
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
+            if (window.scrollY > 10) {
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
             }
+        });
+
+        // Mobile menu toggle
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking a link
+        navMenu.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
         });
 
         // FAQ Accordion
@@ -1851,78 +2091,45 @@
             });
         });
 
-        // Scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            observer.observe(el);
-        });
-
-        // Animated counter
-        function animateCounter(element, target, duration = 2000) {
-            const start = 0;
-            const increment = target / (duration / 16);
-            let current = start;
-            
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    element.textContent = target.toLocaleString();
-                    clearInterval(timer);
-                } else {
-                    element.textContent = Math.floor(current).toLocaleString();
-                }
-            }, 16);
-        }
-
-        // Initialize counters when visible
-        const counterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const target = entry.target.dataset.count;
-                    if (target) {
-                        animateCounter(entry.target, parseInt(target));
-                        counterObserver.unobserve(entry.target);
-                    }
-                }
-            });
-        }, { threshold: 0.5 });
-
-        document.querySelectorAll('[data-count]').forEach(el => {
-            counterObserver.observe(el);
-        });
-
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
                     });
                 }
             });
         });
 
-        // Mobile menu toggle
-        const navToggle = document.getElementById('navToggle');
-        const navMenu = document.querySelector('.nav-menu');
-        
-        navToggle.addEventListener('click', () => {
-            navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for fade-in animation
+        document.querySelectorAll('.feature-card, .step-card, .benefit-card, .pricing-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            fadeObserver.observe(el);
         });
     </script>
 </body>
