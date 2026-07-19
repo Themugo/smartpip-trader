@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartPip Dashboard - Your personal trading command center">
+    <title>Dashboard - SmartPip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================
+           CSS VARIABLES
+           ========================================== */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --brand-primary: #4338ca;
+            --brand-secondary: #6366f1;
+            --brand-tertiary: #818cf8;
+            --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            
+            --header-height: 64px;
+            --sidebar-width: 260px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ==========================================
+           LAYOUT
+           ========================================== */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--neutral-200);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform var(--transition-normal);
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--brand-secondary);
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            color: var(--brand-primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item-badge {
+            margin-left: auto;
+            background: var(--brand-secondary);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-plan {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: var(--header-height);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--neutral-100);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .search-trigger:hover {
+            border-color: var(--neutral-300);
+            background: var(--neutral-50);
+        }
+
+        .search-trigger kbd {
+            background: var(--neutral-200);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: inherit;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: var(--radius-full);
+            border: 2px solid var(--bg-primary);
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 24px;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: var(--brand-gradient);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-greeting {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .welcome-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--brand-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--neutral-200);
+            transition: all var(--transition-fast);
+        }
+
+        .dashboard-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            color: var(--brand-secondary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .card-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .card-btn:hover {
+            background: var(--neutral-100);
+            color: var(--text-primary);
+        }
+
+        /* Performance Card - spans 8 columns */
+        .card-performance {
+            grid-column: span 8;
+        }
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+        }
+
+        .stat-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-value.positive {
+            color: var(--success);
+        }
+
+        .stat-value.negative {
+            color: var(--danger);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 10px 0;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--brand-secondary), var(--brand-tertiary));
+            border-radius: 4px 4px 0 0;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        .chart-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding-bottom: 4px;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .chart-bar:hover::after {
+            opacity: 1;
+        }
+
+        /* Quick Stats Card - spans 4 columns */
+        .card-quick-stats {
+            grid-column: span 4;
+        }
+
+        .quick-stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quick-stat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+        }
+
+        .quick-stat-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-stat-icon.trades {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-secondary);
+        }
+
+        .quick-stat-icon.win-rate {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .quick-stat-icon.pnl {
+            background: rgba(13, 148, 136, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .quick-stat-icon.streak {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .quick-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .quick-stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Paper Trading Card - spans 6 columns */
+        .card-paper-trading {
+            grid-column: span 6;
+        }
+
+        .progress-section {
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .progress-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+
+        .paper-trading-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .paper-stat {
+            text-align: center;
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+        }
+
+        .paper-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .paper-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* AI Insights Card - spans 6 columns */
+        .card-ai-insights {
+            grid-column: span 6;
+        }
+
+        .insights-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .insight-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .insight-item:hover {
+            background: var(--neutral-100);
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .insight-icon.signal {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .insight-icon.alert {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .insight-icon.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .insight-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .insight-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .insight-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .insight-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Market Watch Card - spans 4 columns */
+        .card-market-watch {
+            grid-column: span 4;
+        }
+
+        .market-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .market-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .market-item:last-child {
+            border-bottom: none;
+        }
+
+        .market-symbol {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .market-price {
+            text-align: right;
+        }
+
+        .market-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .market-change.positive {
+            color: var(--success);
+        }
+
+        .market-change.negative {
+            color: var(--danger);
+        }
+
+        /* Journal Card - spans 4 columns */
+        .card-journal {
+            grid-column: span 4;
+        }
+
+        .journal-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .journal-item {
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .journal-item:hover {
+            background: var(--neutral-100);
+        }
+
+        .journal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .journal-symbol {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .journal-type {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-weight: 500;
+        }
+
+        .journal-type.long {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .journal-type.short {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .journal-note {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .journal-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Goals Card - spans 4 columns */
+        .card-goals {
+            grid-column: span 4;
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .goal-item {
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+        }
+
+        .goal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .goal-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .goal-status {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-weight: 500;
+        }
+
+        .goal-status.active {
+            background: rgba(67, 56, 202, 0.1);
+            color: var(--brand-secondary);
+        }
+
+        .goal-status.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .goal-progress {
+            height: 6px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: var(--brand-gradient);
+            border-radius: var(--radius-full);
+        }
+
+        .goal-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Quick Actions Card - spans 12 columns */
+        .card-quick-actions {
+            grid-column: span 12;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+        }
+
+        .quick-action:hover {
+            background: var(--neutral-100);
+            border-color: var(--brand-secondary);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .quick-action-icon.trade {
+            background: linear-gradient(135deg, var(--brand-secondary), var(--brand-tertiary));
+            color: white;
+        }
+
+        .quick-action-icon.paper {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .quick-action-icon.analysis {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+
+        .quick-action-icon.journal {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+        }
+
+        .quick-action-icon.replay {
+            background: linear-gradient(135deg, #06b6d4, #22d3ee);
+            color: white;
+        }
+
+        .quick-action-icon.settings {
+            background: var(--neutral-200);
+            color: var(--text-secondary);
+        }
+
+        .quick-action-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        /* Notifications Card - spans 4 columns */
+        .card-notifications {
+            grid-column: span 4;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .notification-item:hover {
+            background: var(--neutral-50);
+        }
+
+        .notification-item.unread {
+            background: rgba(67, 56, 202, 0.05);
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .notification-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .notification-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .notification-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Learning Card - spans 4 columns */
+        .card-learning {
+            grid-column: span 4;
+        }
+
+        .learning-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .learning-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .learning-item:hover {
+            background: var(--neutral-100);
+        }
+
+        .learning-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .learning-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .learning-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .learning-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .learning-progress {
+            margin-top: 6px;
+            height: 4px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .learning-progress-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-full);
+        }
+
+        /* Mobile Sidebar Toggle */
+        .mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .mobile-toggle:hover {
+            background: var(--neutral-100);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .card-performance {
+                grid-column: span 12;
+            }
+            
+            .card-quick-stats {
+                grid-column: span 12;
+            }
+            
+            .card-paper-trading,
+            .card-ai-insights {
+                grid-column: span 6;
+            }
+            
+            .card-market-watch,
+            .card-journal,
+            .card-goals,
+            .card-notifications,
+            .card-learning {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .card-paper-trading,
+            .card-ai-insights,
+            .card-market-watch,
+            .card-journal,
+            .card-goals,
+            .card-notifications,
+            .card-learning,
+            .card-quick-actions {
+                grid-column: span 12;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .performance-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .paper-trading-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-content {
+                padding: 16px;
+            }
+
+            .welcome-banner {
+                padding: 24px;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .welcome-actions {
+                flex-direction: column;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .performance-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-card {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .dashboard-card:nth-child(1) { animation-delay: 0.05s; }
+        .dashboard-card:nth-child(2) { animation-delay: 0.1s; }
+        .dashboard-card:nth-child(3) { animation-delay: 0.15s; }
+        .dashboard-card:nth-child(4) { animation-delay: 0.2s; }
+        .dashboard-card:nth-child(5) { animation-delay: 0.25s; }
+        .dashboard-card:nth-child(6) { animation-delay: 0.3s; }
+        .dashboard-card:nth-child(7) { animation-delay: 0.35s; }
+        .dashboard-card:nth-child(8) { animation-delay: 0.4s; }
+        .dashboard-card:nth-child(9) { animation-delay: 0.45s; }
+        .dashboard-card:nth-child(10) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    SmartPip
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="#" class="nav-item active">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-chart-pie"></i>
+                        Analytics
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-wallet"></i>
+                        Portfolio
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-list"></i>
+                        Positions
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Trading</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        Paper Trading
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        Trade Journal
+                        <span class="nav-item-badge">3</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-history"></i>
+                        Strategy Replay
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Tools</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-brain"></i>
+                        AI Insights
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-magnifying-glass-chart"></i>
+                        Backtesting
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-robot"></i>
+                        Automations
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Learn</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        Learning Center
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-circle-question"></i>
+                        Help Center
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-plan">Free Plan</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="mobile-toggle" id="mobileToggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+
+                <div class="header-actions">
+                    <button class="search-trigger" id="searchTrigger">
+                        <i class="fas fa-search"></i>
+                        Search...
+                        <kbd>⌘K</kbd>
+                    </button>
+
+                    <div class="icon-btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </div>
+
+                    <div class="icon-btn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="welcome-content">
+                        <div class="welcome-greeting">Good morning,</div>
+                        <h2 class="welcome-title">Ready to make smarter trades today?</h2>
+                        <p class="welcome-subtitle">Your paper trading challenge is 65% complete. Keep going!</p>
+                        <div class="welcome-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-graduation-cap"></i>
+                                Continue Trading
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-chart-line"></i>
+                                View Analytics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Performance Card -->
+                    <div class="dashboard-card card-performance">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-line"></i>
+                                Today's Performance
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="Refresh">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="card-btn" title="More">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="performance-stats">
+                            <div class="stat-item">
+                                <div class="stat-value positive">+$1,234</div>
+                                <div class="stat-label">P/L</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">156</div>
+                                <div class="stat-label">Trades</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value positive">68%</div>
+                                <div class="stat-label">Win Rate</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">2.5</div>
+                                <div class="stat-label">Risk/Reward</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-bar" style="height: 45%" data-value="45%"></div>
+                            <div class="chart-bar" style="height: 60%" data-value="60%"></div>
+                            <div class="chart-bar" style="height: 40%" data-value="40%"></div>
+                            <div class="chart-bar" style="height: 75%" data-value="75%"></div>
+                            <div class="chart-bar" style="height: 55%" data-value="55%"></div>
+                            <div class="chart-bar" style="height: 80%" data-value="80%"></div>
+                            <div class="chart-bar" style="height: 65%" data-value="65%"></div>
+                            <div class="chart-bar" style="height: 90%" data-value="90%"></div>
+                            <div class="chart-bar" style="height: 70%" data-value="70%"></div>
+                            <div class="chart-bar" style="height: 85%" data-value="85%"></div>
+                            <div class="chart-bar" style="height: 95%" data-value="95%"></div>
+                            <div class="chart-bar" style="height: 100%" data-value="100%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Card -->
+                    <div class="dashboard-card card-quick-stats">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-bolt"></i>
+                                Quick Stats
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="More">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="quick-stats-list">
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-info">
+                                    <div class="quick-stat-icon trades">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </div>
+                                    <span class="quick-stat-label">Total Trades</span>
+                                </div>
+                                <span class="quick-stat-value">1,234</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-info">
+                                    <div class="quick-stat-icon win-rate">
+                                        <i class="fas fa-percentage"></i>
+                                    </div>
+                                    <span class="quick-stat-label">Win Rate</span>
+                                </div>
+                                <span class="quick-stat-value">68%</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-info">
+                                    <div class="quick-stat-icon pnl">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <span class="quick-stat-label">Total P/L</span>
+                                </div>
+                                <span class="quick-stat-value positive">+$12,450</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-info">
+                                    <div class="quick-stat-icon streak">
+                                        <i class="fas fa-fire"></i>
+                                    </div>
+                                    <span class="quick-stat-label">Win Streak</span>
+                                </div>
+                                <span class="quick-stat-value">8</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paper Trading Card -->
+                    <div class="dashboard-card card-paper-trading">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-graduation-cap"></i>
+                                Paper Trading Progress
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="View Challenge">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span class="progress-label">Challenge Progress</span>
+                                <span class="progress-value">65%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                        </div>
+
+                        <div class="paper-trading-stats">
+                            <div class="paper-stat">
+                                <div class="paper-stat-value">$50K</div>
+                                <div class="paper-stat-label">Target</div>
+                            </div>
+                            <div class="paper-stat">
+                                <div class="paper-stat-value">$32.5K</div>
+                                <div class="paper-stat-label">Current</div>
+                            </div>
+                            <div class="paper-stat">
+                                <div class="paper-stat-value">18 days</div>
+                                <div class="paper-stat-label">Remaining</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Card -->
+                    <div class="dashboard-card card-ai-insights">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-brain"></i>
+                                AI Insights
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="View All">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="insights-list">
+                            <div class="insight-item">
+                                <div class="insight-icon signal">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">Pattern Detected</div>
+                                    <div class="insight-text">Strong upward momentum on V-75. Consider long positions with tight stops.</div>
+                                    <div class="insight-time">2 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon alert">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">Risk Alert</div>
+                                    <div class="insight-text">High volatility detected. Consider reducing position sizes by 20%.</div>
+                                    <div class="insight-time">15 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon info">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">Strategy Update</div>
+                                    <div class="insight-text">Your mean reversion strategy performed 15% better than expected.</div>
+                                    <div class="insight-time">1 hour ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Watch Card -->
+                    <div class="dashboard-card card-market-watch">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-eye"></i>
+                                Market Watch
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="Edit">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="market-list">
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-symbol">V-75</div>
+                                    <div class="market-name">Volatility 75</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">1,234.56</div>
+                                    <div class="market-change positive">+2.34%</div>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-symbol">V-50</div>
+                                    <div class="market-name">Volatility 50</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">856.78</div>
+                                    <div class="market-change positive">+1.12%</div>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-symbol">BOOM-1000</div>
+                                    <div class="market-name">Boom 1000</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">2,145.90</div>
+                                    <div class="market-change negative">-0.89%</div>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div>
+                                    <div class="market-symbol">CRASH-1000</div>
+                                    <div class="market-name">Crash 1000</div>
+                                </div>
+                                <div class="market-price">
+                                    <div class="market-value">1,892.34</div>
+                                    <div class="market-change positive">+0.45%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Journal Card -->
+                    <div class="dashboard-card card-journal">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-book"></i>
+                                Recent Journal Entries
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="Add Entry">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="journal-list">
+                            <div class="journal-item">
+                                <div class="journal-header">
+                                    <span class="journal-symbol">V-75 Long</span>
+                                    <span class="journal-type long">Long</span>
+                                </div>
+                                <div class="journal-note">Identified strong support at 1230. Entry on breakout above 1235 with tight stop.</div>
+                                <div class="journal-meta">
+                                    <span><i class="fas fa-clock"></i> 2h ago</span>
+                                    <span><i class="fas fa-check"></i> +$150</span>
+                                </div>
+                            </div>
+                            <div class="journal-item">
+                                <div class="journal-header">
+                                    <span class="journal-symbol">V-50 Short</span>
+                                    <span class="journal-type short">Short</span>
+                                </div>
+                                <div class="journal-note">Overbought RSI divergence. Started short near resistance at 860.</div>
+                                <div class="journal-meta">
+                                    <span><i class="fas fa-clock"></i> 5h ago</span>
+                                    <span><i class="fas fa-check"></i> +$85</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goals Card -->
+                    <div class="dashboard-card card-goals">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-flag"></i>
+                                Goals
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="Add Goal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="goals-list">
+                            <div class="goal-item">
+                                <div class="goal-header">
+                                    <span class="goal-title">Complete 50 Trades</span>
+                                    <span class="goal-status active">In Progress</span>
+                                </div>
+                                <div class="goal-progress">
+                                    <div class="goal-progress-fill" style="width: 72%"></div>
+                                </div>
+                                <div class="goal-meta">
+                                    <span>36 of 50 trades</span>
+                                    <span>72%</span>
+                                </div>
+                            </div>
+                            <div class="goal-item">
+                                <div class="goal-header">
+                                    <span class="goal-title">Maintain 60% Win Rate</span>
+                                    <span class="goal-status completed">Achieved</span>
+                                </div>
+                                <div class="goal-progress">
+                                    <div class="goal-progress-fill" style="width: 100%"></div>
+                                </div>
+                                <div class="goal-meta">
+                                    <span>Current: 68%</span>
+                                    <span>Complete</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Card -->
+                    <div class="dashboard-card card-quick-actions">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-bolt"></i>
+                                Quick Actions
+                            </h3>
+                        </div>
+
+                        <div class="quick-actions-grid">
+                            <div class="quick-action">
+                                <div class="quick-action-icon trade">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <span class="quick-action-label">New Trade</span>
+                            </div>
+                            <div class="quick-action">
+                                <div class="quick-action-icon paper">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <span class="quick-action-label">Paper Trade</span>
+                            </div>
+                            <div class="quick-action">
+                                <div class="quick-action-icon analysis">
+                                    <i class="fas fa-magnifying-glass-chart"></i>
+                                </div>
+                                <span class="quick-action-label">Analysis</span>
+                            </div>
+                            <div class="quick-action">
+                                <div class="quick-action-icon journal">
+                                    <i class="fas fa-pen"></i>
+                                </div>
+                                <span class="quick-action-label">Add Journal</span>
+                            </div>
+                            <div class="quick-action">
+                                <div class="quick-action-icon replay">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <span class="quick-action-label">Replay</span>
+                            </div>
+                            <div class="quick-action">
+                                <div class="quick-action-icon settings">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <span class="quick-action-label">Settings</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Card -->
+                    <div class="dashboard-card card-notifications">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-bell"></i>
+                                Notifications
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="Mark All Read">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="notification-list">
+                            <div class="notification-item unread">
+                                <div class="notification-icon info">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">New AI Feature Available</div>
+                                    <div class="notification-text">Strategy backtesting is now live!</div>
+                                    <div class="notification-time">5 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="notification-item unread">
+                                <div class="notification-icon success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">Goal Achieved!</div>
+                                    <div class="notification-text">You hit 60% win rate this week.</div>
+                                    <div class="notification-time">1 hour ago</div>
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-icon warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">Connection Lost</div>
+                                    <div class="notification-text">Reconnected to Deriv API.</div>
+                                    <div class="notification-time">3 hours ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Card -->
+                    <div class="dashboard-card card-learning">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-graduation-cap"></i>
+                                Continue Learning
+                            </h3>
+                            <div class="card-actions">
+                                <button class="card-btn" title="View All">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="learning-list">
+                            <div class="learning-item">
+                                <div class="learning-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="learning-content">
+                                    <div class="learning-title">Understanding Market Volatility</div>
+                                    <div class="learning-meta">Lesson 3 of 8</div>
+                                    <div class="learning-progress">
+                                        <div class="learning-progress-fill" style="width: 37%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="learning-item">
+                                <div class="learning-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="learning-content">
+                                    <div class="learning-title">Risk Management Basics</div>
+                                    <div class="learning-meta">Not started</div>
+                                    <div class="learning-progress">
+                                        <div class="learning-progress-fill" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !mobileToggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Search trigger (Ctrl/Cmd + K)
+        const searchTrigger = document.getElementById('searchTrigger');
+        
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                // Would open command palette
+                alert('Command palette would open here (Ctrl/Cmd + K)');
+            }
+        });
+        
+        searchTrigger.addEventListener('click', () => {
+            alert('Command palette would open here');
+        });
+
+        // Nav item active state
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Card refresh button
+        document.querySelectorAll('.card-btn[title="Refresh"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.add('fa-spin');
+                setTimeout(() => this.classList.remove('fa-spin'), 500);
+            });
+        });
+    </script>
+</body>
+</html>
