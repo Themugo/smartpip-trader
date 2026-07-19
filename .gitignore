@@ -38,3 +38,6 @@ ensemble_models/
 # Test coverage
 .coverage
 htmlcov/
+
+# Internal docs (secret metadata)
+internal-docs/
