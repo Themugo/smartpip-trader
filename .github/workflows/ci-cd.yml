@@ -136,6 +136,8 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        timeout: 600s
+        retries: 3
 
   deploy-production:
     needs: build
