@@ -166,14 +166,6 @@ jobs:
         echo "4. Click 'New Deployment' or connect to ghcr.io"
         echo "5. Pull image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}"
         echo "============================================"
-    
-    - name: Notify deployment
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        text: '🚀 Deployment ready! Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-      if: always()
 
   deploy-staging:
     needs: build
@@ -195,14 +187,6 @@ jobs:
         echo "============================================"
         echo "Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}"
         echo "============================================"
-    
-    - name: Notify deployment
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        text: '🚀 Staging deployment ready! Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-      if: always()
 
   deploy-review:
     needs: build
