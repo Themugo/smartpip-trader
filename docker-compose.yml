@@ -4,11 +4,10 @@ services:
   smartpip-trader:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deploy/Dockerfile
     container_name: smartpip-trader
     ports:
       - "8080:8080"  # REST API
-      - "8081:8081"  # WebSocket
       - "9090:9090"  # Metrics
     environment:
       - PYTHONUNBUFFERED=1
@@ -24,7 +23,7 @@ services:
       - postgres
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/system/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

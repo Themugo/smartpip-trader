@@ -2,19 +2,29 @@ version: '3.8'
 
 services:
   smartpip-trader:
-    build: .
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
     container_name: smartpip-trader
     ports:
-      - "8000:8000"
+      - "8080:8080"  # REST API - standardized port
     environment:
       - DERIV_API_TOKEN=${DERIV_API_TOKEN}
       - DERIV_APP_ID=${DERIV_APP_ID:-1089}
-      - PORT=8000
+      - PORT=8080
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
       - NOTIFICATION_EMAIL_PASSWORD=${NOTIFICATION_EMAIL_PASSWORD}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
     volumes:
-      - ./data:/app/data
+      - ../data:/app/data
+      - ../logs:/app/logs
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -8,6 +8,7 @@ WORKDIR /app
 # Install system dependencies (minimal)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -24,6 +25,7 @@ COPY . .
 
 # Create data directory with proper permissions
 RUN mkdir -p /app/data && \
+    mkdir -p /app/logs && \
     chown -R smartpip:smartpip /app
 
 # Security: Set ownership to non-root user
@@ -32,14 +34,16 @@ USER smartpip
 # Security: Make filesystem read-only where possible
 # Only /app/data and /tmp should be writable
 RUN chmod -R 755 /app && \
-    chmod -R 777 /app/data
+    chmod -R 777 /app/data && \
+    chmod -R 777 /app/logs
 
-# Expose port
-EXPOSE 8000
+# Expose port (standardized to 8080 for containerized deployments)
+EXPOSE 8080
 
 # Security: Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/api/v1/system/health || exit 1
 
 # Run application with security considerations
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--limit-concurrency", "100"]
+# PORT is read from environment, defaults to 8080
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1 --limit-concurrency 100"]

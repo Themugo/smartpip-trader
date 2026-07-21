@@ -1,0 +1,63 @@
+# SmartPip Trader - Fly.io Configuration
+# https://fly.io/docs/reference/configuration/
+
+app = "smartpip-trader"
+primary_region = "nai"  # Nairobi (closest to Kenya market)
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+swap_size_mb = 512
+
+[build]
+  dockerfile = "deploy/Dockerfile"
+
+[deploy]
+  release_command = "python -m alemic upgrade head || true"
+
+[env]
+  PORT = "8080"
+  ENVIRONMENT = "production"
+  LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[http_service.checks]]
+  grace_period = "30s"
+  interval = "15s"
+  method = "GET"
+  path = "/api/health"
+  timeout = "5s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+  auto_throttle = true
+
+[metrics]
+  port = 9090
+  path = "/metrics"
+
+# Secrets (set via fly secrets set)
+# DERIV_API_TOKEN
+# SECRET_KEY
+# ENCRYPTION_KEY
+# DATABASE_URL
+# REDIS_URL
+
+[[statics]]
+  guest_path = "/app/data"
+  url_prefix = "/data"
+
+[experimental]
+  cmd = ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]

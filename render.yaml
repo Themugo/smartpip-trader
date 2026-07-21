@@ -2,10 +2,11 @@ services:
   - type: web
     name: smartpip-trader
     runtime: python
-    plan: free
+    plan: starter
     region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
     envVars:
       - key: DERIV_ACCOUNT_ID
         value: 1294207
@@ -20,4 +21,6 @@ services:
       - key: TRADE_DURATION
         value: 2
       - key: PORT
-        value: 8000
+        value: 8080
+      - key: ENVIRONMENT
+        value: production

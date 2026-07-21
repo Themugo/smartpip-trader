@@ -8,6 +8,7 @@ services:
     branch: main
     dockerContext: .
     dockerfilePath: deploy/Dockerfile
+    healthCheckPath: /api/health
     
     envVars:
       - key: DERIV_API_TOKEN
@@ -15,7 +16,9 @@ services:
       - key: DERIV_APP_ID
         value: "1089"
       - key: PORT
-        value: "8000"
+        value: "8080"
+      - key: ENVIRONMENT
+        value: "production"
       - key: NOTIFICATION_EMAIL
         sync: false
       - key: NOTIFICATION_EMAIL_PASSWORD
