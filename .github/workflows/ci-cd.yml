@@ -25,6 +25,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}-${{ github.event.repository.name }}
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   test:
@@ -120,11 +121,9 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
+          type=sha
           type=ref,event=branch
-          type=sha,prefix={{branch}}-
           type=raw,value=latest
-          type=raw,value=production
-          type=raw,value=staging
     
     - name: Build and push
       uses: docker/build-push-action@v6
