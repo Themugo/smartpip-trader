@@ -24,9 +24,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}-${{ github.event.repository.name }}
-  # Convert to lowercase for ghcr.io compatibility
-  IMAGE_NAME_LOWER: ${{ toLowerCase(github.repository_owner) }}-${{ toLowerCase(github.event.repository.name) }}
+  IMAGE_NAME: smartpip-trader
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   test:
@@ -120,7 +119,8 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+        images: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
           type=sha
           type=ref,event=branch
