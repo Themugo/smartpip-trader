@@ -145,7 +145,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: https://smartpip-trader.vercel.app
+      url: https://smartpip-sniper.vercel.app
     
     steps:
     - name: Checkout code
@@ -162,7 +162,7 @@ jobs:
     - name: Health check
       run: |
         sleep 30
-        curl -f https://smartpip-trader.vercel.app/api/health || exit 1
+        curl -f https://smartpip-sniper.vercel.app/api/health || exit 1
     
     - name: Notify deployment
       uses: 8398a7/action-slack@v3
@@ -178,7 +178,7 @@ jobs:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     environment:
       name: staging
-      url: https://smartpip-trader-staging.vercel.app
+      url: https://smartpip-sniper-git-develop.vercel.app
     
     steps:
     - name: Checkout code
@@ -196,7 +196,7 @@ jobs:
     - name: Health check
       run: |
         sleep 20
-        curl -f https://smartpip-trader-staging.vercel.app/api/health || exit 1
+        curl -f https://smartpip-sniper-git-develop.vercel.app/api/health || exit 1
     
     - name: Notify deployment
       uses: 8398a7/action-slack@v3
@@ -212,7 +212,7 @@ jobs:
     if: github.event_name == 'pull_request'
     environment:
       name: review
-      url: https://smartpip-trader-git-${{ github.head_ref }}.vercel.app
+      url: https://smartpip-sniper-git-${{ github.head_ref }}.vercel.app
     
     steps:
     - name: Checkout code
