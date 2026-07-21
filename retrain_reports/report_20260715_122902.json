@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-15T12:29:02.112436+00:00",
+  "status": "aborted_insufficient_data",
+  "steps": [
+    {
+      "name": "export_current_metrics",
+      "status": "error",
+      "error": "'NoneType' object has no attribute 'get_status'"
+    },
+    {
+      "name": "retrieve_training_data",
+      "status": "error",
+      "error": "'TradeMemory' object has no attribute 'get_completed_trades'"
+    }
+  ],
+  "total_seconds": 0.0
+}

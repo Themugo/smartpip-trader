@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import type { SizingConfig, TradeRecord } from './useAdaptivePositionSizing';
+import type { TradeRecord } from './useAdaptivePositionSizing';
 
 export interface SimulationParams {
   numTrades: number;
@@ -53,7 +53,6 @@ export function useSizingSimulation() {
 
   const runSimulation = useCallback(async (
     params: SimulationParams,
-    sizingConfig: SizingConfig,
     sizingFn: (confidence: number, strategy: string, volatilityData?: number[]) => {
       size: number;
       blocked: boolean;

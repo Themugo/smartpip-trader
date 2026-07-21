@@ -1,6 +1,5 @@
 import asyncio
 import pytest
-import pytest_asyncio
 import os
 from typing import Dict, Any
 
@@ -8,7 +7,7 @@ from typing import Dict, Any
 class TestIntegration:
     """Integration tests for the SmartPip Trader system"""
     
-    @pytest_asyncio.fixture
+    @pytest.fixture
     async def trading_system(self):
         """Fixture to provide trading system instance"""
         from trading_system import TradingSystem
@@ -230,9 +229,9 @@ class TestAPIIntegration:
     
     def test_health_endpoint(self, client):
         """Test health check endpoint"""
-        response = client.get("/api/health")
+        response = client.get("/health")
         assert response.status_code == 200
-        assert "status" in response.json()
+        assert response.json()["status"] == "healthy"
     
     def test_root_endpoint(self, client):
         """Test root endpoint"""
@@ -250,34 +249,36 @@ class TestAPIIntegration:
     
     def test_api_start_stop(self, client):
         """Test start and stop endpoints"""
-        # Start bot - may fail due to no API token configured
-        response = client.post("/api/start", json={})
-        # Accept 200 success or 400 (missing config)
-        assert response.status_code in [200, 400]
+        # Start bot
+        response = client.post("/api/start")
+        assert response.status_code == 200
+        assert response.json()["success"] is True
         
         # Stop bot
-        response = client.post("/api/stop", json={})
+        response = client.post("/api/stop")
         assert response.status_code == 200
         assert response.json()["success"] is True
     
     def test_api_reset_session(self, client):
         """Test reset session endpoint"""
-        response = client.post("/api/reset", json={})
+        response = client.post("/api/reset_session")
         assert response.status_code == 200
         assert response.json()["success"] is True
     
     def test_api_market_ranking(self, client):
         """Test market ranking endpoint"""
-        response = client.get("/api/markets")
+        response = client.get("/api/markets/ranking")
         assert response.status_code == 200
         data = response.json()
-        assert "markets" in data
-        assert isinstance(data["markets"], list)
+        assert "ranking" in data
     
     def test_api_zero_loss_metrics(self, client):
         """Test zero-loss risk metrics endpoint"""
-        # Skip this test as the endpoint doesn't exist
-        pytest.skip("Endpoint /api/risk/zero-loss not implemented")
+        response = client.get("/api/risk/zero-loss")
+        assert response.status_code == 200
+        data = response.json()
+        assert "daily_pnl" in data
+        assert "kill_switch" in data
     
     def test_rate_limiting(self, client):
         """Test rate limiting"""
@@ -299,7 +300,7 @@ class TestSecurityIntegration:
         """Test input sanitization"""
         from middleware import InputSanitizer
         
-        sanitizer = InputSanitizer(testing=True)
+        sanitizer = InputSanitizer()
         
         # Test XSS detection
         assert sanitizer.check_xss("<script>alert('xss')</script>") is True

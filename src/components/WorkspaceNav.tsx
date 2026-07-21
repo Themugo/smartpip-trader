@@ -7,7 +7,7 @@
  * - Quick access shortcuts
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api_v2';
 
 interface Workspace {
@@ -115,11 +115,11 @@ export const WorkspaceNav: React.FC<WorkspaceNavProps> = ({
   const loadWorkspaces = async () => {
     try {
       const response = await api.workspaces.list();
-      if (response.data?.workspaces) {
-        setWorkspaces(response.data.workspaces);
+      if ((response.data as any)?.workspaces) {
+        setWorkspaces((response.data as any).workspaces);
       }
-      if (response.data?.favorites) {
-        setFavorites(response.data.favorites);
+      if ((response.data as any)?.favorites) {
+        setFavorites((response.data as any).favorites);
       }
     } catch (error) {
       console.error('Failed to load workspaces:', error);

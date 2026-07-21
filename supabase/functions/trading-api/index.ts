@@ -24,7 +24,7 @@ interface AuditPayload {
   details?: Record<string, unknown>;
 }
 
-function getSupabaseClient(req: Request) {
+function getSupabaseClient() {
   const url = Deno.env.get("SUPABASE_URL")!;
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   return { url, key };
@@ -99,14 +99,13 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { url, key } = getSupabaseClient(req);
+    const { url, key } = getSupabaseClient();
     const path = new URL(req.url).pathname;
     const segments = path.split("/").filter(Boolean);
     const route = segments[segments.length - 1] || "";
 
     // Verify user for protected endpoints
     const auth = await verifyUser(req);
-    const userEmail = auth?.user?.email || "anonymous";
 
     // GET /trading-api/health (public)
     if (req.method === "GET" && route === "health") {

@@ -67,7 +67,3 @@ class StatsManager:
             "avg_win": 0,
             "avg_loss": 0
         }
-    
-    def reset_session(self):
-        """Reset session statistics (alias for reset_stats)"""
-        self.reset_stats()

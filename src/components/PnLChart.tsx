@@ -1,4 +1,4 @@
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
 import { useMemo } from 'react';
 import type { Trade } from '../lib/supabase';
 
@@ -18,9 +18,12 @@ export function PnLChart({ trades }: PnLChartProps) {
 
   if (!trades.length) {
     return (
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 sm:p-8 text-center">
-        <TrendingUp className="w-8 h-8 text-slate-500 mx-auto mb-3" />
-        <p className="text-slate-400 text-sm">No P&L data yet</p>
+      <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-8 text-center">
+        <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center mx-auto mb-3">
+          <BarChart3 className="w-7 h-7 text-slate-500" />
+        </div>
+        <p className="text-slate-400 text-sm font-medium">No P&L data yet</p>
+        <p className="text-slate-500 text-xs mt-1">Chart will populate with trades</p>
       </div>
     );
   }
@@ -42,47 +45,81 @@ export function PnLChart({ trades }: PnLChartProps) {
   };
 
   const current = data[data.length - 1] || 0;
+  const isPositive = current >= 0;
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
-          <h3 className="text-sm font-semibold text-slate-200">P&L Chart</h3>
+    <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
+      {/* Header */}
+      <div className="px-4 sm:px-5 py-4 border-b border-slate-800/50 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+            isPositive
+              ? 'bg-gradient-to-br from-emerald-500 to-teal-500 shadow-emerald-500/20'
+              : 'bg-gradient-to-br from-red-500 to-rose-500 shadow-red-500/20'
+          }`}>
+            {isPositive ? <TrendingUp className="w-5 h-5 text-white" /> : <TrendingDown className="w-5 h-5 text-white" />}
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white">Cumulative P&L</h3>
+            <p className="text-[10px] text-slate-500">{trades.length} trades</p>
+          </div>
         </div>
-        <span className={`text-sm sm:text-base font-bold ${current >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-          {current >= 0 ? '+' : ''}${current.toFixed(2)}
-        </span>
+        <div className="text-right">
+          <div className={`text-xl font-bold font-mono ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+            {isPositive ? '+' : ''}${current.toFixed(2)}
+          </div>
+          <div className="text-[10px] text-slate-500">
+            Peak: +${Math.max(...data).toFixed(2)}
+          </div>
+        </div>
       </div>
 
-      <div className="h-32 sm:h-40 relative">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
-          <defs>
-            <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(16, 185, 129, 0.3)" />
-              <stop offset="100%" stopColor="rgba(16, 185, 129, 0)" />
-            </linearGradient>
-          </defs>
-          <polygon
-            points={`0,100 ${getPoints()} 100,100`}
-            fill="url(#pnlGradient)"
-          />
-          <polyline
-            points={getPoints()}
-            fill="none"
-            stroke={current >= 0 ? '#10b981' : '#ef4444'}
-            strokeWidth="0.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
+      {/* Chart */}
+      <div className="p-4 sm:p-5">
+        <div className="h-40 sm:h-48 relative bg-slate-800/30 rounded-xl overflow-hidden">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
+            <defs>
+              <linearGradient id="pnlGradientUp" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(16, 185, 129, 0.4)" />
+                <stop offset="100%" stopColor="rgba(16, 185, 129, 0)" />
+              </linearGradient>
+              <linearGradient id="pnlGradientDown" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(239, 68, 68, 0.4)" />
+                <stop offset="100%" stopColor="rgba(239, 68, 68, 0)" />
+              </linearGradient>
+            </defs>
+            <polygon
+              points={`0,100 ${getPoints()} 100,100`}
+              fill={isPositive ? 'url(#pnlGradientUp)' : 'url(#pnlGradientDown)'}
+            />
+            <polyline
+              points={getPoints()}
+              fill="none"
+              stroke={isPositive ? '#10b981' : '#ef4444'}
+              strokeWidth="0.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
 
-      <div className="flex justify-between mt-2 text-[10px] sm:text-xs text-slate-500">
-        <span>{trades.length} trades</span>
-        <span>
-          Best: +${Math.max(...data).toFixed(2)} | Worst: {Math.min(...data).toFixed(2)}
-        </span>
+          {/* Zero line */}
+          {minVal < 0 && maxVal > 0 && (
+            <div
+              className="absolute left-0 right-0 border-t border-slate-700/50 border-dashed"
+              style={{ top: `${((maxVal) / range) * 100}%` }}
+            />
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="flex justify-between mt-3 text-xs">
+          <div className="text-slate-500">
+            <span className="text-emerald-400 font-medium">Best:</span> +${Math.max(...data).toFixed(2)}
+          </div>
+          <div className="text-slate-500">
+            <span className="text-red-400 font-medium">Worst:</span> ${Math.min(...data).toFixed(2)}
+          </div>
+        </div>
       </div>
     </div>
   );

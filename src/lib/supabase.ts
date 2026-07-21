@@ -1,11 +1,10 @@
 import { createClient, User } from '@supabase/supabase-js';
 
-export type { User };
-
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+export type { User };
 
 export type Trade = {
   id: string;

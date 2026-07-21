@@ -9,11 +9,10 @@ import secrets
 class SecurityManager:
     """Security manager for system authentication and authorization"""
     
-    def __init__(self, secret_key: str = None):
-        self.secret_key = secret_key or os.getenv("JWT_SECRET_KEY") or os.getenv("SECRET_KEY")
+    def __init__(self):
+        self.secret_key = os.getenv("JWT_SECRET_KEY") or os.getenv("SECRET_KEY")
         if not self.secret_key:
-            # Use default for testing/development
-            self.secret_key = "dev-secret-key-not-for-production"
+            raise ValueError("JWT_SECRET_KEY environment variable must be set in production")
         self.algorithm = "HS256"
         self.access_token_expire_minutes = 30
         self.refresh_token_expire_days = 7

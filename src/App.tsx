@@ -6,7 +6,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { TradeHistory } from './components/TradeHistory';
 import { AuditLog } from './components/AuditLog';
 import { PnLChart } from './components/PnLChart';
-import { AuthPage } from './components/AuthPage';
+import { LandingPage } from './components/landing/LandingPage';
 import { MarketData } from './components/MarketData';
 import { TradeExecutionPanel } from './components/TradeExecutionPanel';
 import { ValidationDashboard } from './components/ValidationDashboard';
@@ -17,10 +17,8 @@ import { TradeEvidencePanel } from './components/TradeEvidencePanel';
 import { MLAuditPanel } from './components/MLAuditPanel';
 import { ShadowModePanel } from './components/ShadowModePanel';
 import { TradeJournalPanel } from './components/TradeJournalPanel';
-import { ReviewPage } from './components/ReviewPage';
-import { WorkspaceNav } from './components/WorkspaceNav';
+import { AuthModal } from './components/AuthModal';
 import { api } from './lib/api';
-import { api as apiV2 } from './lib/api_v2';
 import { supabase } from './lib/supabase';
 import { useDerivTicks } from './hooks/useDerivTicks';
 import { useRegimeDetection } from './hooks/useRegimeDetection';
@@ -30,15 +28,14 @@ import { useShadowMode } from './hooks/useShadowMode';
 import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Trade, TradeStatistics, SystemSettings, AuditLogEntry, User } from './lib/supabase';
 
-type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation' | 'review';
-type Workspace = 'dashboard' | 'live_trading' | 'paper_trading' | 'backtesting' | 'strategy_builder' | 'analytics' | 'risk_center' | 'notifications' | 'ai_command_center' | 'developer_console' | 'settings';
+type Tab = 'dashboard' | 'regimes' | 'sizing' | 'evidence' | 'mlaudit' | 'shadow' | 'journal' | 'validation';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>('dashboard');
-  const [accountConnected, setAccountConnected] = useState(false);
 
   const [trades, setTrades] = useState<Trade[]>([]);
   const [stats, setStats] = useState<TradeStatistics | null>(null);
@@ -46,7 +43,6 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [botStatus, setBotStatus] = useState<'RUNNING' | 'STOPPED' | 'PAUSED'>('STOPPED');
   const [connected, setConnected] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -55,10 +51,9 @@ export default function App() {
   const { regimeState, isStrategyAllowed } = useRegimeDetection(tickData.digitHistory, tickData.price);
   const { evidenceLog, buildEvidence } = useTradeEvidence();
   const { state: mlAuditState, runAudit } = useMLAudit();
-  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, generateSignal, markExecuted, markMissed, reset: resetShadow } = useShadowMode();
-  const { entries: journalEntries, addEntry, updateExit, insights: journalInsights, generateWeeklyInsights } = useTradeJournal();
+  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, generateSignal } = useShadowMode();
+  const { entries: journalEntries, addEntry, insights: journalInsights, generateWeeklyInsights } = useTradeJournal();
 
-  // Auth state
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -68,12 +63,14 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
+      if (session?.user) setAuthOpen(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchData = useCallback(async () => {
+    if (!user) return;
     try {
       const [tradesData, statsData, settingsData, auditData] = await Promise.all([
         api.getTrades(),
@@ -87,13 +84,11 @@ export default function App() {
       setAuditLogs(auditData || []);
       setConnected(true);
       setError(null);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setConnected(false);
-      setError(e.message || 'Failed to fetch data');
-    } finally {
-      setLoading(false);
+      setError(e instanceof Error ? e.message : 'Failed to fetch data');
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -116,21 +111,26 @@ export default function App() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    setActiveTab('dashboard');
   };
+
+  const requireAuth = useCallback(() => {
+    if (!user) {
+      setAuthMode('login');
+      setAuthOpen(true);
+      return false;
+    }
+    return true;
+  }, [user]);
 
   const logAction = useCallback(async (action: string, details?: Record<string, unknown>) => {
     try {
-      await api.logAudit({
-        action,
-        actor: user?.email || 'anonymous',
-        details,
-      });
-    } catch {
-      // Silently fail audit logging
-    }
+      await api.logAudit({ action, actor: user?.email || 'anonymous', details });
+    } catch { /* ignore */ }
   }, [user]);
 
   const handleStart = async () => {
+    if (!requireAuth()) return;
     setBotStatus('RUNNING');
     await logAction('START_BOT');
     if (settings) {
@@ -154,19 +154,22 @@ export default function App() {
   };
 
   const handleUpdateSettings = async (updates: Partial<SystemSettings>) => {
+    if (!requireAuth()) return;
     await api.updateSettings(updates);
     await logAction('UPDATE_SETTINGS', updates);
     setSettings((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
-  // Run ML audit when trades change
   useEffect(() => {
     if (trades.length >= 20) {
-      const tradeHistory = trades.map(t => ({
-        profit: t.profit || 0,
-        timestamp: new Date(t.entry_time).getTime(),
-      }));
-      const strategyHistory = [{ name: 'digit', trades: trades.length, wins: trades.filter(t => (t.profit || 0) > 0).length }];
+      const tradeHistory = trades.map(t => ({ profit: t.profit || 0, timestamp: new Date(t.entry_time).getTime() }));
+      const strategyHistory = [{ 
+        name: 'digit', 
+        trades: trades.length, 
+        wins: trades.filter(t => (t.profit || 0) > 0).length,
+        losses: trades.filter(t => (t.profit || 0) < 0).length,
+        pnl: trades.reduce((sum, t) => sum + (t.profit || 0), 0)
+      }];
       runAudit(tradeHistory, strategyHistory);
     }
   }, [trades, runAudit]);
@@ -183,113 +186,56 @@ export default function App() {
   }
 
   if (!user) {
-    return <AuthPage onSignIn={handleSignIn} onSignUp={handleSignUp} />;
+    return (
+      <>
+        <LandingPage
+          tickData={tickData}
+          onSwitchSymbol={switchSymbol}
+          onReconnect={reconnect}
+          regimeState={regimeState}
+          isStrategyAllowed={isStrategyAllowed}
+          onTrade={() => requireAuth()}
+          onConnect={() => { setAuthMode('signup'); setAuthOpen(true); }}
+        />
+        <AuthModal
+          open={authOpen}
+          initialMode={authMode}
+          onClose={() => setAuthOpen(false)}
+          onSignIn={handleSignIn}
+          onSignUp={handleSignUp}
+        />
+      </>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
-      {/* Workspace Navigation Sidebar */}
-      <WorkspaceNav
-        currentWorkspace={activeWorkspace}
-        onWorkspaceChange={(workspaceId) => setActiveWorkspace(workspaceId as Workspace)}
-      />
+    <div className="min-h-screen bg-slate-950">
+      <Header botStatus={botStatus} connected={connected} userEmail={user.email} onSignOut={handleSignOut} />
 
-      <div className="flex-1 flex flex-col">
-        <Header botStatus={botStatus} connected={connected} userEmail={user.email} onSignOut={handleSignOut} />
-
-        {/* Tab Navigation */}
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pt-4">
-          <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1 w-fit border border-slate-700 flex-wrap">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pt-4">
+        <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hide">
+          {[
+            { id: 'dashboard', label: 'Dashboard' },
+            { id: 'regimes', label: 'Regimes' },
+            { id: 'sizing', label: 'Position Sizing' },
+            { id: 'evidence', label: 'Evidence' },
+            { id: 'mlaudit', label: 'ML Audit' },
+            { id: 'shadow', label: 'Shadow Mode' },
+            { id: 'journal', label: 'Journal' },
+            { id: 'validation', label: 'Validation' },
+          ].map((tab) => (
             <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                activeTab === 'dashboard'
-                  ? 'bg-blue-500/20 text-blue-400'
-                  : 'text-slate-400 hover:text-slate-200'
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as Tab)}
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-lg shadow-cyan-500/10'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
               }`}
             >
-              Dashboard
+              {tab.label}
             </button>
-            <button
-              onClick={() => setActiveTab('regimes')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                activeTab === 'regimes'
-                  ? 'bg-blue-500/20 text-blue-400'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Regimes
-            </button>
-            <button
-              onClick={() => setActiveTab('sizing')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                activeTab === 'sizing'
-                  ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Sizing
-          </button>
-          <button
-            onClick={() => setActiveTab('evidence')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'evidence'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Evidence
-          </button>
-          <button
-            onClick={() => setActiveTab('mlaudit')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'mlaudit'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            ML Audit
-          </button>
-          <button
-            onClick={() => setActiveTab('shadow')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'shadow'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Shadow
-          </button>
-          <button
-            onClick={() => setActiveTab('journal')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'journal'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Journal
-          </button>
-          <button
-            onClick={() => setActiveTab('validation')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'validation'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Validation
-          </button>
-          <button
-            onClick={() => setActiveTab('review')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              activeTab === 'review'
-                ? 'bg-violet-500/20 text-violet-400'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Review
-          </button>
+          ))}
         </div>
       </div>
 
@@ -303,14 +249,9 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <>
             <StatsCards stats={stats} />
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-                <MarketData
-                  tickData={tickData}
-                  onSwitchSymbol={switchSymbol}
-                  onReconnect={reconnect}
-                />
+                <MarketData tickData={tickData} onSwitchSymbol={switchSymbol} onReconnect={reconnect} />
                 <RegimePanel regimeState={regimeState} />
                 <TradeExecutionPanel
                   tickData={tickData}
@@ -321,16 +262,10 @@ export default function App() {
                   onGenerateShadowSignal={generateSignal}
                   onAddJournalEntry={addEntry}
                 />
-                <ControlPanel
-                  botStatus={botStatus}
-                  onStart={handleStart}
-                  onStop={handleStop}
-                  onReset={handleReset}
-                />
+                <ControlPanel botStatus={botStatus} onStart={handleStart} onStop={handleStop} onReset={handleReset} />
                 <PnLChart trades={trades} />
                 <TradeHistory trades={trades} />
               </div>
-
               <div className="space-y-4 sm:space-y-6">
                 <SettingsPanel settings={settings} onUpdate={handleUpdateSettings} />
                 <AuditLog logs={auditLogs} />
@@ -339,56 +274,33 @@ export default function App() {
           </>
         )}
 
-        {activeTab === 'regimes' && (
-          <>
-            <RegimePanel regimeState={regimeState} />
-            <RegimeDashboard />
-          </>
-        )}
-
-        {activeTab === 'sizing' && (
-          <PositionSizingPanel />
-        )}
-
-        {activeTab === 'evidence' && (
-          <TradeEvidencePanel evidenceLog={evidenceLog} />
-        )}
-
+        {activeTab === 'regimes' && (<><RegimePanel regimeState={regimeState} /><RegimeDashboard /></>)}
+        {activeTab === 'sizing' && (<PositionSizingPanel />)}
+        {activeTab === 'evidence' && (<TradeEvidencePanel evidenceLog={evidenceLog} />)}
         {activeTab === 'mlaudit' && (
           <MLAuditPanel auditState={mlAuditState} onRunAudit={() => {
-            const tradeHistory = trades.map(t => ({
-              profit: t.profit || 0,
-              timestamp: new Date(t.entry_time).getTime(),
-            }));
-            const strategyHistory = [{ name: 'digit', trades: trades.length, wins: trades.filter(t => (t.profit || 0) > 0).length }];
+            const tradeHistory = trades.map(t => ({ profit: t.profit || 0, timestamp: new Date(t.entry_time).getTime() }));
+            const strategyHistory = [{ 
+        name: 'digit', 
+        trades: trades.length, 
+        wins: trades.filter(t => (t.profit || 0) > 0).length,
+        losses: trades.filter(t => (t.profit || 0) < 0).length,
+        pnl: trades.reduce((sum, t) => sum + (t.profit || 0), 0)
+      }];
             runAudit(tradeHistory, strategyHistory);
           }} />
         )}
-
-        {activeTab === 'shadow' && (
-          <ShadowModePanel signals={shadowSignals} metrics={shadowMetrics} dailyMetrics={shadowDailyMetrics} />
-        )}
-
-        {activeTab === 'journal' && (
-          <TradeJournalPanel entries={journalEntries} insights={journalInsights} onGenerateInsights={generateWeeklyInsights} />
-        )}
-
-        {activeTab === 'validation' && (
-          <ValidationDashboard />
-        )}
-
-        {activeTab === 'review' && (
-          <ReviewPage />
-        )}
+        {activeTab === 'shadow' && (<ShadowModePanel signals={shadowSignals} metrics={shadowMetrics} dailyMetrics={shadowDailyMetrics} />)}
+        {activeTab === 'journal' && (<TradeJournalPanel entries={journalEntries} insights={journalInsights} onGenerateInsights={generateWeeklyInsights} />)}
+        {activeTab === 'validation' && (<ValidationDashboard />)}
       </main>
 
       <footer className="border-t border-slate-800 mt-8 sm:mt-12 py-4 sm:py-6 px-3 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-          <span>SmartPip Trader v4.0 — Modular Institutional Platform</span>
-          <span>Data synchronized via Cloud</span>
+          <span>SmartPip Trader v2.7.0</span>
+          <span>Data persisted via Supabase</span>
         </div>
       </footer>
-      </div>
     </div>
   );
 }

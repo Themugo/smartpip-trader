@@ -58,7 +58,7 @@ export function useTradeJournal() {
         .limit(500);
 
       if (data) {
-        const loaded: JournalEntry[] = data.map((j: any) => ({
+        const loaded: JournalEntry[] = data.map((j) => ({
           id: j.id,
           timestamp: new Date(j.timestamp).getTime(),
           symbol: j.symbol,
@@ -92,7 +92,7 @@ export function useTradeJournal() {
         .limit(52);
 
       if (iData) {
-        setInsights(iData.map((w: any) => ({
+        setInsights(iData.map((w) => ({
           weekStart: new Date(w.week_start).getTime(),
           weekEnd: new Date(w.week_end).getTime(),
           totalTrades: w.total_trades,
@@ -315,7 +315,7 @@ export function useTradeJournal() {
   const insightsMemo = useMemo(() => {
     generateWeeklyInsights();
     return insights;
-  }, [entries, insights, generateWeeklyInsights]);
+  }, [insights, generateWeeklyInsights]);
 
   const reset = useCallback(async () => {
     entriesRef.current = [];

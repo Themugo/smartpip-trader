@@ -212,7 +212,6 @@ export function useMLAudit() {
     const hasDuplicates = timestamps.some((t, i) => i > 0 && t === timestamps[i - 1]);
     const timeGaps = timestamps.slice(1).map((t, i) => t - timestamps[i]);
     const avgGap = calculateMean(timeGaps);
-    const gapVariance = calculateStd(timeGaps);
     const suspiciousGaps = timeGaps.filter(g => g > avgGap * 5).length;
 
     // Runs test on returns — clustered wins/losses suggest leakage
@@ -246,7 +245,6 @@ export function useMLAudit() {
     const allHaveWins = strategiesWithData.every(s => s.wins > 0);
     const failureRate = strategiesWithData.filter(s => s.pnl < 0).length / (strategiesWithData.length || 1);
     const reportedStrategies = strategyHistory.length;
-    const testedStrategies = reportedStrategies + Math.floor(reportedStrategies * 0.3); // estimate hidden failures
 
     const survivorScore = Math.round((
       (allHaveLosses ? 30 : 0) +
@@ -414,8 +412,8 @@ export function useMLAudit() {
     });
 
     // 7. NON-STATIONARITY
-    const adf = priceHistory && priceHistory.length >= 20 ? adfStatistic(priceHistory) : { passed: false, score: 0 };
-    const profitADF = profits.length >= 20 ? adfStatistic(profits) : { passed: false, score: 0 };
+    const adf = priceHistory && priceHistory.length >= 20 ? adfStatistic(priceHistory) : { statistic: 0, passed: false, score: 0 };
+    const profitADF = profits.length >= 20 ? adfStatistic(profits) : { statistic: 0, passed: false, score: 0 };
     const regimeChanges = tradeHistory.filter((t, i) => i > 0 && t.regime !== tradeHistory[i - 1].regime).length;
     const regimeStability = tradeHistory.length > 0 ? 1 - (regimeChanges / tradeHistory.length) : 0;
 

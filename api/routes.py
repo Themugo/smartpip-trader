@@ -1,304 +1,285 @@
-"""
-API routes v3 — adds /api/signals, /api/patterns, /api/ml-status, /api/entropy, /api/analyzer-weights.
-"""
 import asyncio
 import logging
-from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from dashboard import get_dashboard_html
 from utils import RateLimiter
+from middleware.input_sanitizer import TradeRequest, MarketSwitchRequest, SettingsUpdate
 
 logger = logging.getLogger(__name__)
 
 
 def setup_routes(app: FastAPI, trading_system):
+    """Setup all API routes for the trading system with rate limiting and documentation"""
+    
+    # Initialize rate limiters
     rate_limiter = RateLimiter(max_requests=100, window_seconds=60)
-
+    ws_rate_limiter = RateLimiter(max_requests=30, window_seconds=60)
+    
     def get_client_identifier(request: Request) -> str:
+        """Get client identifier for rate limiting"""
+        # Use IP address as identifier
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
             return forwarded.split(",")[0].strip()
         return request.client.host if request.client else "unknown"
-
-    def _check_rate(request: Request):
+    
+    @app.get(
+        "/",
+        tags=["System"],
+        summary="Get dashboard",
+        description="Returns the HTML dashboard interface"
+    )
+    async def root():
+        return HTMLResponse(get_dashboard_html())
+    
+    @app.get(
+        "/api/status",
+        tags=["System"],
+        summary="Get system status",
+        description="Returns the full system state including trading status, balance, and analysis results"
+    )
+    async def get_status(request: Request):
         client_id = get_client_identifier(request)
         if not rate_limiter.is_allowed(client_id):
             raise HTTPException(status_code=429, detail="Rate limit exceeded")
-
-    # ── System ─────────────────────────────────────────────────────────────
-
-    @app.get("/", tags=["System"], summary="Dashboard", description="HTML dashboard interface")
-    async def root():
-        return HTMLResponse(get_dashboard_html())
-
-    @app.get("/api/status", tags=["System"], summary="Full system status")
-    async def get_status(request: Request):
-        _check_rate(request)
         return JSONResponse(trading_system.get_full_state())
-
-    @app.get("/api/health", tags=["System"], summary="Health check")
-    async def health():
-        return JSONResponse({"status": "ok", "timestamp": datetime.now().isoformat(), "version": "3.0.0"})
-
-    # ── Trading controls ───────────────────────────────────────────────────
-
-    @app.post("/api/start", tags=["Trading"], summary="Start trading bot")
+    
+    @app.post(
+        "/api/start",
+        tags=["Trading"],
+        summary="Start trading bot",
+        description="Starts the automated trading bot"
+    )
     async def start_bot(request: Request):
-        _check_rate(request)
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
         trading_system.start_bot()
         trading_system.settings.auto_trading = True
-        return JSONResponse({"success": True, "status": trading_system.bot_status})
-
-    @app.post("/api/stop", tags=["Trading"], summary="Stop trading bot")
+        return JSONResponse({"success": True})
+    
+    @app.post(
+        "/api/stop",
+        tags=["Trading"],
+        summary="Stop trading bot",
+        description="Stops the automated trading bot"
+    )
     async def stop_bot(request: Request):
-        _check_rate(request)
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
         trading_system.stop_bot()
         trading_system.settings.auto_trading = False
-        return JSONResponse({"success": True, "status": trading_system.bot_status})
-
-    @app.post("/api/reset", tags=["Trading"], summary="Reset session stats")
-    async def reset_session(request: Request):
-        _check_rate(request)
-        if hasattr(trading_system, "stats_manager"):
-            trading_system.stats_manager.reset_session()
         return JSONResponse({"success": True})
-
-    # ── Configuration ──────────────────────────────────────────────────────
-
-    @app.post("/api/settings", tags=["Configuration"], summary="Update settings")
-    async def update_settings(request: Request):
-        _check_rate(request)
-        body = await request.json()
-        trading_system.settings.update(body)
-        # Propagate entropy filter if changed
-        if hasattr(trading_system, "analysis") and "min_entropy_threshold" in body:
-            trading_system.analysis.set_entropy_filter(body["min_entropy_threshold"])
-        return JSONResponse({"success": True, "settings": trading_system.settings.to_dict()})
-
-    @app.get("/api/settings", tags=["Configuration"], summary="Get current settings")
-    async def get_settings(request: Request):
-        _check_rate(request)
-        return JSONResponse(trading_system.settings.to_dict())
-
-    # ── Market ─────────────────────────────────────────────────────────────
-
-    @app.post("/api/market/{market}", tags=["Market"], summary="Switch market")
-    async def switch_market(market: str, request: Request):
-        _check_rate(request)
-        trading_system.switch_market(market)
-        return JSONResponse({"success": True, "market": market})
-
-    @app.get("/api/markets", tags=["Market"], summary="List available markets")
-    async def list_markets(request: Request):
-        _check_rate(request)
-        markets = ["R_10", "R_25", "R_50", "R_75", "R_100",
-                   "1HZ10V", "1HZ25V", "1HZ50V", "1HZ75V", "1HZ100V"]
-        return JSONResponse({"markets": markets})
-
-    # ── AI Signals (NEW v3) ────────────────────────────────────────────────
-
-    @app.get("/api/signals", tags=["AI"], summary="Get all current AI signals with confidence scores")
-    async def get_signals(request: Request):
-        _check_rate(request)
-        analysis = getattr(trading_system, "analysis", None)
-        if not analysis:
-            return JSONResponse({"signals": [], "consensus": None})
-
-        best = analysis.get_best_prediction()
-        signals = analysis.get_trade_signals()
-        weights = analysis.get_analyzer_weights()
-
-        return JSONResponse({
-            "timestamp": datetime.now().isoformat(),
-            "consensus": best,
-            "signals": signals,
-            "analyzer_weights": weights,
-            "market_entropy": round(analysis.get_market_entropy(), 4),
-            "entropy_pct": round(analysis.get_market_entropy() / 3.321928 * 100, 1),
-            "pattern_health": analysis.get_pattern_health(),
-        })
-
-    # ── Pattern Analysis (NEW v3) ──────────────────────────────────────────
-
-    @app.get("/api/patterns", tags=["AI"], summary="Get statistical pattern analysis of current digit stream")
-    async def get_patterns(request: Request):
-        _check_rate(request)
-        analysis = getattr(trading_system, "analysis", None)
-        if not analysis:
-            return JSONResponse({"error": "Analysis not initialised"})
-
-        pr = analysis.analyzers.get("pattern_recognizer")
-        if not pr:
-            return JSONResponse({"error": "Pattern recognizer not available"})
-
-        data = {
-            "last_20_digits": trading_system.last_20_digits,
-            "price_history": list(trading_system.price_history),
-            "current_price": trading_system.current_price,
-        }
-        result = pr.analyze(data)
-        return JSONResponse({
-            "timestamp": datetime.now().isoformat(),
-            "prediction": result.prediction,
-            "confidence": result.confidence,
-            "metrics": result.data,
-            "market_health": pr.get_market_health(),
-        })
-
-    # ── ML Status (NEW v3) ─────────────────────────────────────────────────
-
-    @app.get("/api/ml-status", tags=["AI"], summary="Get ML model status, accuracy, and feature importance")
-    async def get_ml_status(request: Request):
-        _check_rate(request)
-        ml_analyzer = None
-        analysis = getattr(trading_system, "analysis", None)
-        if analysis:
-            ml_analyzer = analysis.analyzers.get("ml")
-
-        if not ml_analyzer:
-            return JSONResponse({"error": "ML analyzer not available"})
-
-        predictor = getattr(ml_analyzer, "predictor", None)
-        if not predictor:
-            return JSONResponse({"error": "No predictor attached to ML analyzer"})
-
-        status = predictor.get_status() if hasattr(predictor, "get_status") else {"is_trained": predictor.is_trained}
-        feature_importance = predictor.get_feature_importance() or {}
-        top_features = dict(list(feature_importance.items())[:10])
-
-        return JSONResponse({
-            "timestamp": datetime.now().isoformat(),
-            "status": status,
-            "top_features": top_features,
-            "ensemble_tracker": status.get("ensemble", {}).get("tracker", {}),
-        })
-
-    # ── Entropy (NEW v3) ───────────────────────────────────────────────────
-
-    @app.get("/api/entropy", tags=["AI"], summary="Get current market entropy and randomness metrics")
-    async def get_entropy(request: Request):
-        _check_rate(request)
-        analysis = getattr(trading_system, "analysis", None)
-        entropy = analysis.get_market_entropy() if analysis else 3.32
-        health = analysis.get_pattern_health() if analysis else {}
-        return JSONResponse({
-            "timestamp": datetime.now().isoformat(),
-            "entropy": round(entropy, 4),
-            "entropy_pct": round(entropy / 3.321928 * 100, 1),
-            "max_entropy": 3.321928,
-            "health": health,
-            "digits": list(getattr(trading_system, "last_20_digits", [])),
-        })
-
-    # ── Analyzer Weights (NEW v3) ──────────────────────────────────────────
-
-    @app.get("/api/analyzer-weights", tags=["AI"], summary="Get current adaptive analyzer weights")
-    async def get_analyzer_weights(request: Request):
-        _check_rate(request)
-        analysis = getattr(trading_system, "analysis", None)
-        weights = analysis.get_analyzer_weights() if analysis else {}
-        return JSONResponse({"weights": weights, "timestamp": datetime.now().isoformat()})
-
-    # ── Trade execution ────────────────────────────────────────────────────
-
-    @app.post("/api/trade", tags=["Trading"], summary="Execute a manual trade")
-    async def execute_trade(request: Request):
-        _check_rate(request)
-        body = await request.json()
-        contract_type = body.get("contract_type", "CALL")
-        amount = float(body.get("amount", trading_system.settings.base_amount))
-        market = body.get("market", None)
-        duration = int(body.get("duration", 1))
-
-        if not trading_system.connection.is_connected():
-            raise HTTPException(status_code=503, detail="Not connected to Deriv API")
-
-        result = await trading_system.executor.execute_trade(
-            trading_system.connection.websocket,
-            contract_type=contract_type,
-            amount=amount,
-            market=market or trading_system.market.get_current_market(),
-            duration=duration,
+    
+    @app.post(
+        "/api/settings",
+        tags=["Configuration"],
+        summary="Update settings",
+        description="Update trading system settings"
+    )
+    async def update_settings(request: Request, settings: SettingsUpdate):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        trading_system.settings.update(settings.model_dump(exclude_none=True))
+        return JSONResponse({"success": True})
+    
+    @app.post(
+        "/api/switch_market",
+        tags=["Market"],
+        summary="Switch market",
+        description="Switch to a different trading market"
+    )
+    async def switch_market(request: Request, market_req: MarketSwitchRequest):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        trading_system.switch_market(market_req.market)
+        return JSONResponse({"success": True})
+    
+    @app.post(
+        "/api/manual_trade",
+        tags=["Trading"],
+        summary="Execute manual trade",
+        description="Execute a manual trade with specified direction and amount"
+    )
+    async def manual_trade(request: Request, trade: TradeRequest):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        trading_system.settings.base_amount = trade.amount
+        from models import Prediction
+        trading_system.best_prediction = Prediction(
+            type="MANUAL",
+            direction=trade.direction,
+            confidence=trade.confidence,
+            reason="Manual trade"
         )
-        return JSONResponse(result if result else {"error": "Trade execution failed"})
-
-    # ── History ────────────────────────────────────────────────────────────
-
-    @app.get("/api/history", tags=["Trading"], summary="Get trade history")
-    async def get_history(request: Request):
-        _check_rate(request)
-        db = getattr(trading_system, "database", None)
-        if db:
-            trades = db.get_recent_trades(limit=100) if hasattr(db, "get_recent_trades") else []
-        else:
-            trades = []
-        return JSONResponse({"trades": trades, "count": len(trades)})
-
-    # ── WebSocket: live data stream ─────────────────────────────────────────
-
-    @app.websocket("/ws")
+        result = await trading_system.execute_intelligent_trade()
+        return JSONResponse({"success": result is not None})
+    
+    @app.post(
+        "/api/reset_session",
+        tags=["Trading"],
+        summary="Reset session",
+        description="Reset session statistics and trade history"
+    )
+    async def reset_session(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        trading_system.reset_session()
+        return JSONResponse({"success": True})
+    
+    @app.websocket(
+        "/ws",
+        tags=["System"],
+        summary="WebSocket connection",
+        description="Real-time WebSocket connection for live updates"
+    )
     async def websocket_endpoint(websocket: WebSocket):
         await websocket.accept()
+        client_ip = websocket.client.host if websocket.client else "unknown"
+        if not ws_rate_limiter.is_allowed(client_ip):
+            await websocket.close(code=1008, reason="Rate limit exceeded")
+            return
         try:
             while True:
-                try:
-                    state = trading_system.get_full_state()
-                    analysis = getattr(trading_system, "analysis", None)
-                    if analysis:
-                        state["signals"] = analysis.get_trade_signals()
-                        state["consensus"] = analysis.get_best_prediction()
-                        state["market_entropy"] = round(analysis.get_market_entropy(), 4)
-                        state["pattern_health"] = analysis.get_pattern_health()
-                    await websocket.send_json(state)
-                except Exception as e:
-                    logger.debug("WS send error: %s", e)
+                await websocket.send_json(trading_system.get_full_state())
                 await asyncio.sleep(1)
         except WebSocketDisconnect:
             pass
-        except Exception as e:
-            logger.debug("WS error: %s", e)
-
-    # ── Backtesting ────────────────────────────────────────────────────────
-
-    @app.post("/api/backtest", tags=["Trading"], summary="Run quick backtest on current data")
-    async def quick_backtest(request: Request):
-        _check_rate(request)
-        body = await request.json()
-        strategy = body.get("strategy", "unified")
-        min_confidence = float(body.get("min_confidence", 75))
-
-        data = {
-            "last_20_digits": trading_system.last_20_digits,
-            "price_history": list(trading_system.price_history),
-            "current_price": trading_system.current_price,
-        }
-        analysis = getattr(trading_system, "analysis", None)
-        if not analysis:
-            return JSONResponse({"error": "Analysis system not ready"})
-
-        result = analysis.get_comprehensive_analysis(data)
-        signals = analysis.get_trade_signals()
-        consensus = analysis.get_best_prediction()
-
+    
+    @app.get(
+        "/health",
+        tags=["System"],
+        summary="Health check",
+        description="System health check endpoint"
+    )
+    async def health():
+        return JSONResponse({"status": "healthy"})
+    
+    @app.get(
+        "/api/markets/analyze",
+        tags=["Market"],
+        summary="Analyze all markets",
+        description="Analyze all markets and select the best trading opportunity"
+    )
+    async def analyze_markets(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        evaluation = trading_system.market_selector.evaluate_markets()
+        return JSONResponse(evaluation)
+    
+    @app.get(
+        "/api/markets/ranking",
+        tags=["Market"],
+        summary="Get market ranking",
+        description="Get markets ranked by score"
+    )
+    async def get_market_ranking(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        ranking = trading_system.market_selector.get_market_ranking()
+        return JSONResponse({"ranking": ranking})
+    
+    @app.post(
+        "/api/markets/switch",
+        tags=["Market"],
+        summary="Force switch market",
+        description="Force switch to a specific market"
+    )
+    async def force_switch_market(request: Request, market_req: MarketSwitchRequest):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        trading_system.market_selector.force_switch(market_req.market)
+        trading_system.switch_market(market_req.market)
+        return JSONResponse({"success": True, "market": market_req.market})
+    
+    @app.get(
+        "/api/risk/zero-loss",
+        tags=["Risk"],
+        summary="Get zero-loss risk metrics",
+        description="Get current zero-loss risk management metrics"
+    )
+    async def get_zero_loss_metrics(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        metrics = trading_system.zero_loss_risk_manager.get_risk_metrics()
+        return JSONResponse(metrics)
+    
+    @app.post(
+        "/api/risk/zero-loss/reset",
+        tags=["Risk"],
+        summary="Reset daily zero-loss metrics",
+        description="Reset daily PnL and consecutive losses"
+    )
+    async def reset_zero_loss_metrics(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        trading_system.zero_loss_risk_manager.reset_daily()
+        return JSONResponse({"success": True, "message": "Daily metrics reset"})
+    
+    @app.post(
+        "/api/risk/zero-loss/adjust",
+        tags=["Risk"],
+        summary="Adjust zero-loss parameters",
+        description="Adjust confidence threshold and position multiplier based on performance"
+    )
+    async def adjust_zero_loss_parameters(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        data = await request.json()
+        performance = data.get("performance", {})
+        
+        trading_system.zero_loss_risk_manager.adjust_parameters(performance)
+        metrics = trading_system.zero_loss_risk_manager.get_risk_metrics()
+        
         return JSONResponse({
-            "timestamp": datetime.now().isoformat(),
-            "strategy": strategy,
-            "min_confidence": min_confidence,
-            "signals_count": len(signals),
-            "consensus": consensus,
-            "would_trade": bool(consensus and consensus.get("confidence", 0) >= min_confidence),
-            "analysis": {k: {"prediction": v.get("prediction"), "confidence": v.get("confidence")}
-                        for k, v in result.items() if isinstance(v, dict) and "prediction" in v},
+            "success": True,
+            "metrics": metrics
         })
-
-    # ── Journal routes ─────────────────────────────────────────────────────
-    from api.journal_routes import setup_journal_routes
-    setup_journal_routes(app, trading_system)
-
-    # ── Review / inspection routes ────────────────────────────────────────────
-    from api.review_routes import setup_review_routes
-    import time as _time
-    if not hasattr(app.state, 'boot_time'):
-        app.state.boot_time = _time.time()
-    setup_review_routes(app, trading_system)
+    
+    @app.get(
+        "/api/test/run-full",
+        tags=["Test"],
+        summary="Run full Deriv test suite",
+        description="Run comprehensive test on all markets and analysis types"
+    )
+    async def run_full_deriv_test(request: Request):
+        client_id = get_client_identifier(request)
+        if not rate_limiter.is_allowed(client_id):
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        
+        # Run test in background
+        import asyncio
+        from tests.test_deriv_full import DerivFullTest
+        import os
+        
+        api_token = os.getenv("DERIV_API_TOKEN")
+        if not api_token:
+            return JSONResponse({"success": False, "error": "DERIV_API_TOKEN not set"})
+        
+        tester = DerivFullTest(api_token)
+        
+        # Run test asynchronously
+        async def run_test():
+            return await tester.run_full_test()
+        
+        result = await run_test()
+        
+        return JSONResponse(result)

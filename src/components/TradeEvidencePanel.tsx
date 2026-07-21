@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
-  FileText, CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronUp,
-  Activity, Brain, ShieldCheck, Hash, TrendingUp, Ban, Scale
+  FileText, CheckCircle, XCircle, ChevronDown, ChevronUp,
+  Activity, Brain, ShieldCheck, TrendingUp, Ban, Scale
 } from 'lucide-react';
 import type { TradeEvidence } from '../hooks/useTradeEvidence';
 

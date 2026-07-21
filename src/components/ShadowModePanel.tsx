@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import {
-  Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Clock,
-  ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, Activity,
-  DollarSign, Target, Zap, Ban, Calendar, BarChart3, ArrowUpRight, ArrowDownRight
+  Eye, ChevronDown, ChevronUp, Target, Calendar, Sparkles, Clock
 } from 'lucide-react';
 import type { ShadowSignal, ShadowMetrics, ShadowDailyMetric } from '../hooks/useShadowMode';
 
@@ -15,82 +13,56 @@ interface ShadowModePanelProps {
 function SignalCard({ signal }: { signal: ShadowSignal }) {
   const [expanded, setExpanded] = useState(false);
 
-  const outcomeColor = signal.actualOutcome === 'win' ? 'text-emerald-400' :
-    signal.actualOutcome === 'loss' ? 'text-red-400' :
-    signal.actualOutcome === 'missed' ? 'text-amber-400' : 'text-slate-400';
+  const outcomeConfig = {
+    win: { color: 'text-emerald-400', bg: 'bg-emerald-500', label: 'WIN' },
+    loss: { color: 'text-red-400', bg: 'bg-red-500', label: 'LOSS' },
+    missed: { color: 'text-amber-400', bg: 'bg-amber-500', label: 'MISSED' },
+    pending: { color: 'text-slate-400', bg: 'bg-slate-500', label: 'PENDING' },
+  };
 
-  const executedColor = signal.executed ? 'text-emerald-400' : 'text-amber-400';
+  const outcome = outcomeConfig[signal.actualOutcome || 'pending'];
 
   return (
-    <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+    <div className="bg-slate-800/50 rounded-xl border border-slate-700/30 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full px-3 py-2 flex items-center justify-between hover:bg-slate-750 transition-colors"
+        className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-slate-700/30 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${
-            signal.actualOutcome === 'win' ? 'bg-emerald-500' :
-            signal.actualOutcome === 'loss' ? 'bg-red-500' :
-            signal.actualOutcome === 'missed' ? 'bg-amber-500' :
-            'bg-slate-500'
-          }`} />
-          <span className="text-xs text-slate-300">{signal.contractType}</span>
+          <div className={`w-2 h-2 rounded-full ${outcome.bg}`} />
+          <span className="text-xs text-white font-medium">{signal.contractType}</span>
           <span className="text-[10px] text-slate-500 font-mono">{signal.symbol}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`text-[10px] ${outcomeColor}`}>{signal.actualOutcome}</span>
-          {expanded ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
+          <span className={`text-[10px] font-bold ${outcome.color}`}>{outcome.label}</span>
+          {expanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
         </div>
       </button>
+
       {expanded && (
-        <div className="px-3 pb-2 border-t border-slate-700/50 space-y-1 pt-2">
+        <div className="px-3 pb-3 border-t border-slate-700/30 space-y-1.5 pt-2">
           <div className="flex justify-between text-[10px]">
             <span className="text-slate-500">Predicted</span>
             <span className="text-slate-300">{signal.expectedOutcome} ({signal.confidence}%)</span>
           </div>
           <div className="flex justify-between text-[10px]">
-            <span className="text-slate-500">Actual</span>
-            <span className={outcomeColor}>{signal.actualOutcome}</span>
-          </div>
-          <div className="flex justify-between text-[10px]">
             <span className="text-slate-500">Expected P&L</span>
-            <span className="text-slate-300">${signal.expectedPnl.toFixed(2)}</span>
+            <span className="text-slate-300 font-mono">${signal.expectedPnl.toFixed(2)}</span>
           </div>
           {signal.actualPnl !== null && (
             <div className="flex justify-between text-[10px]">
               <span className="text-slate-500">Actual P&L</span>
-              <span className={signal.actualPnl > 0 ? 'text-emerald-400' : 'text-red-400'}>
-                ${signal.actualPnl.toFixed(2)}
+              <span className={`font-mono font-bold ${signal.actualPnl > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {signal.actualPnl > 0 ? '+' : ''}${signal.actualPnl.toFixed(2)}
               </span>
             </div>
           )}
           <div className="flex justify-between text-[10px]">
             <span className="text-slate-500">Latency</span>
-            <span className="text-slate-300">{signal.latencyMs}ms</span>
+            <span className="text-slate-300 font-mono">{signal.latencyMs}ms</span>
           </div>
-          <div className="flex justify-between text-[10px]">
-            <span className="text-slate-500">Executed</span>
-            <span className={executedColor}>{signal.executed ? 'Yes' : 'No'}</span>
-          </div>
-          {signal.missedReason && (
-            <div className="text-[10px] text-amber-400">{signal.missedReason}</div>
-          )}
         </div>
       )}
-    </div>
-  );
-}
-
-function DailyMetricRow({ metric }: { metric: ShadowDailyMetric }) {
-  return (
-    <div className="grid grid-cols-7 gap-1 text-[10px] py-1.5 border-b border-slate-700/30 items-center">
-      <span className="text-slate-400">{metric.date}</span>
-      <span className="text-slate-300 text-center">{metric.totalSignals}</span>
-      <span className={`text-center ${metric.signalAccuracy >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>{metric.signalAccuracy.toFixed(0)}%</span>
-      <span className={`text-center ${metric.paperPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${metric.paperPnl.toFixed(2)}</span>
-      <span className={`text-center ${metric.realPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${metric.realPnl.toFixed(2)}</span>
-      <span className="text-slate-300 text-center">{metric.avgLatencyMs.toFixed(0)}ms</span>
-      <span className={`text-center ${metric.modelDrift < 10 ? 'text-emerald-400' : metric.modelDrift < 20 ? 'text-amber-400' : 'text-red-400'}`}>{metric.modelDrift.toFixed(1)}%</span>
     </div>
   );
 }
@@ -108,7 +80,7 @@ function EquityChart({ data }: { data: ShadowDailyMetric[] }) {
   const range = maxVal - minVal || 1;
 
   return (
-    <div className="h-24 relative">
+    <div className="h-24 relative bg-slate-900/50 rounded-lg overflow-hidden">
       <svg viewBox={`0 0 100 ${range > 0 ? 40 : 1}`} preserveAspectRatio="none" className="w-full h-full">
         <polyline
           points={cumulative.map((v, i) => {
@@ -143,110 +115,94 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Eye className="w-5 h-5 text-cyan-400" />
-          <h3 className="text-sm font-semibold text-slate-200">Shadow Mode</h3>
-          <span className="text-[10px] text-slate-500 bg-slate-900 px-1.5 py-0.5 rounded">Paper Trading</span>
-        </div>
-
-        {/* Qualification Banner */}
-        <div className={`p-3 rounded-lg border mb-4 ${
-          metrics.isQualified
-            ? 'bg-emerald-500/10 border-emerald-500/20'
-            : 'bg-amber-500/10 border-amber-500/20'
-        }`}>
-          <div className="flex items-center gap-2">
+      {/* Qualification Status */}
+      <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
+        <div className="px-4 sm:px-5 py-4 border-b border-slate-800/50 flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+            metrics.isQualified
+              ? 'bg-gradient-to-br from-emerald-500 to-teal-500 shadow-emerald-500/20'
+              : 'bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/20'
+          }`}>
+            <Eye className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white">Shadow Mode</h3>
+            <p className="text-[10px] text-slate-500">Paper trading qualification system</p>
+          </div>
+          <div className="ml-auto">
             {metrics.isQualified ? (
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-xs text-emerald-400 font-bold">QUALIFIED</span>
+              </div>
             ) : (
-              <ShieldAlert className="w-5 h-5 text-amber-400" />
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs text-amber-400 font-bold">{daysRemaining} DAYS LEFT</span>
+              </div>
             )}
-            <div className="flex-1">
-              <div className={`text-sm font-medium ${metrics.isQualified ? 'text-emerald-400' : 'text-amber-400'}`}>
-                {metrics.isQualified ? 'LIVE TRADING QUALIFIED' : 'SHADOW MODE ONLY'}
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-5 space-y-4">
+          {/* Progress Bar */}
+          {!metrics.isQualified && (
+            <div className="bg-slate-800/50 rounded-xl p-3">
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="text-slate-400">Qualification Progress</span>
+                <span className="text-slate-300 font-mono">{metrics.daysInShadow}/30 days</span>
               </div>
-              <div className="text-xs text-slate-400">
-                {metrics.daysInShadow} days / 30 required • {metrics.profitableDays} profitable days
-                {metrics.isQualified ? ' • Qualified!' : ` • ${daysRemaining} days remaining`}
+              <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all"
+                  style={{ width: `${progressPct}%` }}
+                />
               </div>
-              {!metrics.isQualified && (
-                <div className="mt-2 w-full bg-slate-900 rounded-full h-2">
-                  <div
-                    className="bg-amber-500 h-2 rounded-full transition-all"
-                    style={{ width: `${progressPct}%` }}
-                  />
-                </div>
-              )}
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Primary Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Total Signals</div>
-            <div className="text-lg font-bold text-white">{metrics.totalSignals}</div>
-          </div>
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Signal Accuracy</div>
-            <div className={`text-lg font-bold ${metrics.signalAccuracy >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>
-              {metrics.signalAccuracy.toFixed(1)}%
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700/30 p-3 text-center">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Total Signals</div>
+              <div className="text-xl font-bold text-white font-mono">{metrics.totalSignals}</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700/30 p-3 text-center">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Accuracy</div>
+              <div className={`text-xl font-bold font-mono ${metrics.signalAccuracy >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {metrics.signalAccuracy.toFixed(1)}%
+              </div>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700/30 p-3 text-center">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Paper P&L</div>
+              <div className={`text-xl font-bold font-mono ${metrics.paperPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                ${metrics.paperPnl.toFixed(2)}
+              </div>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700/30 p-3 text-center">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Real P&L</div>
+              <div className={`text-xl font-bold font-mono ${metrics.realPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                ${metrics.realPnl.toFixed(2)}
+              </div>
             </div>
           </div>
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Paper P&L</div>
-            <div className={`text-lg font-bold ${metrics.paperPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              ${metrics.paperPnl.toFixed(2)}
-            </div>
-          </div>
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Real P&L</div>
-            <div className={`text-lg font-bold ${metrics.realPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              ${metrics.realPnl.toFixed(2)}
-            </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">P&L Delta</div>
-            <div className={`text-sm font-bold ${metrics.pnlDelta >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              ${metrics.pnlDelta.toFixed(2)}
+          {/* Equity Chart */}
+          {dailyMetrics.length > 0 && (
+            <div className="bg-slate-800/30 rounded-xl border border-slate-700/30 p-3">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">Cumulative Paper P&L</div>
+              <EquityChart data={dailyMetrics} />
             </div>
-          </div>
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Avg Latency</div>
-            <div className="text-sm font-bold text-slate-200">{metrics.avgLatencyMs.toFixed(0)}ms</div>
-          </div>
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Model Drift</div>
-            <div className={`text-sm font-bold ${metrics.modelDrift < 10 ? 'text-emerald-400' : metrics.modelDrift < 20 ? 'text-amber-400' : 'text-red-400'}`}>
-              {metrics.modelDrift.toFixed(1)}%
-            </div>
-          </div>
-          <div className="bg-slate-900 rounded-lg p-2.5 text-center">
-            <div className="text-[10px] text-slate-400">Missed</div>
-            <div className="text-sm font-bold text-amber-400">{metrics.missedSignals}</div>
-          </div>
+          )}
         </div>
-
-        {/* Equity Chart */}
-        {dailyMetrics.length > 0 && (
-          <div className="mt-4 bg-slate-900 rounded-lg border border-slate-700/50 p-3">
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-2">Cumulative Paper P&L</div>
-            <EquityChart data={dailyMetrics} />
-          </div>
-        )}
       </div>
 
       {/* View Toggle */}
-      <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1 w-fit border border-slate-700">
+      <div className="flex items-center gap-1 bg-slate-900/50 rounded-xl p-1 w-fit border border-slate-800/50">
         <button
           onClick={() => setActiveView('signals')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-            activeView === 'signals' ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+            activeView === 'signals' ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Target className="w-3.5 h-3.5" />
@@ -254,8 +210,8 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
         </button>
         <button
           onClick={() => setActiveView('daily')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-            activeView === 'daily' ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+            activeView === 'daily' ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Calendar className="w-3.5 h-3.5" />
@@ -265,16 +221,16 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
 
       {/* Signals View */}
       {activeView === 'signals' && (
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
-          <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
-            <h4 className="text-xs font-semibold text-slate-300">Signal Log</h4>
-            <div className="flex items-center gap-2">
+        <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold text-white">Signal Log</span>
+            <div className="flex items-center gap-1">
               {(['all', 'executed', 'missed', 'pending'] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
-                    filter === f ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-900 text-slate-500 hover:text-slate-300'
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all ${
+                    filter === f ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-slate-800/50 text-slate-500 hover:text-slate-300 border border-transparent'
                   }`}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -282,38 +238,37 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
               ))}
             </div>
           </div>
-          <div className="space-y-1 max-h-80 overflow-y-auto">
-            {filtered.map(signal => (
-              <SignalCard key={signal.id} signal={signal} />
-            ))}
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {filtered.length > 0 ? (
+              filtered.map(signal => <SignalCard key={signal.id} signal={signal} />)
+            ) : (
+              <div className="text-center py-8 text-xs text-slate-500">No signals recorded yet</div>
+            )}
           </div>
-          {filtered.length === 0 && (
-            <div className="text-center py-4 text-xs text-slate-500">No signals yet</div>
-          )}
         </div>
       )}
 
       {/* Daily Metrics View */}
       {activeView === 'daily' && (
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
-          <h4 className="text-xs font-semibold text-slate-300 mb-3">Daily Performance</h4>
-          <div className="overflow-x-auto">
-            <div className="grid grid-cols-7 gap-1 text-[9px] text-slate-500 uppercase tracking-wider mb-1">
-              <span>Date</span>
-              <span className="text-center">Signals</span>
-              <span className="text-center">Accuracy</span>
-              <span className="text-center">Paper</span>
-              <span className="text-center">Real</span>
-              <span className="text-center">Latency</span>
-              <span className="text-center">Drift</span>
-            </div>
-            {dailyMetrics.map((m, i) => (
-              <DailyMetricRow key={i} metric={m} />
-            ))}
+        <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4 sm:p-5">
+          <span className="text-xs font-semibold text-white">Daily Performance</span>
+          <div className="mt-3 space-y-2">
+            {dailyMetrics.length > 0 ? (
+              dailyMetrics.map((m, i) => (
+                <div key={i} className="grid grid-cols-4 sm:grid-cols-7 gap-2 p-2.5 rounded-lg bg-slate-800/30 text-[10px]">
+                  <span className="text-slate-400 col-span-1">{m.date}</span>
+                  <span className="text-slate-300 text-center">{m.totalSignals}</span>
+                  <span className={`text-center font-bold ${m.signalAccuracy >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>{m.signalAccuracy.toFixed(0)}%</span>
+                  <span className={`text-center font-bold font-mono ${m.paperPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${m.paperPnl.toFixed(2)}</span>
+                  <span className={`text-center font-bold font-mono ${m.realPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${m.realPnl.toFixed(2)}</span>
+                  <span className="text-slate-400 text-center font-mono hidden sm:block">{m.avgLatencyMs.toFixed(0)}ms</span>
+                  <span className={`text-center font-bold hidden sm:block ${m.modelDrift < 10 ? 'text-emerald-400' : m.modelDrift < 20 ? 'text-amber-400' : 'text-red-400'}`}>{m.modelDrift.toFixed(1)}%</span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-xs text-slate-500">No daily data yet</div>
+            )}
           </div>
-          {dailyMetrics.length === 0 && (
-            <div className="text-center py-4 text-xs text-slate-500">No daily data yet</div>
-          )}
         </div>
       )}
     </div>

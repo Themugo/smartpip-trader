@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type RegimeType = 'trending' | 'mean_reverting' | 'high_volatility' | 'low_volatility' | 'random' | 'no_edge';
 

@@ -4,12 +4,12 @@
 
 const API_BASE = '/api/v2';
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
 }
 
-async function fetchApi<T = any>(
+async function fetchApi<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
@@ -69,7 +69,7 @@ export const pluginApi = {
 // Marketplace API
 export const marketplaceApi = {
   list: (params?: { status?: string; tags?: string; search?: string }) => {
-    const query = new URLSearchParams(params as any).toString();
+    const query = new URLSearchParams(params as Record<string, string>).toString();
     return fetchApi(`/marketplace/${query ? `?${query}` : ''}`);
   },
   
@@ -210,7 +210,7 @@ export const riskApi = {
   getMetrics: () => fetchApi('/risk/metrics'),
   
   getEvents: (params?: { since?: string; level?: string; limit?: number }) => {
-    const query = new URLSearchParams(params as any).toString();
+    const query = new URLSearchParams(params as Record<string, string>).toString();
     return fetchApi(`/risk/events${query ? `?${query}` : ''}`);
   },
   

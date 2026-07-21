@@ -11,10 +11,7 @@ from analysis import AnalysisManager
 from trading import TradeExecutor, TradeMonitor, RiskManager, StatsManager, PositionSizer, ExecutionOptimizer, ZeroLossRiskManager
 from database import DatabaseManager, SupabaseManager
 from utils import CacheManager, PerformanceMetrics, system_logger, trade_logger, performance_logger
-from trading.trade_journal import TradeJournal
 from models import Prediction
-from intelligence import IntelligenceOrchestrator, ResearchOrchestrator
-from intelligence.trade_memory import TradeRecord
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,7 +38,6 @@ class TradingSystem:
         self.stats_manager = StatsManager()
         self.position_sizer = PositionSizer()
         self.execution_optimizer = ExecutionOptimizer()
-        self.trade_journal = TradeJournal()
         
         # ========== PERFORMANCE MODULES ==========
         self.cache = CacheManager(max_size=1000, ttl=5)
@@ -83,34 +79,6 @@ class TradingSystem:
         # Configure analyzers based on settings
         self._configure_analyzers()
         
-        # ========== INTELLIGENCE LAYER ==========
-        self.intelligence = None
-        self.research = None
-        if self.settings.intelligence_enabled:
-            try:
-                self.intelligence = IntelligenceOrchestrator(
-                    analysis_manager=self.analysis,
-                    settings=self.settings,
-                )
-                self.intelligence.load_all()
-                logger.info("Intelligence layer initialised")
-            except Exception as e:
-                logger.warning("Intelligence layer init failed: %s — falling back to legacy mode", e)
-                self.intelligence = None
-
-            # Advanced research intelligence layer
-            if getattr(self.settings, 'research_mode_enabled', False):
-                try:
-                    self.research = ResearchOrchestrator(
-                        analysis_manager=self.analysis,
-                        settings=self.settings,
-                    )
-                    self.research.load_all()
-                    logger.info("Research intelligence layer initialised")
-                except Exception as e:
-                    logger.warning("Research layer init failed: %s — using legacy intelligence", e)
-                    self.research = None
-
         # Setup connection callbacks
         self.connection.set_reconnect_callback(self._on_reconnect)
         self.connection.set_disconnect_callback(self._on_disconnect)
@@ -231,47 +199,14 @@ class TradingSystem:
         )
     
     async def execute_intelligent_trade(self) -> Optional[str]:
-        """Execute trade based on intelligence pipeline (or legacy if intelligence disabled)."""
+        """Execute trade based on best prediction"""
         if not self.best_prediction:
             return None
-
-        # ── Intelligence-gated execution (default: NO TRADE) ──────────
-        # Prefer research orchestrator if available, fallback to legacy intelligence
-        active_intel = self.research if self.research is not None else self.intelligence
-        if active_intel is not None:
-            try:
-                hour = datetime.utcnow().hour
-                intel = active_intel.evaluate_tick(
-                    price_history=list(self.price_history),
-                    digit_history=list(self.last_20_digits),
-                    analyzer_output=self.analysis.analysis_result or {},
-                    market=self.market.get_current_market(),
-                    hour=hour,
-                )
-
-                if intel["decision"] != "TRADE":
-                    logger.info(
-                        "Intelligence layer: %s — %s",
-                        intel["decision"],
-                        intel.get("rejection_reason", ""),
-                    )
-                    return None
-
-                # Use intelligence-computed size
-                trade_amount = intel.get("size") or self.settings.base_amount
-            except Exception as e:
-                logger.warning("Intelligence pipeline error: %s — using legacy gate", e)
-                # Fallback: legacy confidence gate
-                if self.best_prediction.confidence < self.settings.min_confidence:
-                    return None
-                trade_amount = self.settings.base_amount
-        else:
-            # Legacy: simple confidence threshold
-            if self.best_prediction.confidence < self.settings.min_confidence:
-                return None
-            trade_amount = self.settings.base_amount
-
-        # ── Risk limits ────────────────────────────────────────────────
+        
+        if self.best_prediction.confidence < self.settings.min_confidence:
+            return None
+        
+        # Check risk limits
         can_trade, reason = self.risk_manager.check_risk_limits(
             self.stats_manager.get_stats()["session_pnl"],
             self.risk_manager.get_consecutive_losses(),
@@ -279,78 +214,22 @@ class TradingSystem:
         )
         
         if not can_trade:
-            logger.warning("Trade blocked: %s", reason)
+            logger.warning(f"Trade blocked: {reason}")
             if "kill switch" in reason.lower():
                 self.bot_status = "STOPPED"
             return None
         
-        # ── Execute trade ──────────────────────────────────────────────
+        # Execute trade
         contract_id = await self.executor.execute_trade(
             self.connection.websocket,
             self.best_prediction,
             self.market.get_current_market(),
             self.account.get_currency(),
-            trade_amount,
+            self.settings.base_amount,
             self.current_price
         )
         
         if contract_id:
-            # Log trade entry to journal
-            try:
-                entry_conditions = []
-                if self.best_prediction:
-                    entry_conditions = [
-                        f"confidence: {self.best_prediction.confidence:.1f}%",
-                        f"type: {self.best_prediction.type}",
-                    ]
-                    if hasattr(self.best_prediction, 'reason') and self.best_prediction.reason:
-                        entry_conditions.append(f"reason: {self.best_prediction.reason}")
-
-                regime_str = "unknown"
-                if self.research and hasattr(self.research, 'current_regime') and self.research.current_regime:
-                    regime_str = self.research.current_regime.regime
-                elif self.intelligence and self.intelligence.current_regime:
-                    regime_str = self.intelligence.current_regime.regime
-                elif hasattr(self.analysis, "last_analysis"):
-                    regime_str = self.analysis.last_analysis.get("regime", "unknown")
-
-                balance = self.account.get_balance() if hasattr(self.account, "get_balance") else self.stats_manager.get_stats().get("total_profit", 1000) + 1000
-                self._pending_journal_ids = getattr(self, "_pending_journal_ids", {})
-                jid = self.trade_journal.log_trade(
-                    symbol=self.market.get_current_market(),
-                    contract_type=self.best_prediction.type,
-                    entry_price=self.current_price,
-                    amount=trade_amount,
-                    confidence=self.best_prediction.confidence,
-                    regime=regime_str,
-                    entry_conditions=entry_conditions,
-                    running_balance=float(balance),
-                )
-                self._pending_journal_ids[contract_id] = jid
-            except Exception as je:
-                logger.warning("Journal log_trade failed: %s", je)
-
-            # Store pending intel for outcome recording
-            if self.intelligence:
-                if not hasattr(self, "_pending_intel"):
-                    self._pending_intel = {}
-                self._pending_intel[contract_id] = {
-                    "analyzer_output": self.analysis.analysis_result or {},
-                    "amount": trade_amount,
-                    "market": self.market.get_current_market(),
-                    "direction": self.best_prediction.direction,
-                    "type": self.best_prediction.type,
-                    "confidence": self.best_prediction.confidence,
-                    "entry_price": self.current_price,
-                    "regime": regime_str,
-                    "entropy": self.intelligence._extract_entropy(
-                        self.analysis.analysis_result or {}
-                    ),
-                    "volatility": self.intelligence._extract_volatility(
-                        list(self.price_history)
-                    ),
-                }
-
             # Monitor the trade
             asyncio.create_task(
                 self.monitor.monitor_trade(
@@ -382,77 +261,6 @@ class TradingSystem:
             # Save trade to database
             trade_data["profit"] = profit
             self.database.save_trade(trade_data)
-
-            # Close trade in journal
-            try:
-                pending = getattr(self, "_pending_journal_ids", {})
-                jid = pending.pop(contract_id, None)
-                if jid:
-                    balance = float(self.stats_manager.get_stats().get("total_profit", 0) + 1000)
-                    exit_conditions = [
-                        "contract_settled",
-                        f"outcome: {'WIN' if profit > 0 else 'LOSS'}",
-                        f"pnl: {profit:+.4f}",
-                    ]
-                    self.trade_journal.close_trade(
-                        trade_id=jid,
-                        pnl=profit,
-                        exit_price=float(trade_data.get("exit_price", self.current_price)),
-                        exit_conditions=exit_conditions,
-                        exit_reason="contract_settled",
-                        running_balance=balance,
-                    )
-            except Exception as je:
-                logger.warning("Journal close_trade failed: %s", je)
-
-            # ── Feed outcome to intelligence layer ───────────────────
-            if self.intelligence or self.research:
-                try:
-                    pending_intel = getattr(self, "_pending_intel", {})
-                    intel_data = pending_intel.pop(contract_id, {})
-                    if intel_data:
-                        price_str = f"{self.current_price:.4f}"
-                        last_digit = int(price_str[-1]) if price_str[-1].isdigit() else 0
-                        pnl_pct = (profit / max(intel_data.get("amount", 1.0), 0.01)) * 100
-
-                        trade_record = TradeRecord(
-                            trade_id=contract_id,
-                            timestamp=datetime.utcnow().timestamp(),
-                            market=intel_data.get("market", ""),
-                            direction=intel_data.get("direction", ""),
-                            amount=intel_data.get("amount", 1.0),
-                            entry_price=intel_data.get("entry_price", 0),
-                            exit_price=self.current_price,
-                            profit=profit,
-                            pnl_pct=pnl_pct,
-                            confidence=intel_data.get("confidence", 0),
-                            analyzer_outputs=intel_data.get("analyzer_output", {}),
-                            market_features={
-                                "regime": intel_data.get("regime", "UNKNOWN"),
-                                "entropy": intel_data.get("entropy", 3.0),
-                                "volatility": intel_data.get("volatility", 0.0),
-                            },
-                            regime=intel_data.get("regime", "UNKNOWN"),
-                            entropy=intel_data.get("entropy", 3.0),
-                            volatility=intel_data.get("volatility", 0.0),
-                            digit_pattern=list(self.last_20_digits)[-10:],
-                            outcome="WIN" if profit > 0 else ("BREAK_EVEN" if profit == 0 else "LOSS"),
-                            duration_seconds=0,
-                            metadata={},
-                        )
-                        # Record in both intelligence layers
-                        if self.intelligence:
-                            self.intelligence.record_trade_outcome(
-                                trade_record=trade_record,
-                                analyzer_output=intel_data.get("analyzer_output", {}),
-                            )
-                        if self.research:
-                            self.research.record_trade_outcome(
-                                trade_record=trade_record,
-                                analyzer_output=intel_data.get("analyzer_output", {}),
-                            )
-                except Exception as ie:
-                    logger.warning("Intelligence outcome recording failed: %s", ie)
             
             # Update statistics in database
             self.database.update_statistics(self.stats_manager.get_stats())
@@ -551,8 +359,6 @@ class TradingSystem:
                 "execution_count": len(self.execution_optimizer.execution_times)
             },
             "zero_loss_risk": self.zero_loss_risk_manager.get_risk_metrics(),
-            "intelligence": self.intelligence.get_intelligence_state() if self.intelligence else None,
-            "research": self.research.get_intelligence_state() if self.research else None,
             "performance": {
                 "cache": self.cache.get_stats(),
                 "metrics": self.metrics.get_summary(),

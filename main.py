@@ -1,4 +1,4 @@
-# main.py - Modular Institutional Trading Platform
+# main.py - ULTIMATE INTELLIGENT TRADING SYSTEM (Production Enhanced)
 import os
 import asyncio
 from contextlib import asynccontextmanager
@@ -11,74 +11,27 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from trading_system import TradingSystem
 from api import setup_routes
-from api.v2_routes import setup_v2_routes
 from middleware.input_sanitizer import InputSanitizer, create_sanitize_middleware
-from developer.logging_tool import setup_logging, LogCollector, LogFormat
-
-# Import all platform modules
-from workspace import WorkspaceManager, WorkspaceLayout
-from timeline import TimelineManager, ReplayEngine
-from research import ResearchLab
-from features import FeatureEngineer
-from health import HealthMonitor
-from alerts import AlertCenter
-from risk_sim import RiskSimulator
-from qa import QualityAssurance
 
 # Initialize the trading system
 platform = TradingSystem()
-
-# Initialize platform modules
-workspace_manager = WorkspaceManager()
-timeline_manager = TimelineManager()
-research_lab = ResearchLab()
-feature_engineer = FeatureEngineer()
-health_monitor = HealthMonitor()
-alert_center = AlertCenter()
-risk_simulator = RiskSimulator()
-qa_system = QualityAssurance()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI"""
     # Start the trading system in background
     asyncio.create_task(platform.run())
-    
-    # Start health monitoring
-    health_monitor.start_monitoring()
-    
-    # Start continuous QA validation
-    qa_system.start_continuous_validation(interval_seconds=300)
-    
-    # Start timeline session
-    timeline_manager.start_session()
-    
     yield
-    
-    # Cleanup
-    health_monitor.stop_monitoring()
-    qa_system.stop_continuous_validation()
-    timeline_manager.end_session()
 
 app = FastAPI(
-    title="SmartPip Trading Platform",
-    description="Institutional-grade modular trading platform with plugin architecture, multi-strategy orchestration, and comprehensive risk management",
-    version="4.0.0",
+    title="SmartPip Trading System",
+    description="Advanced AI-powered trading bot for Deriv Volatility Indices with technical analysis and backtesting",
+    version="2.1.0",
     lifespan=lifespan
 )
 
-# Setup v1 API routes
+# Setup all API routes
 setup_routes(app, platform)
-
-# Setup v2 API routes (modular platform)
-setup_v2_routes(app)
-
-# Setup structured logging
-log_collector = setup_logging(
-    level=os.getenv("LOG_LEVEL", "INFO"),
-    format_type=LogFormat.JSON,
-    log_file=os.getenv("LOG_FILE", "logs/app.log"),
-)
 
 # Add CORS middleware
 app.add_middleware(
@@ -90,7 +43,7 @@ app.add_middleware(
 )
 
 # Add input sanitization middleware
-sanitizer = InputSanitizer(testing=os.getenv("ENVIRONMENT") == "testing")
+sanitizer = InputSanitizer()
 app.middleware("http")(create_sanitize_middleware(sanitizer))
 
 # Global exception handler

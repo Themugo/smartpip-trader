@@ -161,9 +161,9 @@ export function useTradeExecution(apiToken?: string) {
             resolve({ success: false, error: 'Connection closed before trade completed' });
           }
         };
-      } catch (err: any) {
+      } catch (err: unknown) {
         setExecuting(false);
-        resolve({ success: false, error: err.message || 'Failed to execute trade' });
+        resolve({ success: false, error: err instanceof Error ? err.message : 'Failed to execute trade' });
       }
     });
   }, [apiToken, send]);
@@ -221,8 +221,8 @@ export function useTradeExecution(apiToken?: string) {
           cleanup();
           resolve({ success: false, error: 'WebSocket error' });
         };
-      } catch (err: any) {
-        resolve({ success: false, error: err.message });
+      } catch (err: unknown) {
+        resolve({ success: false, error: err instanceof Error ? err.message : 'Unknown error' });
       }
     });
   }, [apiToken]);
