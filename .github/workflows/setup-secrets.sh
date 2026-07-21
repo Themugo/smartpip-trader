@@ -8,30 +8,44 @@ REPO="Themugo/smartpip-trader"
 
 echo "🔐 GitHub Secrets Setup for SmartPip Trader"
 echo "============================================"
+echo ""
+echo "📍 Deployment: Vercel (smartpip-sniper account)"
+echo ""
 
-# Check for Fly.io token
-if [ -z "$FLY_API_TOKEN" ]; then
+# Check for Vercel token
+if [ -z "$VERCEL_TOKEN" ]; then
     echo ""
-    echo "⚠️  FLY_API_TOKEN not set"
+    echo "⚠️  VERCEL_TOKEN not set"
     echo ""
-    echo "To get your Fly.io token:"
-    echo "1. Go to https://fly.io/user/token"
-    echo "2. Click 'Create access token'"
-    echo "3. Copy the token and set it:"
-    echo "   export FLY_API_TOKEN='your-token-here'"
+    echo "To get your Vercel token:"
+    echo "1. Go to https://vercel.com/account/tokens"
+    echo "2. Click 'Create Token'"
+    echo "3. Name it 'smartpip-trader-deploy'"
+    echo "4. Copy the token and set it"
     echo ""
 fi
 
-# Check for DERIV_API_TOKEN
-if [ -z "$DERIV_API_TOKEN" ]; then
+# Check for Vercel Org ID
+if [ -z "$VERCEL_ORG_ID" ]; then
     echo ""
-    echo "⚠️  DERIV_API_TOKEN not set"
+    echo "⚠️  VERCEL_ORG_ID not set"
     echo ""
-    echo "To get your Deriv API token:"
-    echo "1. Go to https://app.deriv.com/account/api"
-    echo "2. Create a new API token"
-    echo "3. Copy and set it:"
-    echo "   export DERIV_API_TOKEN='pat_xxx'"
+    echo "To get your Vercel Org ID:"
+    echo "1. Go to https://vercel.com/account/teams"
+    echo "2. Find your team slug"
+    echo ""
+fi
+
+# Check for Vercel Project ID
+if [ -z "$VERCEL_PROJECT_ID" ]; then
+    echo ""
+    echo "⚠️  VERCEL_PROJECT_ID not set"
+    echo ""
+    echo "To get your Vercel Project ID:"
+    echo "1. Go to https://vercel.com/dashboard"
+    echo "2. Select the smartpip-sniper project"
+    echo "3. Go to Settings > General"
+    echo "4. Copy the Project ID"
     echo ""
 fi
 
@@ -41,13 +55,11 @@ echo "------------------------------"
 echo "1. Go to: https://github.com/$REPO/settings/secrets/actions"
 echo "2. Add these secrets:"
 echo ""
-echo "   Name: FLY_API_TOKEN"
-echo "   Value: $([ -n "$FLY_API_TOKEN" ] && echo "$FLY_API_TOKEN" || echo 'your-fly.io-token')"
+echo "   Name: VERCEL_TOKEN"
+echo "   Name: VERCEL_ORG_ID"
+echo "   Name: VERCEL_PROJECT_ID"
+echo "   Name: DERIV_API_TOKEN"
 echo ""
-echo "   Name: DERIV_API_TOKEN" 
-echo "   Value: $([ -n "$DERIV_API_TOKEN" ] && echo "$DERIV_API_TOKEN" || echo 'your-deriv-api-token')"
-echo ""
-
-if [ -n "$FLY_API_TOKEN" ] && [ -n "$DERIV_API_TOKEN" ]; then
-    echo "✅ All tokens available. Use 'gh secret set' or GitHub UI to add them."
-fi
+echo "After adding secrets, deployments will go to:"
+echo "   Production: https://smartpip-sniper.vercel.app"
+echo "   Staging: https://smartpip-sniper-staging.vercel.app"

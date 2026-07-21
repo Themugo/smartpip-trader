@@ -26,6 +26,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.actor }}/smartpip-trader
   IMAGE_TAG: ${{ github.sha }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
   test:
@@ -143,29 +145,24 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: https://smartpip-trader.fly.dev
+      url: https://smartpip-sniper.vercel.app
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Deploy to Fly.io
-      uses: superfly/flyctl-actions/setup-flyctl@master
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
       with:
-        version: latest
-      env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-    
-    - name: Deploy to production
-      run: |
-        flyctl deploy --remote-only --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:production
-      env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
     
     - name: Health check
       run: |
         sleep 30
-        curl -f https://smartpip-trader.fly.dev/api/health || exit 1
+        curl -f https://smartpip-sniper.vercel.app/api/health || exit 1
     
     - name: Notify deployment
       uses: 8398a7/action-slack@v3
@@ -181,29 +178,25 @@ jobs:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     environment:
       name: staging
-      url: https://staging.smartpip-trader.fly.dev
+      url: https://smartpip-sniper-staging.vercel.app
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Deploy to Fly.io
-      uses: superfly/flyctl-actions/setup-flyctl@master
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
       with:
-        version: latest
-      env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-    
-    - name: Deploy to staging
-      run: |
-        flyctl deploy --remote-only --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging --app smartpip-trader-staging
-      env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod=false'
+        working-directory: ./
     
     - name: Health check
       run: |
         sleep 20
-        curl -f https://staging.smartpip-trader.fly.dev/api/health || exit 1
+        curl -f https://smartpip-sniper-staging.vercel.app/api/health || exit 1
     
     - name: Notify deployment
       uses: 8398a7/action-slack@v3
@@ -219,28 +212,21 @@ jobs:
     if: github.event_name == 'pull_request'
     environment:
       name: review
-      url: https://pr-${{ github.event.pull_request.number }}.smartpip-trader.fly.dev
+      url: https://smartpip-sniper-git-${{ github.head_ref }}.vercel.app
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Deploy to Fly.io
-      uses: superfly/flyctl-actions/setup-flyctl@master
+    - name: Deploy Preview to Vercel
+      uses: amondnet/vercel-action@v25
       with:
-        version: latest
-      env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-    
-    - name: Deploy preview
-      run: |
-        flyctl deploy --remote-only \
-          --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }} \
-          --app smartpip-trader-pr-${{ github.event.pull_request.number }} \
-          --no-secret-scan \
-          --detach
-      env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        github-comment: true
+        working-directory: ./
+
 
   security-scan:
     runs-on: ubuntu-latest
