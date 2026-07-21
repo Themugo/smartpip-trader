@@ -212,7 +212,6 @@ export function useMLAudit() {
     const hasDuplicates = timestamps.some((t, i) => i > 0 && t === timestamps[i - 1]);
     const timeGaps = timestamps.slice(1).map((t, i) => t - timestamps[i]);
     const avgGap = calculateMean(timeGaps);
-    const gapVariance = calculateStd(timeGaps);
     const suspiciousGaps = timeGaps.filter(g => g > avgGap * 5).length;
 
     // Runs test on returns — clustered wins/losses suggest leakage

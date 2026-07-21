@@ -7,9 +7,6 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Re-export User type for convenience
-export type { User };
-
 export type Trade = {
   id: string;
   market: string;

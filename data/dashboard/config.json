@@ -12,7 +12,7 @@
   },
   "layouts": [
     {
-      "layout_id": "713e1edf-13ff-4c6e-9fc3-47334ea76939",
+      "layout_id": "5fd73c6b-5712-4560-875c-e3c9eb0ecba1",
       "name": "Test Layout",
       "panels": [
         {
@@ -35,7 +35,7 @@
       "grid_columns": 12,
       "grid_row_height": 100,
       "monitor_index": 0,
-      "created_at": "2026-07-17T03:21:22.977314"
+      "created_at": "2026-07-21T21:44:12.967850"
     }
   ],
   "current_layout_id": null

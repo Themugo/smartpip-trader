@@ -80,7 +80,7 @@ export function useShadowMode() {
         .limit(200);
 
       if (sigData) {
-        const loaded: ShadowSignal[] = sigData.map((s: any) => ({
+        const loaded: ShadowSignal[] = sigData.map((s) => ({
           id: s.id,
           timestamp: new Date(s.timestamp).getTime(),
           symbol: s.symbol,
@@ -109,7 +109,7 @@ export function useShadowMode() {
         .limit(90);
 
       if (dmData) {
-        setDailyMetrics(dmData.map((d: any) => ({
+        setDailyMetrics(dmData.map((d) => ({
           date: d.date,
           totalSignals: d.total_signals,
           executedSignals: d.executed_signals,

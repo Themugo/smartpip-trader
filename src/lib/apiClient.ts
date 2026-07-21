@@ -18,4 +18,4 @@
 export type { ApiResponse, RequestConfig } from './api';
 export { api, api as apiClient } from './api';
 
-export default api;
+export { api as default } from './api';

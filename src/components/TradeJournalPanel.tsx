@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import {
-  BookOpen, TrendingDown, Clock, Target,
-  ChevronDown, ChevronUp, Lightbulb, BarChart3, Hash,
-  Calendar, RefreshCw, CheckCircle, XCircle, Award, Zap,
+  BookOpen, Target,
+  ChevronDown, ChevronUp, Lightbulb, RefreshCw, CheckCircle, XCircle, Award, Zap,
+  Calendar, BarChart3, TrendingDown, Hash, Clock,
 } from 'lucide-react';
 import type { JournalEntry, WeeklyInsight } from '../hooks/useTradeJournal';
 

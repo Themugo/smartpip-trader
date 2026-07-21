@@ -22,8 +22,4 @@
  */
 
 // Re-export from consolidated API for backwards compatibility
-export { api } from './api';
-
-// @ts-ignore - Legacy exports for backwards compatibility
-const api = null;
-export default api;
+export { api, api as default } from './api';

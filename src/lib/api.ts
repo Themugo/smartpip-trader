@@ -41,6 +41,20 @@ export interface RequestConfig {
   headers?: Record<string, string>;
 }
 
+export interface WorkspaceListResponse {
+  workspaces: Array<{
+    id: string;
+    type: string;
+    name: string;
+    description: string;
+    icon: string;
+    route: string;
+    order: number;
+    is_default: boolean;
+  }>;
+  favorites: string[];
+}
+
 // ============================================
 // Utilities
 // ============================================
@@ -292,7 +306,7 @@ export const api = {
 
   // Workspace API (v2)
   workspaces: {
-    list: () => v2Fetch('/workspaces/'),
+    list: () => v2Fetch<WorkspaceListResponse>('/workspaces/'),
     get: (workspaceId: string) =>
       v2Fetch(`/workspaces/${workspaceId}`),
     addFavorite: (workspaceId: string) =>

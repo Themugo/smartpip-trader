@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Target, Zap, Wallet, Percent } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Wallet, Percent } from 'lucide-react';
 import type { TradeStatistics } from '../lib/supabase';
 
 interface StatsCardsProps {

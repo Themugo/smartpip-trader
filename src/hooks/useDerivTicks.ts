@@ -164,11 +164,11 @@ export function useDerivTicks(symbol: string = 'R_100', apiToken?: string) {
           }, backoff);
         }
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTickData((prev) => ({
         ...prev,
         connected: false,
-        error: err.message || 'Failed to connect',
+        error: err instanceof Error ? err.message : 'Failed to connect',
       }));
     }
   }, [apiToken, send, subscribeToTicks]);

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import {
-  Eye, CheckCircle, XCircle, TrendingUp, TrendingDown, Clock,
-  ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, Activity,
-  DollarSign, Target, Zap, Ban, Calendar, BarChart3, ArrowUpRight, ArrowDownRight
+  Eye, Clock, ChevronDown, ChevronUp, Target, ShieldCheck, ShieldAlert, Calendar
 } from 'lucide-react';
 import type { ShadowSignal, ShadowMetrics, ShadowDailyMetric } from '../hooks/useShadowMode';
 

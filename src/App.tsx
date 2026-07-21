@@ -123,16 +123,16 @@ export default function App() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [tradesData, statsData, settingsData, auditData] = await Promise.all([
+      const [tradesRes, statsRes, settingsRes, auditRes] = await Promise.all([
         api.getTrades(),
         api.getStatistics(),
         api.getSettings(),
         api.getAuditLog(),
       ]);
-      setTrades(tradesData || []);
-      setStats(statsData || null);
-      setSettings(settingsData || null);
-      setAuditLogs(auditData || []);
+      setTrades((tradesRes.data as Trade[]) ?? []);
+      setStats((statsRes.data as TradeStatistics) ?? null);
+      setSettings((settingsRes.data as SystemSettings) ?? null);
+      setAuditLogs((auditRes.data as AuditLogEntry[]) ?? []);
       setConnected(true);
       setError(null);
     } catch (e: any) {

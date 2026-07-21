@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   ShieldCheck, ShieldAlert, TrendingUp, TrendingDown, Activity,
-  BarChart3, Percent, DollarSign, Clock, AlertTriangle, CheckCircle,
-  XCircle, ChevronDown, ChevronUp, Brain, Target, Zap, Hash
+  BarChart3, Percent, DollarSign, AlertTriangle, CheckCircle,
+  XCircle, ChevronDown, ChevronUp, Brain, Target
 } from 'lucide-react';
 
 interface ValidationResult {

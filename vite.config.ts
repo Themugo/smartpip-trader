@@ -1,30 +1,35 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { existsSync, mkdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
 
-// Post-build hook to copy landing page
 function landingPagePlugin() {
   return {
     name: 'landing-page-plugin',
     closeBundle() {
-      // Landing page (index.html) should already be at root
-      // This ensures it's copied to dist
-      const path = './dist';
-      if (!existsSync(path)) {
-        mkdirSync(path, { recursive: true });
+      const dist = './dist';
+      if (!existsSync(dist)) {
+        mkdirSync(dist, { recursive: true });
       }
-    }
+      copyFileSync('landing-page.html', `${dist}/index.html`);
+    },
   };
 }
 
 export default defineConfig({
   plugins: [react(), landingPagePlugin()],
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+  },
   server: {
     allowedHosts: true,
+    open: '/app.html',
   },
   build: {
     sourcemap: false,
     rollupOptions: {
+      input: {
+        app: './app.html',
+      },
       output: {
         entryFileNames: 'assets/[name].js',
         chunkFileNames: 'assets/[name]-[hash].js',
