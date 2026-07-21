@@ -24,7 +24,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: smartpip-trader
+  IMAGE_NAME: ${{ github.actor }}/smartpip-trader
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
