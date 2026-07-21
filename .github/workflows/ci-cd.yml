@@ -119,9 +119,9 @@ jobs:
         tags: |
           type=ref,event=branch
           type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{ branch == 'main' }}
-          type=raw,value=production,enable={{ github.ref == 'refs/heads/main' }}
-          type=raw,value=staging,enable={{ github.ref == 'refs/heads/develop' }}
+          type=raw,value=latest
+          type=raw,value=production
+          type=raw,value=staging
     
     - name: Build and push
       uses: docker/build-push-action@v6
