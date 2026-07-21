@@ -14,7 +14,7 @@ services:
       - key: DERIV_API_TOKEN
         sync: false
       - key: DERIV_APP_ID
-        value: "1089"
+        value: "33TlwQH6PgwEeXDG0J3QN"
       - key: PORT
         value: "8080"
       - key: ENVIRONMENT
