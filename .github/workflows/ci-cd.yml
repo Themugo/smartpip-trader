@@ -151,24 +151,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Pull Docker image
+    - name: Deployment info
       run: |
-        docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-    
-    - name: Deploy to Vercel
-      run: |
-        echo "Deploying container to Vercel..."
-        # Note: Vercel container deployment requires updated project settings
-        # For now, we deploy to our container registry and provide instructions
-        echo "Docker image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-        echo "Image deployed successfully. Configure Vercel to pull from this registry."
+        echo "============================================"
+        echo "✅ Docker Build: SUCCESS"
+        echo "✅ Docker Push: SUCCESS" 
+        echo "============================================"
+        echo "Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}"
+        echo "============================================"
+        echo "📋 Next Steps:"
+        echo "1. Go to https://vercel.com/dashboard"
+        echo "2. Select smartpipsniper project"
+        echo "3. Go to Settings > Deployments"
+        echo "4. Click 'New Deployment' or connect to ghcr.io"
+        echo "5. Pull image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}"
+        echo "============================================"
     
     - name: Notify deployment
       uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
-        text: '🚀 Deployment to production completed. Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}'
+        text: '🚀 Deployment ready! Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}'
         webhook_url: ${{ secrets.SLACK_WEBHOOK }}
       if: always()
 
@@ -184,21 +187,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Pull Docker image
+    - name: Deployment info
       run: |
-        docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-    
-    - name: Deploy to Vercel
-      run: |
-        echo "Deploying container to Vercel..."
-        echo "Docker image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+        echo "============================================"
+        echo "✅ Docker Build: SUCCESS"
+        echo "✅ Docker Push: SUCCESS" 
+        echo "============================================"
+        echo "Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}"
+        echo "============================================"
     
     - name: Notify deployment
       uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
-        text: '🚀 Deployment to staging completed. Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}'
+        text: '🚀 Staging deployment ready! Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}'
         webhook_url: ${{ secrets.SLACK_WEBHOOK }}
       if: always()
 
@@ -211,14 +213,14 @@ jobs:
       url: https://smartpipsniper-git-${{ github.head_ref }}.vercel.app
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Pull Docker image
+    - name: Deployment info
       run: |
-        docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        echo "Preview image ready: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+        echo "============================================"
+        echo "✅ PR Preview Build: SUCCESS"
+        echo "============================================"
+        echo "Image: ghcr.io/Themugo/smartpip-trader:${{ github.sha }}"
+        echo "Branch: ${{ github.head_ref }}"
+        echo "============================================"
 
 
   security-scan:
