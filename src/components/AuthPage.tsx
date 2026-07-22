@@ -4,10 +4,11 @@ import { TrendingUp, LogIn, UserPlus, Loader2, Eye, EyeOff, Shield } from 'lucid
 interface AuthPageProps {
   onSignIn: (email: string, password: string) => Promise<void>;
   onSignUp: (email: string, password: string) => Promise<void>;
+  initialLogin?: boolean;
 }
 
-export function AuthPage({ onSignIn, onSignUp }: AuthPageProps) {
-  const [isLogin, setIsLogin] = useState(true);
+export function AuthPage({ onSignIn, onSignUp, initialLogin = true }: AuthPageProps) {
+  const [isLogin, setIsLogin] = useState(initialLogin);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

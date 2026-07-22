@@ -5,10 +5,12 @@ interface HeaderProps {
   botStatus: 'RUNNING' | 'STOPPED' | 'PAUSED';
   connected: boolean;
   userEmail?: string;
+  isGuest?: boolean;
+  onSignIn?: () => void;
   onSignOut?: () => void;
 }
 
-export function Header({ botStatus, connected, userEmail, onSignOut }: HeaderProps) {
+export function Header({ botStatus, connected, userEmail, isGuest = false, onSignIn, onSignOut }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const statusColor = botStatus === 'RUNNING' ? 'bg-emerald-500' : botStatus === 'PAUSED' ? 'bg-amber-500' : 'bg-red-500';
   const connColor = connected ? 'bg-emerald-500' : 'bg-red-500';
@@ -35,7 +37,7 @@ export function Header({ botStatus, connected, userEmail, onSignOut }: HeaderPro
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-slate-400" />
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-300">API</span>
+              <span className="text-sm text-slate-300">Deriv</span>
               <span className={`w-2 h-2 rounded-full ${connColor} animate-pulse`} />
             </div>
           </div>
@@ -47,7 +49,15 @@ export function Header({ botStatus, connected, userEmail, onSignOut }: HeaderPro
               {botStatus}
             </span>
           </div>
-          {userEmail && (
+          {isGuest ? (
+            <button
+              onClick={onSignIn}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            >
+              <User className="w-4 h-4" />
+              Sign In to Trade
+            </button>
+          ) : userEmail ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700">
                 <User className="w-4 h-4 text-slate-400" />
@@ -63,7 +73,7 @@ export function Header({ botStatus, connected, userEmail, onSignOut }: HeaderPro
                 </button>
               )}
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Mobile menu button */}
@@ -93,7 +103,14 @@ export function Header({ botStatus, connected, userEmail, onSignOut }: HeaderPro
               </span>
             </div>
           </div>
-          {userEmail && (
+          {isGuest ? (
+            <button
+              onClick={onSignIn}
+              className="flex items-center gap-1 px-2 py-1 rounded bg-blue-600 text-white text-xs"
+            >
+              Sign In
+            </button>
+          ) : userEmail ? (
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-slate-400" />
@@ -109,7 +126,7 @@ export function Header({ botStatus, connected, userEmail, onSignOut }: HeaderPro
                 </button>
               )}
             </div>
-          )}
+          ) : null}
         </div>
       )}
     </header>

@@ -15,7 +15,7 @@ export interface TickData {
 const DERIV_WS_URL = 'wss://ws.binaryws.com/websockets/v3?app_id=1089';
 const MAX_HISTORY = 100;
 
-export function useDerivTicks(symbol: string = 'R_100', apiToken?: string) {
+export function useDerivTicks(symbol: string = 'R_100') {
   const [tickData, setTickData] = useState<TickData>({
     price: 0,
     lastDigit: 0,
@@ -73,13 +73,8 @@ export function useDerivTicks(symbol: string = 'R_100', apiToken?: string) {
           latencyMs: Date.now() - startTime,
         }));
 
-        // Authorize if token provided
-        if (apiToken) {
-          send({ authorize: apiToken });
-        } else {
-          // For demo/public access, just subscribe to ticks
-          subscribeToTicks();
-        }
+        // Public tick stream — no authorization required for market data
+        subscribeToTicks();
 
         // Start ping interval
         if (pingIntervalRef.current) clearInterval(pingIntervalRef.current);
@@ -96,21 +91,8 @@ export function useDerivTicks(symbol: string = 'R_100', apiToken?: string) {
           // Handle ping response
           if (data.pong) return;
 
-          // Handle authorization
-          if (data.authorize) {
-            setTickData((prev) => ({ ...prev, authorized: true }));
-            subscribeToTicks();
-            return;
-          }
-
           if (data.error) {
-            const msg = data.error.message || 'Deriv API error';
-            // Don't show auth errors as critical if we're in public mode
-            if (msg.includes('Invalid token') && !apiToken) {
-              subscribeToTicks();
-              return;
-            }
-            setTickData((prev) => ({ ...prev, error: msg }));
+            setTickData((prev) => ({ ...prev, error: data.error.message || 'Deriv API error' }));
             return;
           }
 
@@ -171,7 +153,7 @@ export function useDerivTicks(symbol: string = 'R_100', apiToken?: string) {
         error: err instanceof Error ? err.message : 'Failed to connect',
       }));
     }
-  }, [apiToken, send, subscribeToTicks]);
+  }, [send, subscribeToTicks]);
 
   const disconnect = useCallback(() => {
     isManualClose.current = true;

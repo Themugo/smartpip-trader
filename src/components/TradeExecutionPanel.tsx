@@ -9,6 +9,8 @@ import type { RegimeState, RegimeType } from '../hooks/useRegimeDetection';
 interface TradeExecutionPanelProps {
   tickData: TickData;
   apiToken?: string;
+  isAuthenticated?: boolean;
+  onSignInRequired?: () => void;
   regimeState?: RegimeState;
   isStrategyAllowed?: (strategyType: string) => { allowed: boolean; reason: string };
   onBuildEvidence?: (
@@ -62,7 +64,7 @@ const CONTRACT_TYPES: { type: ContractType; label: string; icon: React.ElementTy
   { type: 'DIGITDIFF', label: 'Diff', icon: Brain, color: 'text-cyan-400', desc: 'Last digit differs', strategyType: 'match_diff' },
 ];
 
-export function TradeExecutionPanel({ tickData, apiToken, regimeState, isStrategyAllowed, onBuildEvidence, onGenerateShadowSignal, onAddJournalEntry }: TradeExecutionPanelProps) {
+export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = false, onSignInRequired, regimeState, isStrategyAllowed, onBuildEvidence, onGenerateShadowSignal, onAddJournalEntry }: TradeExecutionPanelProps) {
   const [selectedType, setSelectedType] = useState<ContractType>('DIGITEVEN');
   const [amount, setAmount] = useState(1);
   const [duration, setDuration] = useState(5);
@@ -102,8 +104,14 @@ export function TradeExecutionPanel({ tickData, apiToken, regimeState, isStrateg
     setError(null);
     setSuccess(null);
 
+    if (!isAuthenticated) {
+      setError('Sign in to place live trades. Market data is free for everyone.');
+      onSignInRequired?.();
+      return;
+    }
+
     if (!apiToken) {
-      setError('API token required. Set VITE_DERIV_API_TOKEN in your .env file.');
+      setError('Add your Deriv API token in the sidebar to enable live trading.');
       return;
     }
 

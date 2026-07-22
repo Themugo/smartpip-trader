@@ -6,7 +6,6 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { TradeHistory } from './components/TradeHistory';
 import { AuditLog } from './components/AuditLog';
 import { PnLChart } from './components/PnLChart';
-import { AuthPage } from './components/AuthPage';
 import { MarketData } from './components/MarketData';
 import { TradeExecutionPanel } from './components/TradeExecutionPanel';
 import { ValidationDashboard } from './components/ValidationDashboard';
@@ -20,9 +19,12 @@ import { TradeJournalPanel } from './components/TradeJournalPanel';
 import { ReviewPage } from './components/ReviewPage';
 import { WorkspaceNav } from './components/WorkspaceNav';
 import { OnboardingWizard } from './components/OnboardingWizard';
+import { AuthModal } from './components/AuthModal';
+import { BrokerConnectPanel } from './components/BrokerConnectPanel';
 import { api } from './lib/api';
 import { supabase } from './lib/supabase';
 import { useDerivTicks } from './hooks/useDerivTicks';
+import { useDerivToken } from './hooks/useDerivToken';
 import { useRegimeDetection } from './hooks/useRegimeDetection';
 import { useTradeEvidence } from './hooks/useTradeEvidence';
 import { useMLAudit } from './hooks/useMLAudit';
@@ -39,7 +41,6 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [hasBrokerConnection] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace>('dashboard');
 
@@ -48,12 +49,13 @@ export default function App() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [botStatus, setBotStatus] = useState<'RUNNING' | 'STOPPED' | 'PAUSED'>('STOPPED');
-  const [connected, setConnected] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const apiToken = import.meta.env.VITE_DERIV_API_TOKEN || undefined;
-  const { tickData, switchSymbol, reconnect } = useDerivTicks('R_100', apiToken);
+  const isAuthenticated = Boolean(user);
+  const { tickData, switchSymbol, reconnect } = useDerivTicks('R_100');
+  const { tradingToken, userToken, setUserToken, hasTradingToken } = useDerivToken(isAuthenticated);
   const { regimeState, isStrategyAllowed } = useRegimeDetection(tickData.digitHistory, tickData.price);
   const { evidenceLog, buildEvidence } = useTradeEvidence();
   const { state: mlAuditState, runAudit } = useMLAudit();
@@ -97,8 +99,22 @@ export default function App() {
     });
   };
 
-  // Auth state
+  // Auth state (optional — market data is public)
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('login') === '1') {
+      setShowAuthModal(true);
+    }
+
+    const supabaseConfigured = Boolean(
+      import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+    );
+
+    if (!supabaseConfigured) {
+      setAuthLoading(false);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -133,11 +149,9 @@ export default function App() {
       setStats((statsRes.data as TradeStatistics) ?? null);
       setSettings((settingsRes.data as SystemSettings) ?? null);
       setAuditLogs((auditRes.data as AuditLogEntry[]) ?? []);
-      setConnected(true);
       setError(null);
-    } catch (e: any) {
-      setConnected(false);
-      setError(e.message || 'Failed to fetch data');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to fetch account data');
     }
   }, []);
 
@@ -176,7 +190,17 @@ export default function App() {
     }
   }, [user]);
 
+  const openAuthModal = useCallback(() => setShowAuthModal(true), []);
+
   const handleStart = async () => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
+    if (!hasTradingToken) {
+      setError('Add your Deriv API token in the sidebar before starting the bot.');
+      return;
+    }
     setBotStatus('RUNNING');
     await logAction('START_BOT');
     if (settings) {
@@ -234,12 +258,7 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return <AuthPage onSignIn={handleSignIn} onSignUp={handleSignUp} />;
-  }
-
-  // Show onboarding for new users
-  if (!hasCompletedOnboarding && !showOnboarding) {
+  if (user && !hasCompletedOnboarding && !showOnboarding) {
     return (
       <OnboardingWizard
         onComplete={() => {
@@ -257,14 +276,35 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex">
+      {showAuthModal && (
+        <AuthModal
+          onSignIn={handleSignIn}
+          onSignUp={handleSignUp}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
+
+      {!isAuthenticated && (
+        <div className="fixed top-0 left-0 right-0 z-40 bg-emerald-600/90 text-white text-center text-xs sm:text-sm py-2 px-4">
+          Public mode — live Deriv market data is free. Sign in only when you want to place live trades.
+        </div>
+      )}
+
       {/* Workspace Navigation Sidebar */}
       <WorkspaceNav
         currentWorkspace={activeWorkspace}
         onWorkspaceChange={(workspaceId) => setActiveWorkspace(workspaceId as Workspace)}
       />
 
-      <div className="flex-1 flex flex-col">
-        <Header botStatus={botStatus} connected={connected} userEmail={user.email} onSignOut={handleSignOut} />
+      <div className={`flex-1 flex flex-col ${!isAuthenticated ? 'pt-9' : ''}`}>
+        <Header
+          botStatus={botStatus}
+          connected={tickData.connected}
+          userEmail={user?.email}
+          isGuest={!isAuthenticated}
+          onSignIn={openAuthModal}
+          onSignOut={handleSignOut}
+        />
 
         {/* Tab Navigation */}
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pt-4">
@@ -371,7 +411,7 @@ export default function App() {
 
         {activeTab === 'dashboard' && (
           <>
-            <StatsCards stats={stats} />
+            <StatsCards stats={stats} tickData={tickData} />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="lg:col-span-2 space-y-4 sm:space-y-6">
@@ -383,7 +423,9 @@ export default function App() {
                 <RegimePanel regimeState={regimeState} />
                 <TradeExecutionPanel
                   tickData={tickData}
-                  apiToken={apiToken}
+                  apiToken={tradingToken}
+                  isAuthenticated={isAuthenticated}
+                  onSignInRequired={openAuthModal}
                   regimeState={regimeState}
                   isStrategyAllowed={isStrategyAllowed}
                   onBuildEvidence={buildEvidence}
@@ -395,39 +437,27 @@ export default function App() {
                   onStart={handleStart}
                   onStop={handleStop}
                   onReset={handleReset}
+                  locked={!isAuthenticated}
+                  onLockedClick={openAuthModal}
                 />
                 <PnLChart trades={trades} />
                 <TradeHistory trades={trades} />
               </div>
 
               <div className="space-y-4 sm:space-y-6">
-                <SettingsPanel settings={settings} onUpdate={handleUpdateSettings} />
-                <AuditLog logs={auditLogs} />
-                
-                {/* Broker Connection Card */}
-                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium text-white">Broker Connection</p>
-                      <p className="text-xs text-slate-400">
-                        {hasBrokerConnection ? 'Connected' : 'Not connected'}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setActiveWorkspace('settings');
-                    }}
-                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium text-sm transition-colors"
-                  >
-                    {hasBrokerConnection ? 'Manage Connections' : 'Connect Broker'}
-                  </button>
-                </div>
+                <BrokerConnectPanel
+                  isAuthenticated={isAuthenticated}
+                  userToken={userToken}
+                  hasTradingToken={hasTradingToken}
+                  onSaveToken={setUserToken}
+                  onSignIn={openAuthModal}
+                />
+                {isAuthenticated && (
+                  <>
+                    <SettingsPanel settings={settings} onUpdate={handleUpdateSettings} />
+                    <AuditLog logs={auditLogs} />
+                  </>
+                )}
               </div>
             </div>
           </>
@@ -484,8 +514,8 @@ export default function App() {
 
       <footer className="border-t border-slate-800 mt-8 sm:mt-12 py-4 sm:py-6 px-3 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-          <span>SmartPip Trader v4.0 — Modular Institutional Platform</span>
-          <span>Data synchronized via Cloud</span>
+          <span>SmartPip Trader v4.0 — Public market data via Deriv</span>
+          <span>{tickData.connected ? 'Live feed connected' : 'Connecting to Deriv...'}</span>
         </div>
       </footer>
       </div>

@@ -5,11 +5,26 @@ interface ControlPanelProps {
   onStart: () => void;
   onStop: () => void;
   onReset: () => void;
+  locked?: boolean;
+  onLockedClick?: () => void;
 }
 
-export function ControlPanel({ botStatus, onStart, onStop, onReset }: ControlPanelProps) {
+export function ControlPanel({ botStatus, onStart, onStop, onReset, locked = false, onLockedClick }: ControlPanelProps) {
+  const handleStart = () => {
+    if (locked) {
+      onLockedClick?.();
+      return;
+    }
+    onStart();
+  };
+
   return (
     <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
+      {locked && (
+        <div className="mb-3 p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300">
+          Sign in and connect your Deriv token to enable automated trading.
+        </div>
+      )}
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
         <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
         <h3 className="text-sm font-semibold text-slate-200">Bot Control</h3>
@@ -17,7 +32,7 @@ export function ControlPanel({ botStatus, onStart, onStop, onReset }: ControlPan
 
       <div className="flex flex-wrap gap-2 sm:gap-3">
         <button
-          onClick={onStart}
+          onClick={handleStart}
           disabled={botStatus === 'RUNNING'}
           className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
             botStatus === 'RUNNING'
