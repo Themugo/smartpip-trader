@@ -7,8 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:landing": "echo 'Landing page is copied to dist/index.html during build'",
-    "lint": "eslint .",
+"lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "vitest",
