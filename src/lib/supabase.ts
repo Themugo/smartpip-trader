@@ -7,12 +7,21 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const supabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
-// Create a real client only when env vars are present; otherwise export a
-// stub whose auth methods resolve to safe no-ops so the app can still
-// render (public / demo mode) without crashing.
+// Real client with sensible auth defaults
 export const supabase: SupabaseClient = supabaseConfigured
-  ? createClient(supabaseUrl, supabaseKey)
-  : createClient('https://placeholder.supabase.co', 'placeholder');
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    })
+  : createClient('https://placeholder.supabase.co', 'placeholder', {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+// Maximum time (ms) to wait for a Supabase auth response before giving up
+export const AUTH_TIMEOUT_MS = 5_000;
 
 export type Trade = {
   id: string;

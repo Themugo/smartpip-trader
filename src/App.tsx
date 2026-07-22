@@ -15,7 +15,7 @@ import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Tab, Workspace, BotStatus } from './types';
 import type { RegimeType } from './hooks/useRegimeDetection';
 import { api } from './lib/api';
-import { supabase } from './lib/supabase';
+import { supabase, supabaseConfigured } from './lib/supabase';
 
 export default function App() {
   // ── Auth ────────────────────────────────────────────────────
@@ -38,6 +38,15 @@ export default function App() {
   const [botStatus, setBotStatus] = useState<BotStatus>('STOPPED');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [authTimedOut, setAuthTimedOut] = useState(false);
+
+  // Safety net: force loading=false after 8s so the app is never stuck
+  useEffect(() => {
+    if (authLoading) {
+      const timer = setTimeout(() => setAuthTimedOut(true), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading]);
 
   // ── Trading data ────────────────────────────────────────────
   const {
@@ -124,13 +133,14 @@ export default function App() {
     }
   }, [trades, runAudit]);
 
-  // ── Loading screen ──────────────────────────────────────────
-  if (authLoading) {
+  // ── Loading screen (max 8s, never permanent) ────────────────
+  if (authLoading && !authTimedOut) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-slate-400 text-sm">Loading SmartPip...</p>
+          <p className="text-slate-600 text-xs">Connecting to authentication</p>
         </div>
       </div>
     );
@@ -149,6 +159,21 @@ export default function App() {
   // ── Main render ─────────────────────────────────────────────
   return (
     <>
+      {/* Offline / auth-failed banner */}
+      {(authTimedOut || (!supabaseConfigured && !isAuthenticated)) && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-amber-900/90 text-amber-100 text-xs text-center py-1.5 px-4 backdrop-blur-sm">
+          Running in offline demo mode — trades are simulated.{' '}
+          {authTimedOut && (
+            <button
+              onClick={() => window.location.reload()}
+              className="underline hover:text-white ml-2"
+            >
+              Retry connection
+            </button>
+          )}
+        </div>
+      )}
+
       {showAuthModal && (
         <AuthModal
           onSignIn={signIn}
