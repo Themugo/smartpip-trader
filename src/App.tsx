@@ -50,8 +50,8 @@ export default function App() {
 
   // ── Trading data ────────────────────────────────────────────
   const {
-    trades, stats, settings, auditLogs, error: dataError,
-    fetchData, updateSettings, setError: setDataError,
+    trades, stats, settings, auditLogs, error: dataError, loading: dataLoading,
+    fetchData, updateSettings, setError: setDataError, retry: retryData,
   } = useTradingData(isAuthenticated);
 
   // ── Market data & hooks ─────────────────────────────────────
@@ -59,9 +59,9 @@ export default function App() {
   const { tradingToken, userToken, setUserToken, hasTradingToken } = useDerivToken(isAuthenticated);
   const { regimeState, isStrategyAllowed } = useRegimeDetection(tickData.digitHistory, tickData.price);
   const { evidenceLog, buildEvidence } = useTradeEvidence();
-  const { state: mlAuditState, runAudit } = useMLAudit();
-  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, generateSignal } = useShadowMode();
-  const { entries: journalEntries, addEntry, insights: journalInsights, generateWeeklyInsights } = useTradeJournal();
+  const { state: mlAuditState, error: mlAuditError, runAudit } = useMLAudit();
+  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, loading: shadowLoading, error: shadowError, generateSignal, refresh: refreshShadow } = useShadowMode();
+  const { entries: journalEntries, insights: journalInsights, loading: journalLoading, error: journalError, addEntry, generateWeeklyInsights } = useTradeJournal();
 
   // ── Journal entry wrapper ───────────────────────────────────
   const handleAddJournalEntry = useCallback((entry: {
@@ -207,17 +207,23 @@ export default function App() {
           regimeState={regimeState}
           isStrategyAllowed={isStrategyAllowed}
           botStatus={botStatus}
-          tradingToken={tradingToken}
+          tradingToken={tradingToken ?? ''}
           userToken={userToken}
           isAuthenticated={isAuthenticated}
           showAuthBanner={!isAuthenticated}
           evidenceLog={evidenceLog}
           mlAuditState={mlAuditState}
+          mlAuditError={mlAuditError}
           shadowSignals={shadowSignals}
           shadowMetrics={shadowMetrics}
           shadowDailyMetrics={shadowDailyMetrics}
+          shadowLoading={shadowLoading}
+          shadowError={shadowError}
           journalEntries={journalEntries}
           journalInsights={journalInsights}
+          journalLoading={journalLoading}
+          journalError={journalError}
+          dataLoading={dataLoading}
           onStart={handleStart}
           onStop={handleStop}
           onReset={handleReset}

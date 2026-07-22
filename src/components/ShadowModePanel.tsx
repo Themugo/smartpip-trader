@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Eye, Clock, ChevronDown, ChevronUp, Target, ShieldCheck, ShieldAlert, Calendar
+  Eye, Clock, ChevronDown, ChevronUp, Target, ShieldCheck, ShieldAlert, Calendar, AlertTriangle
 } from 'lucide-react';
 import type { ShadowSignal, ShadowMetrics, ShadowDailyMetric } from '../hooks/useShadowMode';
 
@@ -8,6 +8,8 @@ interface ShadowModePanelProps {
   signals: ShadowSignal[];
   metrics: ShadowMetrics;
   dailyMetrics?: ShadowDailyMetric[];
+  loading?: boolean;
+  error?: string | null;
 }
 
 function SignalCard({ signal }: { signal: ShadowSignal }) {
@@ -125,7 +127,7 @@ function EquityChart({ data }: { data: ShadowDailyMetric[] }) {
   );
 }
 
-export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowModePanelProps) {
+export function ShadowModePanel({ signals, metrics, dailyMetrics = [], loading, error }: ShadowModePanelProps) {
   const [filter, setFilter] = useState<'all' | 'executed' | 'missed' | 'pending'>('all');
   const [activeView, setActiveView] = useState<'signals' | 'daily'>('signals');
 
@@ -141,6 +143,22 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
 
   return (
     <div className="space-y-4">
+      {loading && signals.length === 0 && (
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
+          <div className="flex items-center justify-center py-8 gap-2">
+            <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-slate-400">Loading shadow data...</span>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs">
+          <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+          <span className="text-red-400 flex-1">{error}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-4">

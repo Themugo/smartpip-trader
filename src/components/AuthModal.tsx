@@ -2,8 +2,10 @@ import { X } from 'lucide-react';
 import { AuthPage } from './AuthPage';
 
 interface AuthModalProps {
-  onSignIn: (email: string, password: string) => Promise<void>;
-  onSignUp: (email: string, password: string) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSignIn: (email: string, password: string) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSignUp: (email: string, password: string) => Promise<any>;
   onClose: () => void;
   defaultLogin?: boolean;
 }

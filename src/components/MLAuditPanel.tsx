@@ -2,12 +2,13 @@ import { useState } from 'react';
 import {
   Brain, CheckCircle, XCircle, AlertTriangle, ShieldCheck, ShieldAlert,
   ChevronDown, ChevronUp, BarChart3, TrendingUp, TrendingDown, Activity,
-  Lock, Unlock, Target, Clock
+  Lock, Unlock, Target, Clock, RefreshCw
 } from 'lucide-react';
 import type { MLAuditState, BiasCheck, CVFold, RollingWindow } from '../hooks/useMLAudit';
 
 interface MLAuditPanelProps {
   auditState: MLAuditState;
+  error?: string | null;
   onRunAudit: () => void;
 }
 
@@ -185,7 +186,7 @@ function RollingWindowCard({ window }: { window: RollingWindow }) {
   );
 }
 
-export function MLAuditPanel({ auditState, onRunAudit }: MLAuditPanelProps) {
+export function MLAuditPanel({ auditState, error, onRunAudit }: MLAuditPanelProps) {
   const [activeSection, setActiveSection] = useState<'bias' | 'cv' | 'holdout' | 'rolling'>('bias');
 
   const { checks, cvFolds, holdoutResult, rollingWindows, isAuditing, lastAuditTime, deployable, degradationDetected, overallScore } = auditState;
@@ -271,6 +272,20 @@ export function MLAuditPanel({ auditState, onRunAudit }: MLAuditPanelProps) {
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs">
+          <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+          <span className="text-red-400 flex-1">{error}</span>
+          <button
+            onClick={onRunAudit}
+            className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
+          >
+            <RefreshCw className="w-2.5 h-2.5" />
+            Retry
+          </button>
+        </div>
+      )}
 
       {hasRun && (
         <>

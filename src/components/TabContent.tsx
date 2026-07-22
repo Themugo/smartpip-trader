@@ -2,8 +2,12 @@ import { Suspense, lazy } from 'react';
 import { TabErrorBoundary } from './TabErrorBoundary';
 import type { Tab } from '../types';
 import type { Trade, TradeStatistics, SystemSettings, AuditLogEntry } from '../lib/supabase';
-import type { RegimeType } from '../hooks/useRegimeDetection';
+import type { RegimeType, RegimeState } from '../hooks/useRegimeDetection';
 import type { TickData } from '../hooks/useDerivTicks';
+import type { TradeEvidence } from '../hooks/useTradeEvidence';
+import type { MLAuditState } from '../hooks/useMLAudit';
+import type { ShadowSignal, ShadowMetrics, ShadowDailyMetric } from '../hooks/useShadowMode';
+import type { JournalEntry, WeeklyInsight } from '../hooks/useTradeJournal';
 
 // ── Eagerly loaded (lightweight, shown on every tab switch) ────
 import { StatsCards } from './StatsCards';
@@ -51,8 +55,8 @@ interface TabContentProps {
 
   // Market data
   tickData: TickData;
-  regimeState: { regime: RegimeType; confidence: number; isTransitioning: boolean };
-  isStrategyAllowed: boolean;
+  regimeState: RegimeState;
+  isStrategyAllowed: (strategyType: string) => { allowed: boolean; reason: string };
 
   // Trading controls
   botStatus: 'RUNNING' | 'STOPPED' | 'PAUSED';
@@ -62,13 +66,19 @@ interface TabContentProps {
   showAuthBanner: boolean;
 
   // Evidence / ML / Shadow / Journal
-  evidenceLog: Array<{ timestamp: number; type: string; confidence: number; details: string }>;
-  mlAuditState: { isRunning: boolean; lastAudit: unknown };
-  shadowSignals: unknown[];
-  shadowMetrics: unknown;
-  shadowDailyMetrics: unknown[];
-  journalEntries: unknown[];
-  journalInsights: unknown;
+  evidenceLog: TradeEvidence[];
+  mlAuditState: MLAuditState;
+  mlAuditError: string | null;
+  shadowSignals: ShadowSignal[];
+  shadowMetrics: ShadowMetrics;
+  shadowDailyMetrics: ShadowDailyMetric[];
+  shadowLoading: boolean;
+  shadowError: string | null;
+  journalEntries: JournalEntry[];
+  journalInsights: WeeklyInsight[];
+  journalLoading: boolean;
+  journalError: string | null;
+  dataLoading: boolean;
 
   // Actions
   onStart: () => void;
@@ -79,9 +89,38 @@ interface TabContentProps {
   onReconnect: () => void;
   onSaveToken: (token: string) => void;
   onUpdateSettings: (updates: Partial<SystemSettings>) => void;
-  onBuildEvidence: (data: unknown) => void;
-  onGenerateShadowSignal: (data: unknown) => void;
-  onAddJournalEntry: (entry: unknown) => void;
+  onBuildEvidence: (
+    symbol: string,
+    contractType: string,
+    amount: number,
+    digitHistory: number[],
+    price: number,
+    regime: RegimeType,
+    regimeConfidence: number,
+    sizingAdjustments: { name: string; factor: number }[],
+    isStrategyAllowed: boolean,
+    strategyBlockReason: string,
+    isGloballyBlocked: boolean,
+    globalBlockReason: string | null,
+  ) => TradeEvidence;
+  onGenerateShadowSignal: (
+    symbol: string,
+    contractType: string,
+    predictedDirection: string,
+    confidence: number,
+    expectedOutcome: 'win' | 'loss',
+    expectedPnl: number,
+    latencyMs: number,
+    modelVersion?: string,
+  ) => Promise<ShadowSignal>;
+  onAddJournalEntry: (entry: {
+    timestamp: number; symbol: string; contractType: string;
+    entryPrice: number; entryDigit: number; amount: number;
+    confidence: number; regime: string; entryConditions: string[];
+    exitConditions: string[]; notes: string;
+    profit?: number | null; exitPrice?: number | null;
+    exitDigit?: number | null; pnl?: number | null;
+  }) => void;
   onRunAudit: () => void;
   onGenerateWeeklyInsights: () => void;
 }
@@ -102,11 +141,17 @@ export function TabContent({
   showAuthBanner,
   evidenceLog,
   mlAuditState,
+  mlAuditError,
   shadowSignals,
   shadowMetrics,
   shadowDailyMetrics,
+  shadowLoading,
+  shadowError,
   journalEntries,
   journalInsights,
+  journalLoading,
+  journalError,
+  dataLoading,
   onStart,
   onStop,
   onReset,
@@ -172,19 +217,19 @@ export function TabContent({
 
       {activeTab === 'mlaudit' && (
         <Suspense fallback={<TabLoader />}>
-          <MLAuditPanel auditState={mlAuditState} onRunAudit={onRunAudit} />
+          <MLAuditPanel auditState={mlAuditState} error={mlAuditError} onRunAudit={onRunAudit} />
         </Suspense>
       )}
 
       {activeTab === 'shadow' && (
         <Suspense fallback={<TabLoader />}>
-          <ShadowModePanel signals={shadowSignals} metrics={shadowMetrics} dailyMetrics={shadowDailyMetrics} />
+          <ShadowModePanel signals={shadowSignals} metrics={shadowMetrics} dailyMetrics={shadowDailyMetrics} loading={shadowLoading} error={shadowError} />
         </Suspense>
       )}
 
       {activeTab === 'journal' && (
         <Suspense fallback={<TabLoader />}>
-          <TradeJournalPanel entries={journalEntries} insights={journalInsights} onGenerateInsights={onGenerateWeeklyInsights} />
+          <TradeJournalPanel entries={journalEntries} insights={journalInsights} loading={journalLoading} error={journalError} onGenerateInsights={onGenerateWeeklyInsights} />
         </Suspense>
       )}
 
@@ -211,8 +256,8 @@ interface DashboardTabProps {
   settings: SystemSettings | null;
   auditLogs: AuditLogEntry[];
   tickData: TickData;
-  regimeState: { regime: RegimeType; confidence: number; isTransitioning: boolean };
-  isStrategyAllowed: boolean;
+  regimeState: RegimeState;
+  isStrategyAllowed: (strategyType: string) => { allowed: boolean; reason: string };
   botStatus: 'RUNNING' | 'STOPPED' | 'PAUSED';
   tradingToken: string;
   userToken: string;
@@ -226,9 +271,9 @@ interface DashboardTabProps {
   onReconnect: () => void;
   onSaveToken: (token: string) => void;
   onUpdateSettings: (updates: Partial<SystemSettings>) => void;
-  onBuildEvidence: (data: unknown) => void;
-  onGenerateShadowSignal: (data: unknown) => void;
-  onAddJournalEntry: (entry: unknown) => void;
+  onBuildEvidence: TabContentProps['onBuildEvidence'];
+  onGenerateShadowSignal: TabContentProps['onGenerateShadowSignal'];
+  onAddJournalEntry: TabContentProps['onAddJournalEntry'];
 }
 
 function DashboardTab({

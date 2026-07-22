@@ -3,7 +3,12 @@ import { Component, type ReactNode, type ErrorInfo } from 'react';
 // ── Types ──────────────────────────────────────────────────────
 
 interface Diagnostics {
-  env: Record<string, boolean>;
+  env: {
+    timestamp: string;
+    variables: { name: string; required: boolean; present: boolean; preview: string }[];
+    allRequiredPresent: boolean;
+  };
+  envOk: boolean;
   ua: string;
   ts: string;
 }
@@ -242,16 +247,16 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3">
               <p className="text-[0.65rem] font-medium text-slate-500 mb-2">Environment</p>
               <div className="flex flex-wrap gap-2">
-                {Object.entries(this.props.diagnostics.env).map(([key, ok]) => (
+                {this.props.diagnostics.env.variables.map((v) => (
                   <span
-                    key={key}
+                    key={v.name}
                     className={`text-[0.6rem] font-mono px-2 py-0.5 rounded-full border ${
-                      ok
+                      v.present
                         ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                         : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
                     }`}
                   >
-                    {ok ? '✓' : '✗'} {key}
+                    {v.present ? '✓' : '✗'} {v.name}
                   </span>
                 ))}
               </div>

@@ -192,6 +192,7 @@ export function useMLAudit() {
     overallScore: 0,
     auditVersion: '2.0',
   });
+  const [error, setError] = useState<string | null>(null);
 
   const stateRef = useRef(state);
 
@@ -202,6 +203,9 @@ export function useMLAudit() {
     priceHistory?: number[]
   ) => {
     setState(s => ({ ...s, isAuditing: true }));
+    setError(null);
+
+    try {
 
     const checks: BiasCheck[] = [];
     const profits = tradeHistory.map(t => t.profit);
@@ -622,9 +626,15 @@ export function useMLAudit() {
     setState(newState);
 
     return newState;
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Audit computation failed';
+    setError(msg);
+    setState(s => ({ ...s, isAuditing: false }));
+    throw e;
+  }
   }, []);
 
-  return { state, runAudit };
+  return { state, error, runAudit };
 }
 
 function calculateCorrelation(x: number[], y: number[]): number {

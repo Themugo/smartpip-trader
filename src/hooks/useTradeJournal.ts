@@ -41,6 +41,7 @@ export function useTradeJournal() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [insights, setInsights] = useState<WeeklyInsight[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const entriesRef = useRef<JournalEntry[]>([]);
 
   // Load from Supabase on mount
@@ -135,25 +136,29 @@ export function useTradeJournal() {
     // Persist to Supabase
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('trade_journal').insert({
-        user_id: user.id,
-        timestamp: new Date(fullEntry.timestamp).toISOString(),
-        symbol: fullEntry.symbol,
-        contract_type: fullEntry.contractType,
-        entry_price: fullEntry.entryPrice,
-        entry_digit: fullEntry.entryDigit,
-        amount: fullEntry.amount,
-        confidence: fullEntry.confidence,
-        regime: fullEntry.regime,
-        entry_conditions: fullEntry.entryConditions,
-        exit_conditions: fullEntry.exitConditions,
-        profit: fullEntry.profit,
-        pnl: fullEntry.pnl,
-        drawdown_impact: fullEntry.drawdownImpact,
-        running_balance: fullEntry.runningBalance,
-        peak_balance: fullEntry.peakBalance,
-        notes: fullEntry.notes,
-      });
+      try {
+        await supabase.from('trade_journal').insert({
+          user_id: user.id,
+          timestamp: new Date(fullEntry.timestamp).toISOString(),
+          symbol: fullEntry.symbol,
+          contract_type: fullEntry.contractType,
+          entry_price: fullEntry.entryPrice,
+          entry_digit: fullEntry.entryDigit,
+          amount: fullEntry.amount,
+          confidence: fullEntry.confidence,
+          regime: fullEntry.regime,
+          entry_conditions: fullEntry.entryConditions,
+          exit_conditions: fullEntry.exitConditions,
+          profit: fullEntry.profit,
+          pnl: fullEntry.pnl,
+          drawdown_impact: fullEntry.drawdownImpact,
+          running_balance: fullEntry.runningBalance,
+          peak_balance: fullEntry.peakBalance,
+          notes: fullEntry.notes,
+        });
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to save journal entry');
+      }
     }
 
     return fullEntry;
@@ -183,19 +188,23 @@ export function useTradeJournal() {
     if (user) {
       const entry = entriesRef.current.find(e => e.id === entryId);
       if (entry) {
-        await supabase.from('trade_journal')
-          .update({
-            exit_price: exitPrice,
-            exit_digit: exitDigit,
-            profit,
-            pnl: profit,
-            exit_conditions: exitConditions,
-            drawdown_impact: entry.drawdownImpact,
-            running_balance: entry.runningBalance,
-            peak_balance: entry.peakBalance,
-          })
-          .eq('id', entryId)
-          .eq('user_id', user.id);
+        try {
+          await supabase.from('trade_journal')
+            .update({
+              exit_price: exitPrice,
+              exit_digit: exitDigit,
+              profit,
+              pnl: profit,
+              exit_conditions: exitConditions,
+              drawdown_impact: entry.drawdownImpact,
+              running_balance: entry.runningBalance,
+              peak_balance: entry.peakBalance,
+            })
+            .eq('id', entryId)
+            .eq('user_id', user.id);
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : 'Failed to update exit');
+        }
       }
     }
   }, []);
@@ -324,8 +333,12 @@ export function useTradeJournal() {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('trade_journal').delete().eq('user_id', user.id);
-      await supabase.from('weekly_insights').delete().eq('user_id', user.id);
+      try {
+        await supabase.from('trade_journal').delete().eq('user_id', user.id);
+        await supabase.from('weekly_insights').delete().eq('user_id', user.id);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to reset journal');
+      }
     }
   }, []);
 
@@ -333,6 +346,7 @@ export function useTradeJournal() {
     entries,
     insights: insightsMemo,
     loading,
+    error,
     addEntry,
     updateExit,
     generateWeeklyInsights,

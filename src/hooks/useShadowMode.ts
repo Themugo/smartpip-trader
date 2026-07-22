@@ -56,6 +56,7 @@ export function useShadowMode() {
   });
   const [dailyMetrics, setDailyMetrics] = useState<ShadowDailyMetric[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const signalsRef = useRef<ShadowSignal[]>([]);
   const startDateRef = useRef<number>(Date.now());
@@ -268,19 +269,23 @@ export function useShadowMode() {
 
     // Persist to Supabase
     if (user) {
-      await supabase.from('shadow_signals').insert({
-        user_id: user.id,
-        symbol,
-        contract_type: contractType,
-        predicted_direction: predictedDirection,
-        confidence,
-        expected_outcome: expectedOutcome,
-        actual_outcome: 'pending',
-        expected_pnl: expectedPnl,
-        latency_ms: latencyMs,
-        executed: false,
-        model_version: modelVersion,
-      });
+      try {
+        await supabase.from('shadow_signals').insert({
+          user_id: user.id,
+          symbol,
+          contract_type: contractType,
+          predicted_direction: predictedDirection,
+          confidence,
+          expected_outcome: expectedOutcome,
+          actual_outcome: 'pending',
+          expected_pnl: expectedPnl,
+          latency_ms: latencyMs,
+          executed: false,
+          model_version: modelVersion,
+        });
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to persist signal');
+      }
     }
 
     return signal;
@@ -296,10 +301,14 @@ export function useShadowMode() {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('shadow_signals')
-        .update({ executed: true, actual_outcome: actualPnl > 0 ? 'win' : 'loss', actual_pnl: actualPnl })
-        .eq('id', signalId)
-        .eq('user_id', user.id);
+      try {
+        await supabase.from('shadow_signals')
+          .update({ executed: true, actual_outcome: actualPnl > 0 ? 'win' : 'loss', actual_pnl: actualPnl })
+          .eq('id', signalId)
+          .eq('user_id', user.id);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to update signal');
+      }
     }
   }, []);
 
@@ -313,15 +322,19 @@ export function useShadowMode() {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('shadow_signals')
-        .update({
-          executed: false,
-          missed_reason: reason,
-          actual_outcome: actualOutcome || 'missed',
-          actual_pnl: actualPnl || null,
-        })
-        .eq('id', signalId)
-        .eq('user_id', user.id);
+      try {
+        await supabase.from('shadow_signals')
+          .update({
+            executed: false,
+            missed_reason: reason,
+            actual_outcome: actualOutcome || 'missed',
+            actual_pnl: actualPnl || null,
+          })
+          .eq('id', signalId)
+          .eq('user_id', user.id);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to update signal');
+      }
     }
   }, []);
 
@@ -333,10 +346,14 @@ export function useShadowMode() {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('shadow_signals')
-        .update({ actual_outcome: actualOutcome, actual_pnl: actualPnl })
-        .eq('id', signalId)
-        .eq('user_id', user.id);
+      try {
+        await supabase.from('shadow_signals')
+          .update({ actual_outcome: actualOutcome, actual_pnl: actualPnl })
+          .eq('id', signalId)
+          .eq('user_id', user.id);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to resolve signal');
+      }
     }
   }, []);
 
@@ -348,9 +365,13 @@ export function useShadowMode() {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('shadow_signals').delete().eq('user_id', user.id);
-      await supabase.from('shadow_daily_metrics').delete().eq('user_id', user.id);
-      await supabase.from('shadow_qualification').delete().eq('user_id', user.id);
+      try {
+        await supabase.from('shadow_signals').delete().eq('user_id', user.id);
+        await supabase.from('shadow_daily_metrics').delete().eq('user_id', user.id);
+        await supabase.from('shadow_qualification').delete().eq('user_id', user.id);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to reset shadow data');
+      }
     }
   }, []);
 
@@ -359,6 +380,7 @@ export function useShadowMode() {
     metrics,
     dailyMetrics,
     loading,
+    error,
     generateSignal,
     markExecuted,
     markMissed,

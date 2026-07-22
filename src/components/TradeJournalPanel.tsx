@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import {
   BookOpen, Target,
   ChevronDown, ChevronUp, Lightbulb, RefreshCw, CheckCircle, XCircle, Award, Zap,
-  Calendar, BarChart3, TrendingDown, Hash, Clock,
+  Calendar, BarChart3, TrendingDown, Hash, Clock, AlertTriangle,
 } from 'lucide-react';
 import type { JournalEntry, WeeklyInsight } from '../hooks/useTradeJournal';
 
@@ -12,6 +12,8 @@ import type { JournalEntry, WeeklyInsight } from '../hooks/useTradeJournal';
 interface TradeJournalPanelProps {
   entries: JournalEntry[];
   insights: WeeklyInsight[];
+  loading?: boolean;
+  error?: string | null;
   onGenerateInsights?: () => void;
 }
 
@@ -234,6 +236,8 @@ interface TabDef {
 export function TradeJournalPanel({
   entries,
   insights,
+  loading,
+  error,
   onGenerateInsights,
 }: TradeJournalPanelProps) {
   const [tab, setTab] = useState<Tab>('trades');
@@ -312,6 +316,20 @@ export function TradeJournalPanel({
 
   return (
     <div className="bg-slate-900 rounded-xl border border-slate-700/50 flex flex-col h-full">
+
+      {loading && entries.length === 0 && (
+        <div className="flex items-center justify-center py-12 gap-2">
+          <div className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-slate-400">Loading journal...</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="mx-4 mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs">
+          <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+          <span className="text-red-400 flex-1">{error}</span>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50">
