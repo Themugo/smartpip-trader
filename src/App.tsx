@@ -22,7 +22,7 @@ import { OnboardingWizard } from './components/OnboardingWizard';
 import { AuthModal } from './components/AuthModal';
 import { BrokerConnectPanel } from './components/BrokerConnectPanel';
 import { api } from './lib/api';
-import { supabase } from './lib/supabase';
+import { supabase, supabaseConfigured } from './lib/supabase';
 import { useDerivTicks } from './hooks/useDerivTicks';
 import { useDerivToken } from './hooks/useDerivToken';
 import { useRegimeDetection } from './hooks/useRegimeDetection';
@@ -105,10 +105,6 @@ export default function App() {
     if (params.get('login') === '1') {
       setShowAuthModal(true);
     }
-
-    const supabaseConfigured = Boolean(
-      import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
-    );
 
     if (!supabaseConfigured) {
       setAuthLoading(false);

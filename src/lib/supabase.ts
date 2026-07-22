@@ -1,11 +1,18 @@
-import { createClient, User } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 
 export type { User };
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabaseConfigured = Boolean(supabaseUrl && supabaseKey);
+
+// Create a real client only when env vars are present; otherwise export a
+// stub whose auth methods resolve to safe no-ops so the app can still
+// render (public / demo mode) without crashing.
+export const supabase: SupabaseClient = supabaseConfigured
+  ? createClient(supabaseUrl, supabaseKey)
+  : createClient('https://placeholder.supabase.co', 'placeholder');
 
 export type Trade = {
   id: string;
