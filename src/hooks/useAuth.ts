@@ -1,21 +1,47 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, type User } from '../lib/supabase';
+import { supabase, supabaseConfigured, type User } from '../lib/supabase';
 
 export interface AuthState {
   user: User | null;
   loading: boolean;
+  hasCompletedOnboarding: boolean;
 }
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({ user: null, loading: true });
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    loading: true,
+    hasCompletedOnboarding: false,
+  });
 
   useEffect(() => {
+    if (!supabaseConfigured) {
+      setState({ user: null, loading: false, hasCompletedOnboarding: true });
+      return;
+    }
+
+    // Check URL for login=1 param
+    const params = new URLSearchParams(window.location.search);
+    const showLogin = params.get('login') === '1';
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setState({ user: session?.user ?? null, loading: false });
+      const user = session?.user ?? null;
+      const onboarding = user
+        ? !!localStorage.getItem('onboarding_completed')
+        : true;
+      setState({ user, loading: false, hasCompletedOnboarding: onboarding });
+
+      if (showLogin && !user) {
+        // Signal to parent that auth modal should open — handled via URL param
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState({ user: session?.user ?? null, loading: false });
+      const user = session?.user ?? null;
+      const onboarding = user
+        ? !!localStorage.getItem('onboarding_completed')
+        : true;
+      setState({ user, loading: false, hasCompletedOnboarding: onboarding });
     });
 
     return () => subscription.unsubscribe();
@@ -38,5 +64,19 @@ export function useAuth() {
     if (error) throw error;
   }, []);
 
-  return { ...state, signIn, signUp, signOut };
+  const completeOnboarding = useCallback(() => {
+    localStorage.setItem('onboarding_completed', 'true');
+    setState((prev) => ({ ...prev, hasCompletedOnboarding: true }));
+  }, []);
+
+  const showLoginModal = new URLSearchParams(window.location.search).get('login') === '1';
+
+  return {
+    ...state,
+    signIn,
+    signUp,
+    signOut,
+    completeOnboarding,
+    showLoginModal,
+  };
 }
