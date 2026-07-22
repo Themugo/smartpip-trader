@@ -15,6 +15,8 @@ from trading.trade_journal import TradeJournal
 from models import Prediction
 from intelligence import IntelligenceOrchestrator, ResearchOrchestrator
 from intelligence.trade_memory import TradeRecord
+from strategies.registry import StrategyRegistry
+from strategies.marketplace import StrategyMarketplace
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -86,6 +88,13 @@ class TradingSystem:
         # ========== INTELLIGENCE LAYER ==========
         self.intelligence = None
         self.research = None
+
+        # ========== STRATEGY PLATFORM ==========
+        self.strategy_marketplace = StrategyMarketplace()
+        self.strategy_registry = StrategyRegistry()
+        self.strategy_marketplace.set_registry(self.strategy_registry)
+        self._init_strategy_platform()
+
         if self.settings.intelligence_enabled:
             try:
                 self.intelligence = IntelligenceOrchestrator(
@@ -122,6 +131,37 @@ class TradingSystem:
         self.analysis.set_analyzer_enabled("over_under", self.settings.enable_over_under)
         self.analysis.set_analyzer_enabled("match_diff", self.settings.enable_match_diff)
         self.analysis.set_analyzer_enabled("digit_analysis", self.settings.enable_digit_analysis)
+
+    def _init_strategy_platform(self):
+        """Register all marketplace strategies into the registry."""
+        for meta_info in self.strategy_marketplace.list_all():
+            strategy = self.strategy_marketplace.create_strategy(meta_info["name"])
+            if strategy:
+                self.strategy_registry.register(meta_info["name"], strategy)
+        # Activate unified by default if available
+        if self.strategy_registry.has("unified"):
+            self.strategy_registry.set_active("unified")
+        elif self.strategy_registry.has("grid"):
+            self.strategy_registry.set_active("grid")
+        logger.info(
+            "Strategy platform: %d strategies registered, active=%s",
+            len(self.strategy_registry.list_all()),
+            self.strategy_registry.active_name,
+        )
+
+    def switch_strategy(self, name: str) -> bool:
+        """Hot-swap the active trading strategy at runtime."""
+        success = self.strategy_marketplace.activate(name)
+        if success:
+            logger.info("Switched strategy to: %s", name)
+        return success
+
+    def get_strategy_platform_state(self) -> Dict[str, Any]:
+        """Get strategy platform state for the dashboard."""
+        return {
+            "marketplace": self.strategy_marketplace.get_state(),
+            "registry": self.strategy_registry.get_state(),
+        }
     
     async def _on_reconnect(self):
         """Callback when connection is re-established"""
@@ -553,6 +593,7 @@ class TradingSystem:
             "zero_loss_risk": self.zero_loss_risk_manager.get_risk_metrics(),
             "intelligence": self.intelligence.get_intelligence_state() if self.intelligence else None,
             "research": self.research.get_intelligence_state() if self.research else None,
+            "strategy_platform": self.get_strategy_platform_state(),
             "performance": {
                 "cache": self.cache.get_stats(),
                 "metrics": self.metrics.get_summary(),
