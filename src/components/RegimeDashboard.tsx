@@ -161,9 +161,9 @@ function RegimeCard({ regime, items }: { regime: RegimeType; items: RegimeTradeD
               ).map(([strategy, strategyItems]) => {
                 const s = calcRegimeStats(strategyItems);
                 return (
-                  <div key={strategy} className="flex items-center justify-between py-1 border-b border-slate-700/30 last:border-0">
-                    <span className="text-xs text-slate-300 capitalize">{strategy.replace('_', ' ')}</span>
-                    <div className="flex items-center gap-3">
+                  <div key={strategy} className="flex items-center justify-between py-1 border-b border-slate-700/30 last:border-0 min-w-0">
+                    <span className="text-xs text-slate-300 capitalize truncate">{strategy.replace('_', ' ')}</span>
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className="text-[10px] text-slate-500">{s.totalTrades} trades</span>
                       <span className={`text-xs font-medium ${s.winRate >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {s.winRate.toFixed(1)}%
@@ -191,9 +191,9 @@ function RegimeCard({ regime, items }: { regime: RegimeType; items: RegimeTradeD
               ).map(([symbol, symbolItems]) => {
                 const s = calcRegimeStats(symbolItems);
                 return (
-                  <div key={symbol} className="flex items-center justify-between py-1 border-b border-slate-700/30 last:border-0">
-                    <span className="text-xs text-slate-300 font-mono">{symbol}</span>
-                    <div className="flex items-center gap-3">
+                  <div key={symbol} className="flex items-center justify-between py-1 border-b border-slate-700/30 last:border-0 min-w-0">
+                    <span className="text-xs text-slate-300 font-mono truncate">{symbol}</span>
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className="text-[10px] text-slate-500">{s.totalTrades} trades</span>
                       <span className={`text-xs font-medium ${s.totalProfit > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {s.totalProfit > 0 ? '+' : ''}${s.totalProfit.toFixed(2)}
@@ -254,7 +254,7 @@ export function RegimeDashboard({ tradeData = [] }: RegimeDashboardProps) {
             <select
               value={filterStrategy}
               onChange={(e) => setFilterStrategy(e.target.value)}
-              className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white"
+              className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white max-w-[160px] truncate"
             >
               {strategies.map((s) => (
                 <option key={s} value={s}>

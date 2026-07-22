@@ -81,14 +81,14 @@ function SignalCard({ signal }: { signal: ShadowSignal }) {
 
 function DailyMetricRow({ metric }: { metric: ShadowDailyMetric }) {
   return (
-    <div className="grid grid-cols-7 gap-1 text-[10px] py-1.5 border-b border-slate-700/30 items-center">
-      <span className="text-slate-400">{metric.date}</span>
+    <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 text-[10px] py-1.5 border-b border-slate-700/30 items-center">
+      <span className="text-slate-400 truncate">{metric.date}</span>
       <span className="text-slate-300 text-center">{metric.totalSignals}</span>
       <span className={`text-center ${metric.signalAccuracy >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>{metric.signalAccuracy.toFixed(0)}%</span>
       <span className={`text-center ${metric.paperPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${metric.paperPnl.toFixed(2)}</span>
-      <span className={`text-center ${metric.realPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${metric.realPnl.toFixed(2)}</span>
-      <span className="text-slate-300 text-center">{metric.avgLatencyMs.toFixed(0)}ms</span>
-      <span className={`text-center ${metric.modelDrift < 10 ? 'text-emerald-400' : metric.modelDrift < 20 ? 'text-amber-400' : 'text-red-400'}`}>{metric.modelDrift.toFixed(1)}%</span>
+      <span className={`text-center hidden sm:block ${metric.realPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>${metric.realPnl.toFixed(2)}</span>
+      <span className="text-slate-300 text-center hidden sm:block">{metric.avgLatencyMs.toFixed(0)}ms</span>
+      <span className={`text-center hidden sm:block ${metric.modelDrift < 10 ? 'text-emerald-400' : metric.modelDrift < 20 ? 'text-amber-400' : 'text-red-400'}`}>{metric.modelDrift.toFixed(1)}%</span>
     </div>
   );
 }
@@ -165,7 +165,7 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
               <div className={`text-sm font-medium ${metrics.isQualified ? 'text-emerald-400' : 'text-amber-400'}`}>
                 {metrics.isQualified ? 'LIVE TRADING QUALIFIED' : 'SHADOW MODE ONLY'}
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-slate-400 break-words">
                 {metrics.daysInShadow} days / 30 required • {metrics.profitableDays} profitable days
                 {metrics.isQualified ? ' • Qualified!' : ` • ${daysRemaining} days remaining`}
               </div>
@@ -266,7 +266,7 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
         <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
           <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
             <h4 className="text-xs font-semibold text-slate-300">Signal Log</h4>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {(['all', 'executed', 'missed', 'pending'] as const).map(f => (
                 <button
                   key={f}
@@ -296,14 +296,14 @@ export function ShadowModePanel({ signals, metrics, dailyMetrics = [] }: ShadowM
         <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5">
           <h4 className="text-xs font-semibold text-slate-300 mb-3">Daily Performance</h4>
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-7 gap-1 text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 text-[9px] text-slate-500 uppercase tracking-wider mb-1">
               <span>Date</span>
               <span className="text-center">Signals</span>
               <span className="text-center">Accuracy</span>
               <span className="text-center">Paper</span>
-              <span className="text-center">Real</span>
-              <span className="text-center">Latency</span>
-              <span className="text-center">Drift</span>
+              <span className="text-center hidden sm:block">Real</span>
+              <span className="text-center hidden sm:block">Latency</span>
+              <span className="text-center hidden sm:block">Drift</span>
             </div>
             {dailyMetrics.map((m, i) => (
               <DailyMetricRow key={i} metric={m} />

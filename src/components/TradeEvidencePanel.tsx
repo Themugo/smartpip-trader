@@ -55,9 +55,9 @@ function EvidenceCard({ evidence }: { evidence: TradeEvidence }) {
             </div>
             <div className="space-y-1">
               {evidence.indicators.map((ind, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300">{ind.name}</span>
-                  <div className="flex items-center gap-2">
+                <div key={i} className="flex items-center justify-between text-xs min-w-0">
+                  <span className="text-slate-300 truncate">{ind.name}</span>
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className="text-slate-400">{ind.value}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                       ind.signal === 'bullish' ? 'bg-emerald-500/10 text-emerald-400' :
@@ -78,9 +78,9 @@ function EvidenceCard({ evidence }: { evidence: TradeEvidence }) {
             </div>
             <div className="space-y-1.5">
               {evidence.analyzers.map((a, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300">{a.name}</span>
-                  <div className="flex items-center gap-2">
+                <div key={i} className="flex items-center justify-between text-xs min-w-0">
+                  <span className="text-slate-300 truncate">{a.name}</span>
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className="text-slate-400">{a.prediction}</span>
                     <span className="text-blue-400">{a.confidence}%</span>
                   </div>
@@ -97,9 +97,9 @@ function EvidenceCard({ evidence }: { evidence: TradeEvidence }) {
             </div>
             <div className="space-y-1">
               {evidence.riskChecks.map((r, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300">{r.name}</span>
-                  <div className="flex items-center gap-2">
+                <div key={i} className="flex items-center justify-between text-xs min-w-0">
+                  <span className="text-slate-300 truncate">{r.name}</span>
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                       r.passed ? 'bg-emerald-500/10 text-emerald-400' :
                       r.severity === 'critical' ? 'bg-red-500/10 text-red-400' :

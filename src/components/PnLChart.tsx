@@ -78,9 +78,9 @@ export function PnLChart({ trades }: PnLChartProps) {
         </svg>
       </div>
 
-      <div className="flex justify-between mt-2 text-[10px] sm:text-xs text-slate-500">
-        <span>{trades.length} trades</span>
-        <span>
+      <div className="flex justify-between mt-2 text-[10px] sm:text-xs text-slate-500 min-w-0">
+        <span className="shrink-0">{trades.length} trades</span>
+        <span className="truncate ml-2">
           Best: +${Math.max(...data).toFixed(2)} | Worst: {Math.min(...data).toFixed(2)}
         </span>
       </div>

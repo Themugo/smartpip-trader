@@ -357,7 +357,7 @@ export function PositionSizingPanel({ currentBalance }: PositionSizingPanelProps
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={handleRunSimulation}
                 disabled={simulation.isRunning}
@@ -391,7 +391,7 @@ export function PositionSizingPanel({ currentBalance }: PositionSizingPanelProps
                     ]}
                     labels={['Adaptive', 'Fixed']}
                   />
-                  <div className="flex gap-4 mt-2">
+                  <div className="flex gap-4 mt-2 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       <div className="w-2 h-2 rounded-full bg-emerald-500" />
                       <span className="text-[10px] text-slate-400">Adaptive</span>

@@ -174,7 +174,7 @@ function EntryCard({ entry }: { entry: JournalEntry }) {
 
       {expanded && (
         <div className="px-3 pb-3 border-t border-slate-700/30 pt-2 space-y-2">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {(
               [
                 ['Entry Price', `$${entry.entryPrice.toFixed(4)}`],
@@ -656,7 +656,7 @@ export function TradeJournalPanel({
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-6 gap-1">
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
                   {Array.from({ length: 24 }, (_, h) => {
                     const key = `${String(h).padStart(2, '0')}:00`;
                     const s = heatmap[key] ?? { win_rate: 0, trades: 0, avg_pnl: 0 };

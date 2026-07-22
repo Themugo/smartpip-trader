@@ -103,10 +103,10 @@ function CVFoldCard({ fold }: { fold: CVFold }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full px-3 py-2 flex items-center justify-between hover:bg-slate-800 transition-colors"
       >
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-3.5 h-3.5 text-blue-400" />
-          <span className="text-xs text-slate-300">Fold {fold.fold}</span>
-          <span className="text-[10px] text-slate-500">Train [{fold.trainStart}-{fold.trainEnd}] → Test [{fold.testStart}-{fold.testEnd}]</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <BarChart3 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+          <span className="text-xs text-slate-300 shrink-0">Fold {fold.fold}</span>
+          <span className="text-[10px] text-slate-500 truncate hidden sm:inline">Train [{fold.trainStart}-{fold.trainEnd}] → Test [{fold.testStart}-{fold.testEnd}]</span>
           {fold.embargoSize > 0 && (
             <span className="text-[9px] text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded">Embargo: {fold.embargoSize}</span>
           )}
@@ -275,7 +275,7 @@ export function MLAuditPanel({ auditState, onRunAudit }: MLAuditPanelProps) {
       {hasRun && (
         <>
           {/* Section Tabs */}
-          <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1 w-fit border border-slate-700">
+          <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1 w-fit border border-slate-700 overflow-x-auto">
             {([
               { key: 'bias', label: 'Bias Checks', icon: Target },
               { key: 'cv', label: 'Cross-Validation', icon: BarChart3 },

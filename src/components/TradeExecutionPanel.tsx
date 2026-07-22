@@ -227,7 +227,7 @@ export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = fals
   const recommended = getRecommendedType();
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 p-5 space-y-5">
+    <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-5 space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <ShoppingCart className="w-5 h-5 text-cyan-400" />
@@ -434,7 +434,7 @@ export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = fals
         ) : (
           <>
             <ShoppingCart className="w-4 h-4" />
-            Place Trade — {CONTRACT_TYPES.find((c) => c.type === selectedType)?.label} @ ${amount.toFixed(2)}
+            <span className="truncate">Place Trade — {CONTRACT_TYPES.find((c) => c.type === selectedType)?.label} @ ${amount.toFixed(2)}</span>
           </>
         )}
       </button>

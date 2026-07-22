@@ -22,7 +22,7 @@ export function BrokerConnectPanel({
 
   if (!isAuthenticated) {
     return (
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 p-4">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 p-4 sm:p-5">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
             <Link2 className="w-5 h-5 text-emerald-400" />
@@ -47,7 +47,7 @@ export function BrokerConnectPanel({
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 p-4">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-700 p-4 sm:p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${hasTradingToken ? 'bg-emerald-500/20' : 'bg-amber-500/20'}`}>
           <Key className={`w-5 h-5 ${hasTradingToken ? 'text-emerald-400' : 'text-amber-400'}`} />

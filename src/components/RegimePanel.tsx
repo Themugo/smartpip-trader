@@ -163,13 +163,13 @@ export function RegimePanel({ regimeState }: RegimePanelProps) {
       {expanded && (
         <div className="px-4 pb-4 border-t border-slate-700/50 space-y-4 pt-3">
           {/* Regime Duration */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Clock className="w-4 h-4 text-slate-400" />
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="text-[10px] text-slate-400">Regime Duration</div>
               <div className="text-sm font-medium text-slate-200">{duration} ticks</div>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <div className="text-[10px] text-slate-400">Confidence</div>
               <div className={`text-sm font-bold ${config.color}`}>{confidence.toFixed(1)}%</div>
             </div>

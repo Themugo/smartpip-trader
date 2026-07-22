@@ -568,24 +568,24 @@ export function ReviewPage() {
                 ))}
               </div>
 
-              <div className="space-y-1 max-h-64 overflow-y-auto">
+              <div className="space-y-1 max-h-64 overflow-y-auto overflow-x-auto">
                 {profitTbl.trades.map((t, i) => {
                   const win = (t.pnl ?? 0) > 0;
                   return (
                     <div
                       key={i}
-                      className={`flex items-center justify-between px-2 py-1.5 rounded text-[10px] ${
+                      className={`flex items-center justify-between px-2 py-1.5 rounded text-[10px] min-w-0 ${
                         win ? 'bg-emerald-900/10 border border-emerald-700/20' : 'bg-red-900/10 border border-red-700/20'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         {win
-                          ? <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                          : <XCircle className="w-3 h-3 text-red-400" />}
-                        <span className="text-slate-300">{t.contract_type ?? '—'}</span>
-                        <span className="text-slate-500">{t.duration}</span>
+                          ? <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                          : <XCircle className="w-3 h-3 text-red-400 shrink-0" />}
+                        <span className="text-slate-300 truncate">{t.contract_type ?? '—'}</span>
+                        <span className="text-slate-500 hidden sm:inline">{t.duration}</span>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 shrink-0">
                         <span className="text-slate-500">
                           buy ${(t.buy_price ?? 0).toFixed(2)}
                         </span>
@@ -638,19 +638,19 @@ export function ReviewPage() {
                 {items.map((m) => (
                   <div
                     key={m.path}
-                    className={`flex items-center justify-between px-2 py-1.5 rounded text-[10px] ${
+                    className={`flex items-center justify-between px-2 py-1.5 rounded text-[10px] min-w-0 ${
                       m.exists
                         ? 'bg-slate-700/20 border border-slate-600/20'
                         : 'bg-red-900/10 border border-red-700/20'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       {m.exists
                         ? <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
                         : <XCircle className="w-3 h-3 text-red-400 shrink-0" />}
-                      <span className="font-mono text-slate-300">{m.path}</span>
+                      <span className="font-mono text-slate-300 truncate">{m.path}</span>
                     </div>
-                    <div className="flex gap-3 text-slate-500">
+                    <div className="flex gap-3 text-slate-500 shrink-0">
                       <span>{m.lines.toLocaleString()} lines</span>
                       <span>{m.size_kb} KB</span>
                     </div>
@@ -692,11 +692,11 @@ export function ReviewPage() {
                   {eps.map((e) => (
                     <div
                       key={e.path}
-                      className="flex items-center gap-2 px-2 py-1 bg-slate-700/20 rounded text-[10px]"
+                      className="flex items-center gap-2 px-2 py-1 bg-slate-700/20 rounded text-[10px] min-w-0"
                     >
                       <MethodBadge method={e.method} />
-                      <span className="font-mono text-slate-300">{e.path}</span>
-                      <ExternalLink className="w-2.5 h-2.5 text-slate-600 ml-auto" />
+                      <span className="font-mono text-slate-300 truncate">{e.path}</span>
+                      <ExternalLink className="w-2.5 h-2.5 text-slate-600 ml-auto shrink-0" />
                     </div>
                   ))}
                 </div>
