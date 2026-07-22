@@ -11,12 +11,15 @@
  */
 
 import { supabase } from './supabase';
+import { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } from './env';
 
 // ============================================
 // Configuration
 // ============================================
 
-const EDGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/trading-api`;
+const EDGE_FUNCTION_URL = VITE_SUPABASE_URL
+  ? `${VITE_SUPABASE_URL}/functions/v1/trading-api`
+  : '';
 const API_V2_BASE = '/api/v2';
 
 // Retry configuration
@@ -111,7 +114,7 @@ async function apiFetch<T = unknown>(
 
   // Get auth token
   const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token ?? import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const token = session?.access_token ?? VITE_SUPABASE_ANON_KEY;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

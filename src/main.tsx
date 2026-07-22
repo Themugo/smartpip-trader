@@ -3,13 +3,12 @@ import { createRoot, type Root } from 'react-dom/client';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import App from './App.tsx';
 import './index.css';
+import { envDiagnostics, envAllRequiredPresent } from './lib/env';
 
 // ── Diagnostics ───────────────────────────────────────────────
 const DIAG = {
-  env: {
-    supabaseUrl: Boolean(import.meta.env.VITE_SUPABASE_URL),
-    supabaseKey: Boolean(import.meta.env.VITE_SUPABASE_ANON_KEY),
-  },
+  env: envDiagnostics,
+  envOk: envAllRequiredPresent,
   ua: navigator.userAgent,
   ts: new Date().toISOString(),
 };

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { VITE_DERIV_APP_ID } from '../lib/env';
 
 export type ContractType = 'DIGITMATCH' | 'DIGITDIFF' | 'DIGITOVER' | 'DIGITUNDER' | 'DIGITEVEN' | 'DIGITODD';
 
@@ -22,7 +23,7 @@ export interface TradeResult {
   profit?: number;
 }
 
-const DERIV_WS_URL = 'wss://ws.binaryws.com/websockets/v3?app_id=1089';
+const DERIV_WS_URL = `wss://ws.binaryws.com/websockets/v3?app_id=${VITE_DERIV_APP_ID}`;
 
 export function useTradeExecution(apiToken?: string) {
   const [executing, setExecuting] = useState(false);
