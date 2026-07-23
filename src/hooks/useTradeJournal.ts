@@ -322,9 +322,8 @@ export function useTradeJournal() {
   }, []);
 
   const insightsMemo = useMemo(() => {
-    generateWeeklyInsights();
     return insights;
-  }, [entries, insights, generateWeeklyInsights]);
+  }, [insights]);
 
   const reset = useCallback(async () => {
     entriesRef.current = [];

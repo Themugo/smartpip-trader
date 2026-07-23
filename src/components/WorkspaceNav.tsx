@@ -137,45 +137,24 @@ export const WorkspaceNav: React.FC<WorkspaceNavProps> = ({
 }) => {
   const [workspaces, setWorkspaces] = useState<Workspace[]>(DEFAULT_WORKSPACES);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadWorkspaces();
+    // Use default workspaces - API endpoints not yet implemented
+    setWorkspaces(DEFAULT_WORKSPACES);
   }, []);
-
-  const loadWorkspaces = async () => {
-    try {
-      const response = await api.workspaces.list();
-      if (response.data?.workspaces) {
-        setWorkspaces(response.data.workspaces);
-      }
-      if (response.data?.favorites) {
-        setFavorites(response.data.favorites);
-      }
-    } catch (error) {
-      console.error('Failed to load workspaces:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleWorkspaceClick = (workspaceId: string) => {
     onWorkspaceChange(workspaceId);
   };
 
-  const toggleFavorite = async (workspaceId: string, e: React.MouseEvent) => {
+  const toggleFavorite = (workspaceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    try {
-      if (favorites.includes(workspaceId)) {
-        await api.workspaces.removeFavorite(workspaceId);
-        setFavorites(favorites.filter(id => id !== workspaceId));
-      } else {
-        await api.workspaces.addFavorite(workspaceId);
-        setFavorites([...favorites, workspaceId]);
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
+    // Local-only favorite toggle - API endpoints not yet implemented
+    if (favorites.includes(workspaceId)) {
+      setFavorites(favorites.filter(id => id !== workspaceId));
+    } else {
+      setFavorites([...favorites, workspaceId]);
     }
   };
 
