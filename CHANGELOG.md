@@ -1,3 +1,10 @@
+
+## End-User Foundation RC2 — 2026-09-16
+- Hardened customer authentication, onboarding, user-scoped settings and broker-connection metadata.
+- Added user-owned execution journal records and safer AI-aligned manual execution.
+- Fixed Deriv tick subscription lifecycle and disabled automatic retries for broker order requests.
+- Added password reset and improved customer-facing risk/AI states.
+- Backend regression suite: 945 passed, 4 skipped.
 # Changelog
 
 ## v5.0 — June 2026 (Current) — Sniper Edition
@@ -38,3 +45,10 @@ Bot Manager, Telegram, martingale
 
 ## v1–2 — March 2026
 Initial Deriv WebSocket connection, basic analysis
+
+## End-User Foundation — 2026-09-16
+- Added focused authenticated customer shell for Trade, AI Analysis, Auto Execution, Performance, Trade Journal and Settings.
+- Added Supabase-authenticated customer entry gate and refreshed auth UI.
+- Added persistent per-user onboarding profiles with RLS migration.
+- Connected end-user AI view to canonical `/api/signals` and manual trading to canonical `/api/trade`.
+- Documented the remaining multi-tenant execution boundary before production customer trading.

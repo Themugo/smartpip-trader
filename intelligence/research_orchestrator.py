@@ -23,6 +23,7 @@ Graceful fallback to the original IntelligenceOrchestrator on any failure.
 
 import logging
 import os
+import os
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -50,8 +51,9 @@ class ResearchOrchestrator:
     Central research-grade orchestrator coordinating all 12 advanced
     intelligence modules into a single decision pipeline.
 
-    Falls back to the original IntelligenceOrchestrator on any failure,
-    ensuring uninterrupted trading even if the research layer errors out.
+    The research layer is authoritative for live execution. Failures return an
+    explicit ABSTAIN result so live trading fails closed instead of silently
+    reverting to a weaker legacy gate.
     """
 
     def __init__(
@@ -62,6 +64,7 @@ class ResearchOrchestrator:
     ):
         self.settings = settings
         self._data_dir = data_dir
+        os.makedirs(self._data_dir, exist_ok=True)
 
         # --- Legacy fallback ---
         self._legacy = IntelligenceOrchestrator(
@@ -153,7 +156,7 @@ class ResearchOrchestrator:
         Run the full 12-step research pipeline on every tick.
 
         Returns a decision dict with keys covering every stage.
-        Falls back to the legacy IntelligenceOrchestrator if anything fails.
+        Runtime errors are converted to an explicit ABSTAIN result.
         """
         self._tick_count += 1
         t0 = time.time()
@@ -164,12 +167,22 @@ class ResearchOrchestrator:
             )
         except Exception as exc:
             logger.exception(
-                "Research pipeline failed at tick %d: %s — falling back to legacy",
+                "Research pipeline failed at tick %d: %s — live trading blocked",
                 self._tick_count, exc,
             )
-            return self._legacy.evaluate_tick(
-                price_history, digit_history, analyzer_output, market, hour,
-            )
+            self._reject_count += 1
+            return {
+                "decision": "ABSTAIN",
+                "rejection_reason": f"Research pipeline failure: {exc}",
+                "score": 0.0,
+                "size": None,
+                "size_info": None,
+                "pipeline_error": True,
+                "pipeline_ok": False,
+                "contract_type": None,
+                "direction": None,
+                "win_probability": 0.0,
+            }
 
     def _run_pipeline(
         self,
@@ -305,14 +318,15 @@ class ResearchOrchestrator:
         # ----------------------------------------------------------------
         # Step 9: Capital preservation gate
         # ----------------------------------------------------------------
+        current_exposure_pct = float(getattr(self, "_current_exposure_pct", 0.0))
         risk_state = self.capital_preservation.evaluate_risk(
-            current_exposure_pct=0.0,
+            current_exposure_pct=current_exposure_pct,
         )
         self._last_risk_state = risk_state
 
         trade_gate = self.capital_preservation.should_allow_trade(
             confidence=opportunity_score_val,
-            current_exposure_pct=0.0,
+            current_exposure_pct=current_exposure_pct,
         )
 
         # ----------------------------------------------------------------
@@ -428,10 +442,19 @@ class ResearchOrchestrator:
             elapsed,
         )
 
+        executable = self._extract_executable_contract(analyzer_output)
         return {
             "decision": decision,
             "rejection_reason": rejection_reason,
             "score": opportunity_score_val,
+            "contract_type": executable.get("contract_type"),
+            "direction": executable.get("direction"),
+            "prediction": executable.get("prediction"),
+            "barrier": executable.get("barrier"),
+            "win_probability": executable.get("win_probability"),
+            "duration": executable.get("duration", 1),
+            "duration_unit": executable.get("duration_unit", "t"),
+            "pipeline_ok": True,
             "size": size_info.get("amount") if size_info else None,
             "size_info": size_info,
             "explanation": explanation,
@@ -450,6 +473,37 @@ class ResearchOrchestrator:
             "search_results": search_results,
             "meta_report": meta_reports,
             "learning_state": learning_state,
+        }
+
+    def _extract_executable_contract(self, analyzer_output: dict) -> Dict[str, Any]:
+        """Resolve a native Deriv contract type without conflating outcome spaces."""
+        consensus = analyzer_output.get("consensus") if isinstance(analyzer_output.get("consensus"), dict) else {}
+        direction = str(consensus.get("direction", "")).upper()
+        mapping = {
+            "RISE": "CALL", "FALL": "PUT", "CALL": "CALL", "PUT": "PUT",
+            "EVEN": "DIGITEVEN", "ODD": "DIGITODD",
+            "OVER": "DIGITOVER", "UNDER": "DIGITUNDER",
+            "MATCH": "DIGITMATCH", "DIFF": "DIGITDIFF",
+        }
+        contract_type = mapping.get(direction)
+        confidence = float(consensus.get("confidence", 0) or 0)
+        if not contract_type:
+            # Search sub-analyzers for an explicit contract/probability.
+            for key, payload in analyzer_output.items():
+                if not isinstance(payload, dict):
+                    continue
+                pred = str(payload.get("prediction", "")).upper()
+                if pred in mapping:
+                    contract_type = mapping[pred]
+                    direction = pred
+                    confidence = max(confidence, float(payload.get("confidence", 0) or 0))
+                    return {"contract_type": contract_type, "direction": direction, "prediction": pred, "win_probability": confidence / 100.0}
+            return {}
+        return {
+            "contract_type": contract_type,
+            "direction": direction,
+            "prediction": direction,
+            "win_probability": confidence / 100.0,
         }
 
     # ------------------------------------------------------------------
@@ -613,21 +667,32 @@ class ResearchOrchestrator:
             logger.error("save_all failed: %s", exc)
 
     def load_all(self):
-        """Load all component states from disk."""
+        """Load persisted research state when present; otherwise keep fresh defaults."""
+        components = (
+            (self.market_dna, "market_dna.pkl"),
+            (self.similarity_search, "similarity_search.pkl"),
+            (self.bayesian_engine, "bayesian_engine.pkl"),
+            (self.ensemble_intelligence, "ensemble_intelligence.pkl"),
+            (self.online_learner, "online_learner.pkl"),
+            (self.abstention_model, "abstention_model.pkl"),
+            (self.meta_supervisor, "meta_supervisor.pkl"),
+            (self.capital_preservation, "capital_preservation.pkl"),
+            (self.self_improvement, "self_improvement.pkl"),
+        )
+        for component, filename in components:
+            path = os.path.join(self._data_dir, filename)
+            if not os.path.exists(path):
+                logger.info("No persisted state for %s; using fresh defaults", filename)
+                continue
+            try:
+                component.load(path)
+            except Exception as exc:
+                logger.warning("Failed to load %s: %s; using fresh defaults", path, exc)
         try:
-            self.market_dna.load(f"{self._data_dir}/market_dna.pkl")
-            self.similarity_search.load(f"{self._data_dir}/similarity_search.pkl")
-            self.bayesian_engine.load(f"{self._data_dir}/bayesian_engine.pkl")
-            self.ensemble_intelligence.load(f"{self._data_dir}/ensemble_intelligence.pkl")
-            self.online_learner.load(f"{self._data_dir}/online_learner.pkl")
-            self.abstention_model.load(f"{self._data_dir}/abstention_model.pkl")
-            self.meta_supervisor.load(f"{self._data_dir}/meta_supervisor.pkl")
-            self.capital_preservation.load(f"{self._data_dir}/capital_preservation.pkl")
-            self.self_improvement.load(f"{self._data_dir}/self_improvement.pkl")
             self._legacy.load_all()
-            logger.info("All research components loaded from %s", self._data_dir)
         except Exception as exc:
-            logger.error("load_all failed: %s", exc)
+            logger.warning("Failed to load legacy intelligence state: %s", exc)
+        logger.info("Research component load completed from %s", self._data_dir)
 
     # ------------------------------------------------------------------
     # Research cycles

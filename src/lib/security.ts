@@ -122,9 +122,6 @@ export async function storeBrokerCredentials(credentials: BrokerCredentials): Pr
   );
 
   // Remove from localStorage if it was there
-  localStorage.removeItem('deriv_token');
-  localStorage.removeItem('deriv_demo_token');
-  localStorage.removeItem('deriv_live_token');
 
   return result;
 }
@@ -163,8 +160,6 @@ export async function deleteBrokerCredentials(
 // ============================================================================
 
 // Valid markets
-const VALID_MARKETS = ['R_10', 'R_25', 'R_50', 'R_75', 'R_100', 'R_200', 'R_250', 'R_500'];
-
 // Valid trade types
 const VALID_TRADE_TYPES = ['DIGITOVER', 'DIGITUNDER', 'DIGITMATCH', 'DIGITDIFF', 'RISEFALL', 'EVENODD', 'HIGHER', 'LOWER', 'TOUCH', 'NO_TOUCH'];
 
@@ -186,16 +181,16 @@ export function validateTradeInput(input: unknown): { valid: boolean; errors?: s
   const trade = input as Record<string, unknown>;
   const errors: string[] = [];
 
-  if (!VALID_MARKETS.includes(trade.market as string)) {
-    errors.push(`market: Must be one of ${VALID_MARKETS.join(', ')}`);
+  if (typeof trade.market !== 'string' || trade.market.length < 2 || trade.market.length > 64) {
+    errors.push('market: Must be a valid Deriv symbol');
   }
 
   if (!VALID_TRADE_TYPES.includes(trade.type as string)) {
     errors.push(`type: Must be one of ${VALID_TRADE_TYPES.join(', ')}`);
   }
 
-  if (!['up', 'down'].includes(trade.direction as string)) {
-    errors.push('direction: Must be "up" or "down"');
+  if (typeof trade.direction !== 'string' || trade.direction.length > 32) {
+    errors.push('direction: Invalid direction/prediction');
   }
 
   const amount = Number(trade.amount);
@@ -325,7 +320,7 @@ setInterval(() => {
 // ============================================================================
 
 export const securityHeaders = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.deriv.com wss://*.deriv.com;",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.deriv.com https://api.derivws.com wss://*.deriv.com wss://api.derivws.com;",
   'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',
   'X-XSS-Protection': '1; mode=block',

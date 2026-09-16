@@ -176,6 +176,14 @@ class TestTradeMemory(_TempDirMixin, unittest.TestCase):
             metadata={},
         )
 
+    def test_get_completed_trades_contract(self):
+        tm = TradeMemory(db_path=os.path.join(self._tmp, "completed.db"))
+        tm.record_trade(self._make_record("win", outcome="WIN", profit=1.0))
+        tm.record_trade(self._make_record("loss", outcome="LOSS", profit=-1.0))
+        tm.record_trade(self._make_record("open", outcome="OPEN", profit=0.0))
+        completed = tm.get_completed_trades(n=10)
+        self.assertEqual({r.trade_id for r in completed}, {"win", "loss"})
+
     def test_record_and_retrieve(self):
         tm = TradeMemory(db_path=os.path.join(self._tmp, "mem.db"))
         rec = self._make_record()

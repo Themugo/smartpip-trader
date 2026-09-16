@@ -60,7 +60,7 @@ def test_imports():
             failed += 1
     
     print(f"\nImport test results: {passed} passed, {failed} failed")
-    return failed == 0
+    assert failed == 0
 
 def test_basic_functionality():
     """Test basic functionality of key components"""
@@ -144,7 +144,7 @@ def test_basic_functionality():
         print(f"{status} {name}")
     
     print(f"\nFunctionality test results: {passed} passed, {failed} failed")
-    return failed == 0
+    assert failed == 0
 
 def main():
     """Run all tests"""
@@ -152,8 +152,16 @@ def main():
     print("SmartPip Trading System - Refactored System Test")
     print("=" * 50)
     
-    import_success = test_imports()
-    functionality_success = test_basic_functionality()
+    try:
+        test_imports()
+        import_success = True
+    except AssertionError:
+        import_success = False
+    try:
+        test_basic_functionality()
+        functionality_success = True
+    except AssertionError:
+        functionality_success = False
     
     print("\n" + "=" * 50)
     if import_success and functionality_success:

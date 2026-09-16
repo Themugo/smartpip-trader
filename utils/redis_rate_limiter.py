@@ -1,10 +1,16 @@
-import redis
+try:
+    import redis
+except ImportError:
+    redis = None
 import json
 import time
 import os
 from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 import logging
+import threading
+import uuid
+from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +30,12 @@ class RedisRateLimiter:
         self.redis_url = redis_url or os.getenv("REDIS_URL", "redis://localhost:6379")
         self.default_window = default_window
         self.default_limit = default_limit
+        self._fallback_hits = defaultdict(deque)
+        self._fallback_lock = threading.Lock()
         
         try:
+            if redis is None:
+                raise RuntimeError("redis package not installed")
             self.redis = redis.from_url(self.redis_url, decode_responses=True)
             self.redis.ping()
             logger.info("Redis rate limiter connected successfully")
@@ -45,12 +55,13 @@ class RedisRateLimiter:
         Returns:
             Tuple of (allowed, info_dict)
         """
+        limit = int(limit or self.default_limit)
+        window = int(window or self.default_window)
+        if limit <= 0 or window <= 0:
+            raise ValueError("rate-limit limit and window must be positive")
+
         if not self.redis:
-            # Fallback to in-memory if Redis unavailable
-            return True, {"error": "Redis unavailable, rate limiting disabled"}
-        
-        limit = limit or self.default_limit
-        window = window or self.default_window
+            return self._fallback_is_allowed(key, limit, window)
         
         current_time = int(time.time())
         window_start = current_time - window
@@ -80,7 +91,7 @@ class RedisRateLimiter:
                 }
             
             # Add current request
-            self.redis.zadd(redis_key, {str(current_time): current_time})
+            self.redis.zadd(redis_key, {f"{current_time}:{uuid.uuid4().hex}": current_time})
             
             # Set expiry
             self.redis.expire(redis_key, window)
@@ -97,9 +108,24 @@ class RedisRateLimiter:
             }
             
         except Exception as e:
-            logger.error(f"Rate limit check failed: {e}")
-            return True, {"error": "Rate limit check failed, allowing request"}
+            logger.error(f"Rate limit check failed: {e}; using in-memory fallback")
+            return self._fallback_is_allowed(key, limit, window)
     
+    def _fallback_is_allowed(self, key: str, limit: int, window: int) -> tuple[bool, Dict[str, Any]]:
+        """Process-local fail-safe limiter used when Redis is unavailable."""
+        now = time.time()
+        with self._fallback_lock:
+            hits = self._fallback_hits[key]
+            cutoff = now - window
+            while hits and hits[0] <= cutoff:
+                hits.popleft()
+            current = len(hits)
+            if current >= limit:
+                reset = int(hits[0] + window) if hits else int(now + window)
+                return False, {"allowed": False, "limit": limit, "remaining": 0, "reset": reset, "current": current, "backend": "memory"}
+            hits.append(now)
+            return True, {"allowed": True, "limit": limit, "remaining": limit - current - 1, "reset": int(now + window), "current": current + 1, "backend": "memory"}
+
     def cleanup_old_keys(self, pattern: str = "ratelimit:*"):
         """Clean up old rate limit keys"""
         if not self.redis:
@@ -117,7 +143,11 @@ class RedisRateLimiter:
     def get_stats(self, key: str) -> Dict[str, Any]:
         """Get current rate limit statistics for a key"""
         if not self.redis:
-            return {"error": "Redis unavailable"}
+            with self._fallback_lock:
+                hits = self._fallback_hits.get(key, ())
+                now = time.time()
+                current = sum(1 for hit in hits if hit > now - self.default_window)
+            return {"key": key, "current_count": current, "ttl": self.default_window, "limit": self.default_limit, "window": self.default_window, "backend": "memory"}
         
         try:
             redis_key = f"ratelimit:{key}"

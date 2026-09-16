@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional, List
 from collections import defaultdict, deque
+from datetime import datetime
 import numpy as np
 
 
@@ -158,6 +159,10 @@ class AdaptiveStrategyManager:
             "timestamp": str(datetime.now())
         })
     
+    def get_current_weights(self, market: str = None, regime: Dict[str, str] = None) -> Dict[str, float]:
+        """Backward-compatible alias for get_adaptive_weights."""
+        return self.get_adaptive_weights(market=market, regime=regime)
+
     def get_adaptive_weights(self, market: str = None, regime: Dict[str, str] = None) -> Dict[str, float]:
         """Get adaptive weights, optionally adjusted for market or regime"""
         weights = self.current_weights.copy()

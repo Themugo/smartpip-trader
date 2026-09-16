@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -247,7 +248,7 @@ export function TradeJournalPanel({
   const [loadingApi, setLoadingApi] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
 
-  const API = '/api/journal';
+  const API = `${API_BASE_URL}/api/journal`;
 
   const loadRecs = useCallback(async () => {
     setLoadingApi(true);

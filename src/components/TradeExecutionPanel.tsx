@@ -8,7 +8,7 @@ import type { RegimeState, RegimeType } from '../hooks/useRegimeDetection';
 
 interface TradeExecutionPanelProps {
   tickData: TickData;
-  apiToken?: string;
+  apiToken?: string; // retained for UI compatibility; never sent to Deriv from the browser
   isAuthenticated?: boolean;
   onSignInRequired?: () => void;
   regimeState?: RegimeState;
@@ -91,7 +91,7 @@ export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = fals
 
   // Calculate adaptive size
   const confidence = analysis.evenOdd.confidence || analysis.overUnder.confidence || analysis.matchDiff.confidence || 50;
-  const sizingResult = sizing.calculateSize(confidence, selectedStrategyType, tickData.digitHistory.map(() => tickData.price));
+  const sizingResult = sizing.calculateSize(confidence, selectedStrategyType, (tickData as TickData & { priceHistory?: number[] }).priceHistory || []);
 
   // Override amount with adaptive size
   useEffect(() => {
@@ -107,11 +107,6 @@ export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = fals
     if (!isAuthenticated) {
       setError('Sign in to place live trades. Market data is free for everyone.');
       onSignInRequired?.();
-      return;
-    }
-
-    if (!apiToken) {
-      setError('Add your Deriv API token in the sidebar to enable live trading.');
       return;
     }
 
@@ -166,19 +161,6 @@ export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = fals
         setError(evidence.blockReason || 'Trade blocked by evidence system');
         return;
       }
-    }
-
-    // Generate shadow signal (always, even if we execute)
-    if (onGenerateShadowSignal) {
-      onGenerateShadowSignal(
-        tickData.symbol,
-        selectedType,
-        selectedType.includes('EVEN') || selectedType.includes('OVER') || selectedType.includes('MATCH') ? 'up' : 'down',
-        confidence,
-        'win',
-        amount * 0.94,
-        tickData.latencyMs,
-      ).catch(console.error);
     }
 
     // Add journal entry

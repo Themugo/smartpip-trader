@@ -13,15 +13,41 @@ import hashlib
 import hmac
 import secrets
 import time
+import os
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta, timedelta
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
-from passlib.context import CryptContext
+try:
+    from passlib.context import CryptContext
+except ImportError:
+    CryptContext = None
 import pyotp
 
 from enterprise.models.user import EnterpriseUser, MFAType
 from enterprise.models.audit import AuditLogger, AuditEventType, AuditSeverity
+
+
+class _PasswordContextFallback:
+    """Small stdlib password hasher used when Passlib is unavailable locally."""
+    _iterations = 310_000
+
+    @classmethod
+    def hash(cls, password: str) -> str:
+        salt = secrets.token_bytes(16)
+        digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, cls._iterations).hex()
+        return f"pbkdf2_sha256${cls._iterations}${salt.hex()}${digest}"
+
+    @classmethod
+    def verify(cls, password: str, encoded: str) -> bool:
+        try:
+            scheme, iterations, salt_hex, expected = encoded.split("$", 3)
+            if scheme != "pbkdf2_sha256":
+                return False
+            actual = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt_hex), int(iterations)).hex()
+            return hmac.compare_digest(actual, expected)
+        except (ValueError, TypeError):
+            return False
 
 
 class AuthMethod(Enum):
@@ -204,14 +230,21 @@ class EnterpriseAuthenticator:
     
     def __init__(
         self,
-        jwt_secret: str = "default-secret-change-in-production",
+        jwt_secret: Optional[str] = None,
         jwt_algorithm: str = "HS256",
         access_token_expire: int = 3600,  # 1 hour
         refresh_token_expire: int = 604800,  # 7 days
         mfa_code_expire: int = 300,  # 5 minutes
     ):
-        self._pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        self._jwt_secret = jwt_secret
+        self._pwd_context = (
+            CryptContext(schemes=["bcrypt"], deprecated="auto")
+            if CryptContext is not None else _PasswordContextFallback
+        )
+        self._jwt_secret = jwt_secret or os.getenv("JWT_SECRET_KEY")
+        if not self._jwt_secret:
+            if os.getenv("ENVIRONMENT", "development").lower() in {"production", "prod"}:
+                raise ValueError("JWT_SECRET_KEY must be set in production")
+            self._jwt_secret = "dev-secret-key-not-for-production"
         self._jwt_algorithm = jwt_algorithm
         self._access_token_expire = access_token_expire
         self._refresh_token_expire = refresh_token_expire

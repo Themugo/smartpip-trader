@@ -4,7 +4,7 @@ import os
 from typing import Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from middleware.input_sanitizer import InputSanitizer, create_sanitize_middleware
 from utils.redis_rate_limiter import RedisRateLimiter, CircuitBreaker
@@ -36,7 +36,7 @@ class SettingsUpdate(BaseModel):
 class MarketSwitchRequest(BaseModel):
     market: str = Field(..., description="Target market")
 
-    @validator('market')
+    @field_validator('market')
     def validate_market(cls, v):
         valid = {
             "R_10", "R_25", "R_50", "R_75", "R_100",
@@ -51,7 +51,7 @@ class ManualTradeRequest(BaseModel):
     direction: str = Field(..., description="Trade direction")
     amount: float = Field(..., ge=0.35, le=10000)
 
-    @validator('direction')
+    @field_validator('direction')
     def validate_direction(cls, v):
         if v.upper() not in ("CALL", "PUT"):
             raise ValueError("Direction must be CALL or PUT")
@@ -59,9 +59,10 @@ class ManualTradeRequest(BaseModel):
 
 
 def get_client_ip(request: Request) -> str:
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    if os.getenv("TRUST_PROXY_HEADERS", "false").lower() in {"1", "true", "yes", "on"}:
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
 
 

@@ -84,3 +84,5 @@ __all__ = [
     "SelfImprovementPipeline", "ImprovementAttempt",
     "ResearchOrchestrator",
 ]
+
+from .probability_calibration import ProbabilityCalibrator, CalibrationResult, fit_artifact

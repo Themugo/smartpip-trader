@@ -141,84 +141,69 @@ class AnalysisManager:
         return analysis
 
     def generate_best_prediction(self) -> Optional[Dict]:
-        """
-        Build weighted-vote consensus across all analyzers.
-        Applies entropy filter: skips trade if market is too random.
-        """
+        """Build contract-aware weighted consensus without mixing outcome spaces."""
+        mapping = {
+            "RISE": "CALL", "FALL": "PUT", "CALL": "CALL", "PUT": "PUT",
+            "EVEN": "DIGITEVEN", "ODD": "DIGITODD",
+            "OVER": "DIGITOVER", "UNDER": "DIGITUNDER",
+            "MATCH": "DIGITMATCH", "DIFF": "DIGITDIFF",
+        }
         predictions: List[Dict] = []
-
         for name, analyzer in self.analyzers.items():
             if not analyzer.is_enabled():
                 continue
             result = self.analysis_result.get(name, {})
-            pred = result.get("prediction")
-            conf = result.get("confidence", 0)
-            if not pred or conf < 55:
+            pred = str(result.get("prediction") or "").upper()
+            conf = float(result.get("confidence", 0) or 0)
+            contract_type = mapping.get(pred)
+            if not contract_type or conf < 55:
                 continue
-            weight = self._analyzer_weights.get(name, 0.1)
+            payload = result.get("data") if isinstance(result.get("data"), dict) else {}
             predictions.append({
                 "analyzer": name,
                 "direction": pred,
+                "contract_type": contract_type,
                 "confidence": conf,
-                "weight": weight,
-                "reason": result.get("data", {}).get("reason", name),
+                "weight": self._analyzer_weights.get(name, 0.1),
+                "barrier": payload.get("barrier"),
+                "reason": payload.get("reason", name),
             })
-
-        # Entropy filter: if market is near-random, require higher consensus
-        entropy_penalty = 0
-        if self._last_entropy > 3.1:
-            entropy_penalty = 10  # require 10% more confidence
-        elif self._last_entropy > 2.8:
-            entropy_penalty = 5
 
         if not predictions:
             self.trade_signals = []
             self.best_prediction = None
             return None
 
-        # Weighted vote
-        call_score = sum(p["confidence"] * p["weight"] for p in predictions if "CALL" in p["direction"] or "RISE" in p["direction"] or "EVEN" in p["direction"])
-        put_score = sum(p["confidence"] * p["weight"] for p in predictions if "PUT" in p["direction"] or "FALL" in p["direction"] or "ODD" in p["direction"])
-        total_weight = sum(p["weight"] for p in predictions)
+        # Consensus is calculated independently per broker contract family.
+        grouped: Dict[str, List[Dict]] = {}
+        for item in predictions:
+            grouped.setdefault(item["contract_type"], []).append(item)
 
-        if total_weight == 0:
-            self.best_prediction = None
-            return None
+        scored = []
+        for contract_type, items in grouped.items():
+            total_weight = sum(item["weight"] for item in items)
+            weighted_conf = (sum(item["confidence"] * item["weight"] for item in items) / total_weight) if total_weight else 0.0
+            agreement = len(items) / max(sum(1 for p in predictions if p["contract_type"] in grouped), 1)
+            # Random-looking digit streams raise the bar; they never create confidence.
+            entropy_penalty = 10 if self._last_entropy > 3.1 else (5 if self._last_entropy > 2.8 else 0)
+            score = max(0.0, min(95.0, weighted_conf - entropy_penalty))
+            scored.append((score, contract_type, items, agreement))
 
-        # Agreement ratio
-        total_active = len(predictions)
-        call_count = sum(1 for p in predictions if "CALL" in p["direction"] or "RISE" in p["direction"] or "EVEN" in p["direction"])
-        put_count = total_active - call_count
-        agreement = max(call_count, put_count) / max(total_active, 1)
-
-        consensus_dir = "CALL" if call_score >= put_score else "PUT"
-        consensus_conf = (max(call_score, put_score) / total_weight)
-
-        # Boost for high agreement
-        if agreement >= 0.8:
-            consensus_conf = min(95, consensus_conf * 1.1)
-        elif agreement < 0.6:
-            consensus_conf *= 0.9  # penalise low agreement
-
-        consensus_conf -= entropy_penalty
-        consensus_conf = max(0, min(95, consensus_conf))
-
-        contributing = [p for p in predictions if (
-            ("CALL" in p["direction"] or "RISE" in p["direction"] or "EVEN" in p["direction"])
-            if consensus_dir == "CALL"
-            else ("PUT" in p["direction"] or "FALL" in p["direction"] or "ODD" in p["direction"])
-        )]
-
+        score, contract_type, items, agreement = max(scored, key=lambda x: x[0])
+        top = max(items, key=lambda x: x["confidence"])
         best = {
-            "type": "CONSENSUS",
-            "direction": consensus_dir,
-            "confidence": round(consensus_conf, 1),
+            "type": contract_type,
+            "direction": top["direction"],
+            "contract_type": contract_type,
+            "prediction": top["direction"],
+            "barrier": top.get("barrier"),
+            "confidence": round(score, 1),
             "agreement": round(agreement * 100, 1),
-            "active_analyzers": total_active,
-            "contributing": len(contributing),
+            "active_analyzers": len(predictions),
+            "contributing": len(items),
             "entropy": round(self._last_entropy, 3),
             "entropy_pct": round(self._last_entropy / 3.321928 * 100, 1),
-            "reason": f"{len(contributing)}/{total_active} analyzers → {consensus_dir} ({consensus_conf:.0f}%) [entropy={self._last_entropy:.2f}]",
+            "reason": f"{len(items)} analyzers → {contract_type} ({score:.0f}%) [entropy={self._last_entropy:.2f}]",
             "signals": predictions,
         }
         self.trade_signals = predictions

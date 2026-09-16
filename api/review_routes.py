@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header
 from fastapi.responses import JSONResponse
 import websockets
 
@@ -272,10 +272,10 @@ def setup_review_routes(app: FastAPI, trading_system) -> None:
         })
 
     @app.get("/api/review/deriv-account", tags=["Review"], summary="Fetch real Deriv account data")
-    async def get_deriv_account_live(api_token: Optional[str] = None, app_id: str = "1089"):
-        token = api_token or os.getenv("DERIV_API_TOKEN", "")
+    async def get_deriv_account_live(authorization: Optional[str] = Header(default=None), app_id: str = "1089"):
+        token = (authorization.removeprefix("Bearer ").strip() if authorization else "") or os.getenv("DERIV_API_TOKEN", "")
         if not token:
-            return JSONResponse({"error": "No DERIV_API_TOKEN set. Provide ?api_token=..."}, status_code=400)
+            return JSONResponse({"error": "No DERIV_API_TOKEN set. set DERIV_API_TOKEN or provide an Authorization: Bearer header"}, status_code=400)
         try:
             data = await asyncio.wait_for(_get_deriv_account(token, app_id), timeout=15)
             return JSONResponse(data)
@@ -285,10 +285,10 @@ def setup_review_routes(app: FastAPI, trading_system) -> None:
             return JSONResponse({"error": str(exc)}, status_code=500)
 
     @app.get("/api/review/profit-table", tags=["Review"], summary="Fetch real closed contracts from Deriv")
-    async def get_profit_table_live(api_token: Optional[str] = None, app_id: str = "1089", limit: int = 30):
-        token = api_token or os.getenv("DERIV_API_TOKEN", "")
+    async def get_profit_table_live(authorization: Optional[str] = Header(default=None), app_id: str = "1089", limit: int = 30):
+        token = (authorization.removeprefix("Bearer ").strip() if authorization else "") or os.getenv("DERIV_API_TOKEN", "")
         if not token:
-            return JSONResponse({"error": "No DERIV_API_TOKEN set. Provide ?api_token=..."}, status_code=400)
+            return JSONResponse({"error": "No DERIV_API_TOKEN set. set DERIV_API_TOKEN or provide an Authorization: Bearer header"}, status_code=400)
         try:
             trades = await asyncio.wait_for(_get_profit_table(token, app_id, min(limit, 100)), timeout=20)
             wins   = [t for t in trades if (t.get("pnl") or 0) > 0]

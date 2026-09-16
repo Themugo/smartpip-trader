@@ -42,7 +42,7 @@ class SandboxConfig:
     allow_network: bool = False
     
     # Filesystem access
-    allowed_paths: List[str] = []
+    allowed_paths: List[str] = field(default_factory=list)
     read_only: bool = True
     
     def to_dict(self) -> Dict[str, Any]:

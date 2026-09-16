@@ -22,16 +22,19 @@ class AccountManager:
             self.active_account = account_type
             self.current_balance = self.accounts[account_type]["balance"]
     
-    async def update_balance(self, websocket):
-        """Update balance from API"""
+    async def update_balance(self, connection):
+        """Update balance using the correlated Deriv connection request API."""
         try:
-            import json
-            await websocket.send(json.dumps({"balance": 1}))
-            response = await websocket.recv()
-            data = json.loads(response)
-            if "balance" in data:
-                self.current_balance = float(data["balance"]["balance"])
-                self.currency = data["balance"]["currency"]
+            if hasattr(connection, "request"):
+                data = await connection.request({"balance": 1})
+            else:
+                raise TypeError("AccountManager requires a DerivConnection instance")
+            if data.get("error"):
+                raise RuntimeError(data["error"].get("message", "Balance request failed"))
+            balance = data.get("balance") or {}
+            if "balance" in balance:
+                self.current_balance = float(balance["balance"])
+                self.currency = str(balance.get("currency") or self.currency)
                 self.accounts[self.active_account]["balance"] = self.current_balance
         except Exception as e:
             logger.error(f"Balance update failed: {e}")

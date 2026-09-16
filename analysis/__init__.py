@@ -10,11 +10,12 @@ from .ml_analyzer import MLAnalyzer
 from .multitimeframe_analyzer import MultiTimeframeAnalyzer
 from .adaptive_confidence import AdaptiveConfidence
 from .pattern_recognizer import PatternRecognizer
+from .base_analyzer import BaseAnalyzer
 
 __all__ = [
     "AnalysisManager",
     "EvenOddAnalyzer", "RiseFallAnalyzer", "OverUnderAnalyzer",
     "MatchDiffAnalyzer", "DigitAnalyzer", "VolatilityAnalyzer",
     "TechnicalAnalyzer", "MLAnalyzer", "MultiTimeframeAnalyzer",
-    "AdaptiveConfidence", "PatternRecognizer",
+    "AdaptiveConfidence", "PatternRecognizer", "BaseAnalyzer",
 ]

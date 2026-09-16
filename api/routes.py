@@ -3,22 +3,38 @@ API routes v3 — adds /api/signals, /api/patterns, /api/ml-status, /api/entropy
 """
 import asyncio
 import logging
+import os
+import time
 from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, HTTPException
+from pydantic import BaseModel, Field
 from fastapi.responses import HTMLResponse, JSONResponse
 from dashboard import get_dashboard_html
+from ai_core.trade_approval import TradeApprover
 from utils import RateLimiter
 
 logger = logging.getLogger(__name__)
 
 
+class TradeRequest(BaseModel):
+    contract_type: str = Field(min_length=2, max_length=32)
+    symbol: str = Field(min_length=2, max_length=64)
+    amount: float = Field(gt=0, le=10000)
+    duration: int = Field(gt=0, le=86400)
+    duration_unit: str = Field(default="t", pattern=r"^[tsm]$")
+    barrier: str | None = Field(default=None, max_length=32)
+    prediction: str | None = Field(default=None, max_length=32)
+
+
 def setup_routes(app: FastAPI, trading_system):
     rate_limiter = RateLimiter(max_requests=100, window_seconds=60)
+    trade_approver = TradeApprover()
 
     def get_client_identifier(request: Request) -> str:
-        forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
+        if os.getenv("TRUST_PROXY_HEADERS", "false").lower() in {"1", "true", "yes", "on"}:
+            forwarded = request.headers.get("X-Forwarded-For")
+            if forwarded:
+                return forwarded.split(",")[0].strip()
         return request.client.host if request.client else "unknown"
 
     def _check_rate(request: Request):
@@ -27,10 +43,6 @@ def setup_routes(app: FastAPI, trading_system):
             raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
     # ── System ─────────────────────────────────────────────────────────────
-
-    @app.get("/", tags=["System"], summary="Dashboard", description="HTML dashboard interface")
-    async def root():
-        return HTMLResponse(get_dashboard_html())
 
     @app.get("/api/status", tags=["System"], summary="Full system status")
     async def get_status(request: Request):
@@ -92,9 +104,8 @@ def setup_routes(app: FastAPI, trading_system):
     @app.get("/api/markets", tags=["Market"], summary="List available markets")
     async def list_markets(request: Request):
         _check_rate(request)
-        markets = ["R_10", "R_25", "R_50", "R_75", "R_100",
-                   "1HZ10V", "1HZ25V", "1HZ50V", "1HZ75V", "1HZ100V"]
-        return JSONResponse({"markets": markets})
+        markets = list(trading_system.market.get_all_markets().keys())
+        return JSONResponse({"markets": markets, "current_market": trading_system.market.get_current_market()})
 
     # ── AI Signals (NEW v3) ────────────────────────────────────────────────
 
@@ -202,26 +213,167 @@ def setup_routes(app: FastAPI, trading_system):
 
     # ── Trade execution ────────────────────────────────────────────────────
 
-    @app.post("/api/trade", tags=["Trading"], summary="Execute a manual trade")
-    async def execute_trade(request: Request):
+    @app.post("/api/trade", tags=["Trading"], summary="Execute a broker trade through the canonical AI/risk gate")
+    async def execute_trade(payload: TradeRequest, request: Request):
         _check_rate(request)
-        body = await request.json()
-        contract_type = body.get("contract_type", "CALL")
-        amount = float(body.get("amount", trading_system.settings.base_amount))
-        market = body.get("market", None)
-        duration = int(body.get("duration", 1))
+        if not trading_system.connection.is_connected() or not trading_system.connection.authorized:
+            raise HTTPException(status_code=503, detail="Deriv session is not connected/authorized")
+        # Manual orders use the same broker quote, equity cap, AI probability,
+        # calibration, approval and risk gates as automated execution.
+        if not trading_system.settings.live_trading_enabled:
+            raise HTTPException(status_code=403, detail="Live trading is disabled")
 
-        if not trading_system.connection.is_connected():
-            raise HTTPException(status_code=503, detail="Not connected to Deriv API")
+        if len(trading_system.deriv_execution.get_open_contracts()) >= trading_system.settings.max_open_contracts:
+            raise HTTPException(status_code=409, detail="Maximum open contracts reached")
 
-        result = await trading_system.executor.execute_trade(
-            trading_system.connection.websocket,
-            contract_type=contract_type,
-            amount=amount,
-            market=market or trading_system.market.get_current_market(),
-            duration=duration,
+        balance = float(trading_system.account.get_balance() or 0.0)
+        trade_amount = float(payload.amount)
+        max_stake = balance * trading_system.settings.max_stake_pct_equity if balance > 0 else 0.0
+        if max_stake > 0:
+            trade_amount = min(trade_amount, max_stake)
+        if trade_amount <= 0:
+            raise HTTPException(status_code=422, detail="Computed stake is not positive")
+
+        try:
+            proposal = await trading_system.deriv_execution.get_proposal(
+                symbol=payload.symbol,
+                contract_type=payload.contract_type.upper(),
+                amount=trade_amount,
+                currency=trading_system.account.get_currency(),
+                duration=payload.duration,
+                duration_unit=payload.duration_unit,
+                barrier=payload.barrier,
+                prediction=payload.prediction,
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=f"Proposal rejected: {exc}")
+
+        # Frontend-provided prediction is informational only; probability comes
+        # from the backend AI state and is never accepted from the browser.
+        try:
+            best = trading_system.best_prediction or {}
+            raw_probability = float(best.get("confidence", 0) or 0) / 100.0
+            best_direction = str(best.get("direction") or best.get("prediction") or "").upper()
+            best_contract_type = str(best.get("contract_type") or best.get("type") or "").upper()
+        except Exception:
+            raw_probability = 0.0
+            best_direction = ""
+            best_contract_type = ""
+        if raw_probability <= 0:
+            raise HTTPException(status_code=422, detail="Backend AI probability is required for live approval")
+
+        requested_contract_type = payload.contract_type.upper()
+        requested_direction = str(payload.prediction or "").upper()
+        if requested_contract_type == "RISEFALL":
+            if best_contract_type != "RISEFALL":
+                raise HTTPException(status_code=409, detail="Trade blocked: current AI setup is not a Rise/Fall setup")
+            if requested_direction not in {"CALL", "PUT"}:
+                raise HTTPException(status_code=422, detail="Rise/Fall trades require CALL or PUT")
+            if requested_direction != best_direction:
+                raise HTTPException(status_code=409, detail=f"Trade blocked: SmartPip AI currently signals {best_direction or 'WAIT'}")
+
+        regime = getattr(trading_system.analysis, "analysis_result", {}) or {}
+        regime_value = regime.get("regime", "UNKNOWN") if isinstance(regime, dict) else "UNKNOWN"
+        if isinstance(regime_value, dict):
+            regime_value = regime_value.get("regime", "UNKNOWN")
+        calibration = trading_system.probability_calibrator.transform(
+            raw_probability,
+            market=payload.symbol,
+            contract_type=payload.contract_type.upper(),
+            duration=payload.duration,
+            regime=str(regime_value),
         )
-        return JSONResponse(result if result else {"error": "Trade execution failed"})
+        if trading_system.settings.live_trading_enabled and getattr(trading_system.settings, "require_calibrated_probability", True) and not calibration.calibrated:
+            raise HTTPException(status_code=409, detail="Trade blocked: no valid calibration artifact for live approval")
+        probability = calibration.probability
+
+        approval = trade_approver.approve(
+            win_probability=probability,
+            payout=proposal.payout,
+            stake=proposal.ask_price,
+            min_expected_value=trading_system.settings.min_expected_value,
+            min_probability=trading_system.settings.min_confidence / 100.0,
+            risk_score=getattr(trading_system.risk_manager, "get_risk_score", lambda: 0.0)(),
+            model_ready=True,
+            market_data_fresh=(time.time() - trading_system._last_tick_epoch) <= trading_system.settings.decision_ttl_seconds,
+        )
+        if not approval.approved:
+            raise HTTPException(status_code=409, detail="Trade blocked: " + "; ".join(approval.reasons))
+
+        try:
+            trade = await trading_system.deriv_execution.buy(proposal, max_price=proposal.ask_price)
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"Broker buy failed: {exc}")
+
+        contract_id = trade.contract_id
+        now_iso = datetime.now().astimezone().isoformat()
+        canonical = {
+            "id": contract_id,
+            "market": payload.symbol,
+            "type": payload.contract_type.upper(),
+            "direction": str(payload.prediction or payload.contract_type).upper(),
+            "amount": trade.buy_price,
+            "confidence": probability * 100,
+            "entry_price": trade.entry_spot if trade.entry_spot is not None else 0.0,
+            "buy_price": trade.buy_price,
+            "payout": trade.payout,
+            "proposal_id": proposal.id,
+            "expected_value": approval.expected_value,
+            "prediction": payload.prediction,
+            "entry_time": now_iso,
+            "created_at": now_iso,
+        }
+        trading_system._canonical_trades[contract_id] = canonical
+        trading_system._pending_intel = getattr(trading_system, "_pending_intel", {})
+        trading_system._pending_intel[contract_id] = {
+            "analyzer_output": getattr(trading_system.analysis, "analysis_result", {}) or {},
+            "amount": trade.buy_price,
+            "market": payload.symbol,
+            "direction": canonical["direction"],
+            "type": payload.contract_type.upper(),
+            "prediction": payload.prediction,
+            "confidence": probability * 100,
+            "entry_price": canonical["entry_price"],
+            "regime": str(regime_value),
+            "entropy": float(getattr(trading_system.analysis, "get_market_entropy", lambda: 3.0)()),
+            "volatility": 0.0,
+            "proposal": {"id": proposal.id, "ask_price": proposal.ask_price, "payout": proposal.payout, "ev": approval.expected_value},
+            "calibration": {"raw_probability": raw_probability, "calibrated_probability": probability, "source": calibration.source, "sample_size": calibration.sample_size, "context": calibration.context},
+        }
+        trading_system.monitor.add_trade(contract_id, canonical)
+        task = asyncio.create_task(trading_system._monitor_deriv_contract(contract_id), name=f"manual-contract-{contract_id}")
+        trading_system._pending_contract_tasks[contract_id] = task
+        return JSONResponse({
+            "success": True,
+            "contract_id": contract_id,
+            "buy_price": trade.buy_price,
+            "payout": trade.payout,
+            "status": "open",
+            "approval": {
+                "approved": True,
+                "expected_value": approval.expected_value,
+                "win_probability": approval.win_probability,
+            },
+        })
+
+    # ── Risk controls ─────────────────────────────────────────────────────
+
+    @app.get("/api/risk/zero-loss", tags=["Risk"], summary="Get zero-loss risk metrics")
+    async def get_zero_loss_metrics(request: Request):
+        _check_rate(request)
+        manager = getattr(trading_system, "zero_loss_risk_manager", None)
+        if manager is None:
+            raise HTTPException(status_code=503, detail="Zero-loss risk manager unavailable")
+        return JSONResponse(manager.get_risk_metrics())
+
+    @app.post("/api/risk/zero-loss/reset", tags=["Risk"], summary="Reset daily zero-loss risk counters")
+    async def reset_zero_loss_metrics(request: Request):
+        _check_rate(request)
+        manager = getattr(trading_system, "zero_loss_risk_manager", None)
+        if manager is None:
+            raise HTTPException(status_code=503, detail="Zero-loss risk manager unavailable")
+        manager.reset_daily()
+        return JSONResponse({"success": True, "metrics": manager.get_risk_metrics()})
 
     # ── History ────────────────────────────────────────────────────────────
 

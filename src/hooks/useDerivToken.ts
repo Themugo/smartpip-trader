@@ -1,27 +1,17 @@
 import { useState, useCallback } from 'react';
-import { VITE_DERIV_API_TOKEN } from '../lib/env';
 
-const STORAGE_KEY = 'smartpip_deriv_token';
-
+/**
+ * Broker credential state is intentionally memory-only. Never persist a Deriv
+ * API token in localStorage or expose it through a Vite VITE_* variable.
+ */
 export function useDerivToken(isAuthenticated: boolean) {
-  const [userToken, setUserTokenState] = useState(
-    () => localStorage.getItem(STORAGE_KEY) || ''
-  );
+  const [userToken, setUserTokenState] = useState('');
 
   const setUserToken = useCallback((token: string) => {
-    const trimmed = token.trim();
-    if (trimmed) {
-      localStorage.setItem(STORAGE_KEY, trimmed);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    setUserTokenState(trimmed);
+    setUserTokenState(token.trim());
   }, []);
 
-  const envToken = VITE_DERIV_API_TOKEN;
-  const tradingToken = isAuthenticated
-    ? userToken || envToken || undefined
-    : undefined;
+  const tradingToken = isAuthenticated && userToken ? userToken : undefined;
 
   return {
     userToken,

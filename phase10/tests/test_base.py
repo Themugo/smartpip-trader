@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class TestResult:
+    __test__ = False
     """Result of a test"""
     name: str
     passed: bool
@@ -26,6 +27,7 @@ class TestResult:
 
 @dataclass
 class TestSuite:
+    __test__ = False
     """A test suite"""
     name: str
     tests: List[Callable] = field(default_factory=list)
@@ -45,6 +47,7 @@ class TestSuite:
 
 
 class TestRunner:
+    __test__ = False
     """
     Test runner for executing tests.
     

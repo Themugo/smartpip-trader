@@ -12,7 +12,7 @@ Manages user devices with:
 import hashlib
 import secrets
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from enterprise.models.user import UserDevice

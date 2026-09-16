@@ -1,0 +1,12 @@
+SmartPip End-User Foundation RC2 — dependency note
+
+The source package intentionally excludes node_modules.
+
+During the previous Windows verification pass, npm install --package-lock-only was used to synchronize package-lock.json before npm ci. Preserve that synchronized local package-lock.json when replacing this source tree, or run:
+
+  npm install --package-lock-only
+  npm ci
+
+before running typecheck/lint/build.
+
+Do not commit node_modules, dist, local databases, or runtime model/cache artifacts.

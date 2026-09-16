@@ -27,9 +27,8 @@ interface EnvVar {
 const VARS: EnvVar[] = [
   { name: 'VITE_SUPABASE_URL',     required: true,  secret: false },
   { name: 'VITE_SUPABASE_ANON_KEY', required: true,  secret: true  },
-  { name: 'VITE_DERIV_API_TOKEN',   required: false, secret: true  },
   { name: 'VITE_DERIV_APP_ID',      required: false, secret: false },
-  { name: 'VITE_API_URL',           required: false, secret: false },
+  { name: 'VITE_API_URL',           required: Boolean(import.meta.env.PROD), secret: false },
 ];
 
 // ── Validation ─────────────────────────────────────────────────────────────
@@ -151,6 +150,5 @@ export const envAllRequiredPresent: boolean = diagnostics.allRequiredPresent;
 // Derived convenience exports (evaluated once at load)
 export const VITE_SUPABASE_URL     = getVal('VITE_SUPABASE_URL');
 export const VITE_SUPABASE_ANON_KEY = getVal('VITE_SUPABASE_ANON_KEY');
-export const VITE_DERIV_API_TOKEN  = getVal('VITE_DERIV_API_TOKEN');
 export const VITE_DERIV_APP_ID     = getEnvOptional('VITE_DERIV_APP_ID', '1089');
 export const VITE_API_URL          = getEnvOptional('VITE_API_URL');

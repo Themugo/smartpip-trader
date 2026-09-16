@@ -7,10 +7,11 @@ interface AuthModalProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSignUp: (email: string, password: string) => Promise<any>;
   onClose: () => void;
+  onResetPassword: (email: string) => Promise<void>;
   defaultLogin?: boolean;
 }
 
-export function AuthModal({ onSignIn, onSignUp, onClose, defaultLogin = true }: AuthModalProps) {
+export function AuthModal({ onSignIn, onSignUp, onResetPassword, onClose, defaultLogin = true }: AuthModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="relative w-full max-w-md">
@@ -31,6 +32,7 @@ export function AuthModal({ onSignIn, onSignUp, onClose, defaultLogin = true }: 
               await onSignUp(email, password);
             }}
             initialLogin={defaultLogin}
+            onResetPassword={onResetPassword}
           />
         </div>
       </div>

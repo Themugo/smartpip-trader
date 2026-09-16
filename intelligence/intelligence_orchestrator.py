@@ -6,6 +6,7 @@ Default policy: NO TRADE unless evidence exceeds configurable thresholds.
 """
 
 import logging
+import os
 import time
 from typing import Dict, Any, Optional, Tuple
 
@@ -46,6 +47,7 @@ class IntelligenceOrchestrator:
     ):
         self.settings = settings
         self._data_dir = data_dir
+        os.makedirs(self._data_dir, exist_ok=True)
 
         # --- Core components ---
         self.trade_memory = TradeMemory(db_path=f"{data_dir}/trades_memory.db")
@@ -158,8 +160,11 @@ class IntelligenceOrchestrator:
         # 5. Decision gate — default is NO TRADE
         decision = "ABSTAIN"
         rejection_reason = ""
+        twin_result = None
 
-        if opportunity.score < self.settings.min_opportunity_score if hasattr(self.settings, 'min_opportunity_score') else 75:
+        min_opportunity_score = float(getattr(self.settings, "min_opportunity_score", 75.0))
+        base_amount = float(getattr(self.settings, "base_amount", 1.0))
+        if opportunity.score < min_opportunity_score:
             decision = "ABSTAIN"
             rejection_reason = (
                 f"Opportunity score {opportunity.score:.1f} below threshold"
@@ -167,7 +172,7 @@ class IntelligenceOrchestrator:
         elif rl_action.action == "ABSTAIN":
             decision = "ABSTAIN"
             rejection_reason = "RL agent recommends abstention"
-        elif regime.regime == "RANDOM" and (self.settings.min_opportunity_score if hasattr(self.settings, 'min_opportunity_score') else 75) > 70:
+        elif regime.regime == "RANDOM" and min_opportunity_score > 70:
             decision = "ABSTAIN"
             rejection_reason = "Random regime with high threshold"
         else:
@@ -180,7 +185,7 @@ class IntelligenceOrchestrator:
                 },
                 market=market,
                 regime=regime.regime,
-                amount=self.settings.base_amount,
+                amount=base_amount,
                 n_simulations=500,
             )
 
@@ -209,21 +214,10 @@ class IntelligenceOrchestrator:
         # 8. Explanation
         risk_check = {"can_trade": decision == "TRADE", "reason": rejection_reason}
         twin_dict = None
-        if decision in ("TRADE", "REJECT"):
-            twin_result_obj = self.digital_twin.simulate(
-                signal={
-                    "direction": analyzer_output.get("consensus", {}).get("direction", "CALL"),
-                    "confidence": analyzer_output.get("consensus", {}).get("confidence", 0),
-                    "type": analyzer_output.get("consensus", {}).get("type", "UNKNOWN"),
-                },
-                market=market,
-                regime=regime.regime,
-                amount=self.settings.base_amount,
-                n_simulations=300,
-            )
+        if decision in ("TRADE", "REJECT") and twin_result is not None:
             twin_dict = {
-                "approved": twin_result_obj.approved,
-                "simulated_win_rate": twin_result_obj.simulated_win_rate,
+                "approved": twin_result.approved,
+                "simulated_win_rate": twin_result.simulated_win_rate,
             }
 
         explanation = self.explainable_ai.explain_trade_decision(
@@ -391,12 +385,23 @@ class IntelligenceOrchestrator:
         logger.info("All intelligence components saved to %s", self._data_dir)
 
     def load_all(self):
-        """Load all component states from disk."""
-        self.regime_detector.load(f"{self._data_dir}/regime_detector.pkl")
-        self.rl_agent.load(f"{self._data_dir}/rl_agent.pkl")
-        self.meta_ai.load(f"{self._data_dir}/meta_ai.pkl")
-        self.digital_twin.load(f"{self._data_dir}/digital_twin.pkl")
-        logger.info("All intelligence components loaded from %s", self._data_dir)
+        """Load persisted component state when present; otherwise keep fresh defaults."""
+        components = (
+            (self.regime_detector, "regime_detector.pkl"),
+            (self.rl_agent, "rl_agent.pkl"),
+            (self.meta_ai, "meta_ai.pkl"),
+            (self.digital_twin, "digital_twin.pkl"),
+        )
+        for component, filename in components:
+            path = os.path.join(self._data_dir, filename)
+            if not os.path.exists(path):
+                logger.info("No persisted state for %s; using fresh defaults", filename)
+                continue
+            try:
+                component.load(path)
+            except Exception as exc:
+                logger.warning("Failed to load %s: %s; using fresh defaults", path, exc)
+        logger.info("Intelligence component load completed from %s", self._data_dir)
 
     # ------------------------------------------------------------------
     # Private helpers

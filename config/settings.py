@@ -54,6 +54,12 @@ class Settings:
 
     # ── Risk / zero-loss ─────────────────────────────────────────────────
     daily_loss_limit_pct: float = 5.0
+    max_stake_pct_equity: float = 0.01
+    min_expected_value: float = 0.0
+    decision_ttl_seconds: float = 1.5
+    per_symbol_cooldown_seconds: float = 5.0
+    max_open_contracts: int = 1
+    live_trading_enabled: bool = False
     max_drawdown_pct: float = 10.0
     blacklist_expiry_minutes: int = 60       # time-based expiry for blacklisted markets
 
@@ -94,6 +100,17 @@ class Settings:
     walk_forward_test_days: int = 7
     monte_carlo_simulations: int = 1000
     auto_rollback_threshold: float = 0.05
+    # ── Phase 2 evidence / calibration gate ─────────────────────────────
+    calibration_enabled: bool = True
+    require_calibrated_probability: bool = True
+    calibration_artifact_path: str = "intelligence_data/calibration.json"
+    calibration_min_samples: int = 500
+    calibration_max_ece: float = 0.08
+    calibration_max_brier: float = 0.25
+    calibration_min_mean_ev: float = 0.0
+    calibration_min_positive_ev_rate: float = 0.55
+    oos_train_size: int = 1000
+    oos_test_size: int = 250
 
     # ── Notifications ────────────────────────────────────────────────────
     telegram_alerts: bool = False
@@ -111,6 +128,8 @@ class Settings:
         "time_filter_enabled", "allowed_hours", "volatility_sizing",
         "kelly_fraction", "daily_loss_limit_pct", "max_drawdown_pct",
         "blacklist_expiry_minutes", "enable_foreign_bot", "telegram_alerts",
+        "max_stake_pct_equity", "min_expected_value", "decision_ttl_seconds",
+        "per_symbol_cooldown_seconds", "max_open_contracts", "live_trading_enabled",
         "intelligence_enabled", "min_opportunity_score", "min_twin_win_rate",
         "twin_simulations", "dynamic_sizing_enabled", "meta_ai_enabled",
         "rl_enabled", "case_reasoning_enabled",
@@ -118,6 +137,8 @@ class Settings:
         "bayesian_engine_enabled", "ensemble_intelligence_enabled", "online_learner_enabled",
         "abstention_model_enabled", "meta_supervisor_enabled", "explainable_engine_enabled",
         "backtesting_enabled", "capital_preservation_enabled", "self_improvement_enabled",
+        "calibration_enabled", "require_calibrated_probability", "calibration_artifact_path", "calibration_min_samples", "calibration_max_ece", "calibration_max_brier",
+        "calibration_min_mean_ev", "calibration_min_positive_ev_rate", "oos_train_size", "oos_test_size",
     }
 
     def to_dict(self) -> Dict[str, Any]:
@@ -152,9 +173,15 @@ class Settings:
             "daily_loss_limit_pct": self.daily_loss_limit_pct,
             "max_drawdown_pct": self.max_drawdown_pct,
             "blacklist_expiry_minutes": self.blacklist_expiry_minutes,
+            "max_stake_pct_equity": self.max_stake_pct_equity,
+            "min_expected_value": self.min_expected_value,
+            "decision_ttl_seconds": self.decision_ttl_seconds,
+            "per_symbol_cooldown_seconds": self.per_symbol_cooldown_seconds,
+            "max_open_contracts": self.max_open_contracts,
+            "live_trading_enabled": self.live_trading_enabled,
             "enable_foreign_bot": self.enable_foreign_bot,
             "foreign_bot_endpoint": self.foreign_bot_endpoint,
-            "foreign_bot_api_key": self.foreign_bot_api_key,
+            "foreign_bot_api_key": "***REDACTED***" if self.foreign_bot_api_key else "",
             "telegram_alerts": self.telegram_alerts,
             "intelligence_enabled": self.intelligence_enabled,
             "min_opportunity_score": self.min_opportunity_score,
@@ -196,4 +223,10 @@ class Settings:
         s.daily_loss_limit_pct = float(os.getenv("DAILY_LOSS_LIMIT_PERCENT", s.daily_loss_limit_pct))
         s.chi_threshold = float(os.getenv("CHI_THRESHOLD", s.chi_threshold))
         s.min_streak_for_signal = int(os.getenv("MIN_STREAK", s.min_streak_for_signal))
+        s.max_stake_pct_equity = float(os.getenv("MAX_STAKE_PCT_EQUITY", s.max_stake_pct_equity))
+        s.min_expected_value = float(os.getenv("MIN_EXPECTED_VALUE", s.min_expected_value))
+        s.decision_ttl_seconds = float(os.getenv("DECISION_TTL_SECONDS", s.decision_ttl_seconds))
+        s.per_symbol_cooldown_seconds = float(os.getenv("PER_SYMBOL_COOLDOWN_SECONDS", s.per_symbol_cooldown_seconds))
+        s.max_open_contracts = int(os.getenv("MAX_OPEN_CONTRACTS", s.max_open_contracts))
+        s.live_trading_enabled = os.getenv("LIVE_TRADING_ENABLED", "false").lower() in {"1", "true", "yes", "on"}
         return s

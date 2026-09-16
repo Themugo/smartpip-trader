@@ -7,7 +7,7 @@ Provides endpoints for metrics, logs, traces, events, KPIs, and dashboards.
 
 import time
 import logging
-from datetime import datetime, timezone, timedelta, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel

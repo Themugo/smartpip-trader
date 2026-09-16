@@ -1,0 +1,7 @@
+SmartPip Trader — End-User Foundation RC2
+
+Focus: authenticated customer experience, user-scoped preferences/journal foundation, AI-guided trading UX, safer Deriv market feed lifecycle.
+
+Python regression: 945 passed, 4 skipped.
+Frontend full build: not certified in the build environment; local dependency installation required.
+Live multi-customer Deriv execution: not certified; requires the next server-side user/broker tenancy pass.

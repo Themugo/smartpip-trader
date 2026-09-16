@@ -11,7 +11,7 @@
  */
 
 import { supabase } from './supabase';
-import { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } from './env';
+import { VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } from './env';
 
 // ============================================
 // Configuration
@@ -20,7 +20,11 @@ import { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } from './env';
 const EDGE_FUNCTION_URL = VITE_SUPABASE_URL
   ? `${VITE_SUPABASE_URL}/functions/v1/trading-api`
   : '';
-const API_V2_BASE = '/api/v2';
+const API_BASE = VITE_API_URL.replace(/\/$/, '');
+const API_V2_BASE = `${API_BASE}/api/v2`;
+
+/** Canonical backend origin. Empty means same-origin (local development). */
+export const API_BASE_URL = API_BASE;
 
 // Retry configuration
 const DEFAULT_TIMEOUT = 10000;
@@ -195,7 +199,7 @@ const v2Fetch = <T = unknown>(
   options: RequestInit = {},
   config: RequestConfig = {}
 ): Promise<ApiResponse<T>> => {
-  const url = `${window.location.origin}${API_V2_BASE}${path}`;
+  const url = `${API_V2_BASE}${path}`;
   return apiFetch<T>(url, options, config);
 };
 
@@ -204,6 +208,25 @@ const v2Fetch = <T = unknown>(
 // ============================================
 
 export const api = {
+  // Canonical backend trade operation. The browser never opens a Deriv
+  // trading socket; the backend applies AI/risk gates and owns the broker session.
+  executeTrade: (data: {
+    contract_type: string;
+    symbol: string;
+    amount: number;
+    duration: number;
+    duration_unit: 't' | 's' | 'm';
+    barrier?: string;
+    prediction?: string;
+  }) => apiFetch<{
+    success: boolean;
+    contract_id?: string;
+    buy_price?: number;
+    payout?: number;
+    status?: string;
+    error?: string;
+  }>(`${API_BASE}/api/trade`, { method: 'POST', body: JSON.stringify(data) }, { timeout: 15000, retries: 0 }),
+
   // Core trading operations (Edge Function)
   getTrades: () => edgeFunctionFetch('trades'),
   getStatistics: () => edgeFunctionFetch('statistics'),
@@ -214,6 +237,60 @@ export const api = {
   logAudit: (data: { action: string; actor: string; ip_address?: string; details?: Record<string, unknown> }) =>
     edgeFunctionFetch('audit', { method: 'POST', body: JSON.stringify(data) }),
   health: () => edgeFunctionFetch('health'),
+
+  // Canonical FastAPI market/AI endpoints. These are read-only for the
+  // end-user terminal; trading remains behind POST /api/trade.
+  market: {
+    list: () => apiFetch<{ markets: string[]; current_market: string }>(`${API_BASE}/api/markets`),
+  },
+  ai: {
+    getSignals: () => apiFetch<{
+      timestamp: string;
+      consensus: Record<string, unknown> | null;
+      signals: unknown[];
+      analyzer_weights: Record<string, number>;
+      market_entropy: number;
+      entropy_pct: number;
+      pattern_health: Record<string, unknown>;
+    }>(`${API_BASE}/api/signals`),
+    getPatterns: () => apiFetch<Record<string, unknown>>(`${API_BASE}/api/patterns`),
+  },
+  userJournal: {
+    recordExecution: async (entry: {
+      contractId: string;
+      symbol: string;
+      contractType: string;
+      direction: string;
+      entryPrice: number;
+      entryDigit: number;
+      amount: number;
+      confidence: number;
+    }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { data: null, error: 'Authentication required', status: 401 };
+      const { data, error } = await supabase.from('trade_journal').insert({
+        user_id: user.id,
+        contract_id: entry.contractId,
+        timestamp: new Date().toISOString(),
+        symbol: entry.symbol,
+        contract_type: entry.contractType,
+        entry_price: entry.entryPrice,
+        entry_digit: entry.entryDigit,
+        amount: entry.amount,
+        confidence: entry.confidence,
+        regime: 'UNKNOWN',
+        entry_conditions: ['AI approval gate'],
+        exit_conditions: [],
+        profit: null,
+        pnl: null,
+        drawdown_impact: 0,
+        running_balance: 0,
+        peak_balance: 0,
+        notes: `Submitted ${entry.direction} through SmartPip execution gate`,
+      }).select('id').single();
+      return { data, error: error?.message ?? null, status: error ? 400 : 201 };
+    },
+  },
 
   // Plugin API (v2)
   plugins: {

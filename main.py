@@ -40,9 +40,8 @@ qa_system = QualityAssurance()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifespan context manager for FastAPI"""
-    # Start the trading system in background
-    asyncio.create_task(platform.run())
+    """Lifespan context manager for FastAPI."""
+    platform_task = asyncio.create_task(platform.run(), name="smartpip-trading-system")
     
     # Start health monitoring
     health_monitor.start_monitoring()
@@ -59,6 +58,13 @@ async def lifespan(app: FastAPI):
     health_monitor.stop_monitoring()
     qa_system.stop_continuous_validation()
     timeline_manager.end_session()
+    await platform.connection.close()
+    if not platform_task.done():
+        platform_task.cancel()
+        try:
+            await platform_task
+        except asyncio.CancelledError:
+            pass
 
 app = FastAPI(
     title="SmartPip Trading Platform",
@@ -81,10 +87,14 @@ log_collector = setup_logging(
 )
 
 # Add CORS middleware
+cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",") if origin.strip()]
+if not cors_origins:
+    cors_origins = ["http://localhost:5173"]
+cors_wildcard = cors_origins == ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=not cors_wildcard,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -102,7 +112,7 @@ async def global_exception_handler(request, exc):
     from fastapi.responses import JSONResponse
     return JSONResponse(
         status_code=500,
-        content={"error": "Internal server error", "detail": str(exc) if os.getenv("ENVIRONMENT") != "production" else "An unexpected error occurred"}
+        content={"error": "Internal server error", "detail": "An unexpected error occurred"}
     )
 
 # Mount static files for web interface

@@ -21,6 +21,10 @@
 - **Database**: Supabase (PostgreSQL), Redis
 - **Exchange**: Deriv WSS API (`wss://ws.binaryws.com/websockets/v3`)
 
+## Deployment architecture
+
+The Vite/React frontend is deployed as a static application (for example on Vercel). The FastAPI trading backend is a separate long-running service (for example Render/Fly.io). Set `VITE_API_URL` in the frontend deployment to the backend origin. Keep `DERIV_API_TOKEN` strictly server-side; it must never be a `VITE_*` variable.
+
 ## Quick start
 
 ```bash
@@ -38,7 +42,7 @@ open http://localhost:8000
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DERIV_API_TOKEN` | — | Deriv API token (Read + Trade) |
+| `DERIV_API_TOKEN` | — | Server-side Deriv API token (Read + Trade); never expose to Vite |
 | `DERIV_APP_ID` | 1089 | Deriv application ID |
 | `BASE_AMOUNT` | 1.0 | Default stake per trade ($) |
 | `MIN_CONFIDENCE` | 70 | Minimum ML confidence to trade |
@@ -64,7 +68,7 @@ open http://localhost:8000
 | `/api/ml-status` | GET | Ensemble ML status + feature importance |
 | `/api/entropy` | GET | Market entropy & randomness |
 | `/api/analyzer-weights` | GET | Adaptive analyzer weights |
-| `/api/trade` | POST | Execute manual trade |
+| `/api/trade` | POST | Execute manual trade through proposal → approval → buy → monitoring |
 | `/api/history` | GET | Trade history |
 | `/api/backtest` | POST | Quick backtest on current data |
 | `/ws` | WS | Live data + signals stream |

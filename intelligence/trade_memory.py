@@ -367,6 +367,15 @@ class TradeMemory:
             logger.error("get_by_regime failed: %s", exc, exc_info=True)
             return []
 
+    def get_completed_trades(self, n: int = 100) -> List[TradeRecord]:
+        """Return completed WIN/LOSS trades for learning and case retrieval."""
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT * FROM trades WHERE outcome IN (?, ?) ORDER BY timestamp DESC LIMIT ?",
+                ("WIN", "LOSS", int(n)),
+            ).fetchall()
+        return [self._row_to_record(row) for row in rows]
+
     def get_winning_trades(self, n: int = 50) -> List[TradeRecord]:
         """Return up to *n* winning trades."""
         try:

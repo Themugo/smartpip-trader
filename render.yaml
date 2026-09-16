@@ -9,11 +9,15 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: DERIV_ACCOUNT_ID
-        value: 1294207
+        sync: false
       - key: DERIV_API_TOKEN
         sync: false
       - key: DERIV_APP_ID
-        value: 33TlwQH6PgwEeXDG0J3QN
+        sync: false
+      - key: DERIV_API_URL
+        value: https://api.derivws.com
+      - key: DERIV_DEMO_ONLY
+        value: true
       - key: BASE_TRADE_AMOUNT
         value: 1
       - key: MAX_DAILY_TRADES

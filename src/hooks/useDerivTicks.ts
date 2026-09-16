@@ -4,6 +4,7 @@ export interface TickData {
   price: number;
   lastDigit: number;
   digitHistory: number[];
+  priceHistory: number[];
   symbol: string;
   connected: boolean;
   authorized: boolean;
@@ -12,7 +13,7 @@ export interface TickData {
   latencyMs: number;
 }
 
-const DERIV_WS_URL = 'wss://ws.binaryws.com/websockets/v3?app_id=1089';
+const DERIV_WS_URL = import.meta.env.VITE_DERIV_PUBLIC_WS_URL || 'wss://api.derivws.com/trading/v1/options/ws/public';
 const MAX_HISTORY = 100;
 
 export function useDerivTicks(symbol: string = 'R_100') {
@@ -20,6 +21,7 @@ export function useDerivTicks(symbol: string = 'R_100') {
     price: 0,
     lastDigit: 0,
     digitHistory: [],
+    priceHistory: [],
     symbol,
     connected: false,
     authorized: false,
@@ -35,6 +37,8 @@ export function useDerivTicks(symbol: string = 'R_100') {
   const lastTickTime = useRef<number>(0);
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const symbolRef = useRef(symbol);
+  const subscriptionIdRef = useRef<string | number | null>(null);
+  const requestIdRef = useRef(1);
 
   // Keep symbolRef in sync
   useEffect(() => {
@@ -49,8 +53,9 @@ export function useDerivTicks(symbol: string = 'R_100') {
     return false;
   }, []);
 
-  const subscribeToTicks = useCallback(() => {
-    send({ ticks: symbolRef.current, subscribe: 1 });
+  const subscribeToTicks = useCallback((requestedSymbol = symbolRef.current) => {
+    const reqId = requestIdRef.current++;
+    send({ ticks: requestedSymbol, subscribe: 1, req_id: reqId });
   }, [send]);
 
   const connect = useCallback(() => {
@@ -97,21 +102,26 @@ export function useDerivTicks(symbol: string = 'R_100') {
           }
 
           if (data.tick) {
+            if (data.subscription?.id != null) subscriptionIdRef.current = data.subscription.id;
             const price = parseFloat(data.tick.quote);
-            const priceStr = price.toFixed(4);
-            const lastDigit = parseInt(priceStr.slice(-1), 10);
+            const displayQuote = String(data.tick.display_value ?? data.tick.quote);
+            const digitsOnly = displayQuote.replace(/[^0-9]/g, '');
+            const lastDigit = digitsOnly ? Number(digitsOnly.slice(-1)) : 0;
             const latency = lastTickTime.current ? now - lastTickTime.current : 0;
             lastTickTime.current = now;
 
             setTickData((prev) => {
               const newHistory = [...prev.digitHistory, lastDigit];
+              const newPriceHistory = [...prev.priceHistory, price];
               if (newHistory.length > MAX_HISTORY) newHistory.shift();
+              if (newPriceHistory.length > MAX_HISTORY) newPriceHistory.shift();
               return {
                 ...prev,
                 price,
                 lastDigit,
                 digitHistory: newHistory,
-                symbol: data.tick.symbol || prev.symbol,
+                priceHistory: newPriceHistory,
+                symbol: data.tick.symbol || data.tick.underlying_symbol || prev.symbol,
                 connected: true,
                 error: null,
                 tickCount: prev.tickCount + 1,
@@ -133,6 +143,7 @@ export function useDerivTicks(symbol: string = 'R_100') {
       };
 
       ws.onclose = () => {
+        subscriptionIdRef.current = null;
         setTickData((prev) => ({ ...prev, connected: false, authorized: false }));
         if (pingIntervalRef.current) {
           clearInterval(pingIntervalRef.current);
@@ -173,9 +184,10 @@ export function useDerivTicks(symbol: string = 'R_100') {
 
   const switchSymbol = useCallback(
     (newSymbol: string) => {
-      // Unsubscribe from current
-      send({ ticks: symbolRef.current, subscribe: 0 });
-      // Update ref and state
+      if (subscriptionIdRef.current != null) {
+        send({ forget: subscriptionIdRef.current });
+        subscriptionIdRef.current = null;
+      }
       symbolRef.current = newSymbol;
       setTickData((prev) => ({
         ...prev,
@@ -183,14 +195,13 @@ export function useDerivTicks(symbol: string = 'R_100') {
         price: 0,
         lastDigit: 0,
         digitHistory: [],
+        priceHistory: [],
         tickCount: 0,
+        error: null,
       }));
-      // Subscribe to new
-      setTimeout(() => {
-        send({ ticks: newSymbol, subscribe: 1 });
-      }, 100);
+      window.setTimeout(() => subscribeToTicks(newSymbol), 50);
     },
-    [send]
+    [send, subscribeToTicks]
   );
 
   useEffect(() => {

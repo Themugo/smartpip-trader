@@ -3,6 +3,9 @@ import { AppShell } from './components/AppShell';
 import { TabContent } from './components/TabContent';
 import { OnboardingWizard } from './components/OnboardingWizard';
 import { AuthModal } from './components/AuthModal';
+import { AuthPage } from './components/AuthPage';
+import { EndUserShell, type EndUserView } from './components/EndUserShell';
+import { EndUserDashboard } from './components/EndUserDashboard';
 import { useAuth } from './hooks/useAuth';
 import { useTradingData } from './hooks/useTradingData';
 import { useDerivTicks } from './hooks/useDerivTicks';
@@ -15,7 +18,7 @@ import { useTradeJournal } from './hooks/useTradeJournal';
 import type { Tab, Workspace, BotStatus } from './types';
 import type { RegimeType } from './hooks/useRegimeDetection';
 import { api } from './lib/api';
-import { supabase, supabaseConfigured } from './lib/supabase';
+import { supabaseConfigured } from './lib/supabase';
 
 export default function App() {
   // ── Auth ────────────────────────────────────────────────────
@@ -25,6 +28,7 @@ export default function App() {
     hasCompletedOnboarding,
     signIn,
     signUp,
+    resetPassword,
     signOut,
     completeOnboarding,
     showLoginModal,
@@ -34,6 +38,7 @@ export default function App() {
 
   // ── UI state ────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [endUserView, setEndUserView] = useState<EndUserView>('trade');
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace>('dashboard');
   const [botStatus, setBotStatus] = useState<BotStatus>('STOPPED');
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -51,12 +56,12 @@ export default function App() {
   // ── Trading data ────────────────────────────────────────────
   const {
     trades, stats, settings, auditLogs, error: dataError, loading: dataLoading,
-    fetchData, updateSettings, setError: setDataError, retry: retryData,
+    fetchData, updateSettings, setError: setDataError,
   } = useTradingData(isAuthenticated);
 
   // ── Market data & hooks ─────────────────────────────────────
   const { tickData, switchSymbol, reconnect } = useDerivTicks('R_100');
-  const { tradingToken, userToken, setUserToken, hasTradingToken } = useDerivToken(isAuthenticated);
+  const { tradingToken, userToken, setUserToken } = useDerivToken(isAuthenticated);
   const { regimeState, isStrategyAllowed } = useRegimeDetection(tickData.digitHistory, tickData.price);
   const { evidenceLog, buildEvidence } = useTradeEvidence();
   const { state: mlAuditState, error: mlAuditError, runAudit } = useMLAudit();
@@ -92,17 +97,27 @@ export default function App() {
   // ── Bot controls ────────────────────────────────────────────
   const handleStart = useCallback(async () => {
     if (!isAuthenticated) { setShowAuthModal(true); return; }
-    if (!hasTradingToken) { setDataError('Add your Deriv API token in the sidebar before starting the bot.'); return; }
-    setBotStatus('RUNNING');
-    await logAction('START_BOT');
-    if (settings) { await api.updateSettings({ auto_trading: true }); updateSettings({ auto_trading: true }); }
-  }, [isAuthenticated, hasTradingToken, logAction, settings, updateSettings, setDataError]);
+    if (!settings) { setDataError('Trading preferences are still loading. Please try again.'); return; }
+    if (!tickData.connected) { setDataError('Market feed is offline. Reconnect before enabling automation.'); return; }
+    try {
+      await updateSettings({ auto_trading: true });
+      setBotStatus('RUNNING');
+      await logAction('START_BOT');
+    } catch {
+      setBotStatus('STOPPED');
+      throw new Error('Unable to enable auto execution.');
+    }
+  }, [isAuthenticated, settings, tickData.connected, logAction, updateSettings, setDataError]);
 
   const handleStop = useCallback(async () => {
-    setBotStatus('STOPPED');
-    await logAction('STOP_BOT');
-    if (settings) { await api.updateSettings({ auto_trading: false }); updateSettings({ auto_trading: false }); }
-  }, [logAction, settings, updateSettings]);
+    try {
+      await updateSettings({ auto_trading: false });
+      setBotStatus('STOPPED');
+      await logAction('STOP_BOT');
+    } catch {
+      throw new Error('Unable to pause auto execution.');
+    }
+  }, [logAction, updateSettings]);
 
   const handleReset = useCallback(async () => {
     await logAction('RESET_SESSION');
@@ -146,17 +161,60 @@ export default function App() {
     );
   }
 
-  // ── Onboarding gate ─────────────────────────────────────────
-  if (user && !hasCompletedOnboarding && !showOnboarding) {
+  // ── Authentication gate ────────────────────────────────────
+  // In a configured production environment the customer enters through
+  // Supabase Auth. The legacy offline shell remains available only when
+  // Supabase is intentionally not configured for local development.
+  if (!isAuthenticated && supabaseConfigured) {
     return (
-      <OnboardingWizard
-        onComplete={() => { completeOnboarding(); setShowOnboarding(true); }}
-        onSkip={completeOnboarding}
+      <AuthPage
+        onSignIn={async (email, password) => { await signIn(email, password); }}
+        onSignUp={async (email, password) => { await signUp(email, password); }}
+        onResetPassword={async (email) => { await resetPassword(email); }}
+        initialLogin={showLoginModal}
       />
     );
   }
 
-  // ── Main render ─────────────────────────────────────────────
+  // ── Onboarding gate ─────────────────────────────────────────
+  if (user && !hasCompletedOnboarding && !showOnboarding) {
+    return (
+      <OnboardingWizard
+        onComplete={async (profile) => { await completeOnboarding(profile); setShowOnboarding(true); }}
+        onSkip={async () => { await completeOnboarding(); }}
+      />
+    );
+  }
+
+  // ── Authenticated end-user product shell ────────────────────
+  if (user) {
+    return (
+      <EndUserShell
+        user={user}
+        view={endUserView}
+        onViewChange={setEndUserView}
+        onSignOut={signOut}
+        connected={tickData.connected}
+      >
+        <EndUserDashboard
+          view={endUserView}
+          userEmail={user.email || ''}
+          tickData={tickData}
+          trades={trades}
+          stats={stats}
+          settings={settings}
+          dataLoading={dataLoading}
+          onSwitchSymbol={switchSymbol}
+          onReconnect={reconnect}
+          onStartAuto={handleStart}
+          onStopAuto={handleStop}
+          onRefresh={fetchData}
+        />
+      </EndUserShell>
+    );
+  }
+
+  // ── Main render (offline development shell) ─────────────────
   return (
     <>
       {/* Offline / auth-failed banner */}
@@ -178,6 +236,7 @@ export default function App() {
         <AuthModal
           onSignIn={signIn}
           onSignUp={signUp}
+          onResetPassword={resetPassword}
           onClose={() => setShowAuthModal(false)}
         />
       )}

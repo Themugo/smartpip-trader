@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect, useCallback } from 'react';
 import {
   Activity, Server, Code2, Cpu, Zap, Globe,
@@ -243,7 +244,7 @@ export function ReviewPage() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch('/api/review');
+      const res = await fetch(`${API_BASE_URL}/api/review`);
       if (res.ok) {
         const d = await res.json() as ReviewData;
         setData(d);
@@ -264,8 +265,8 @@ export function ReviewPage() {
     setLoadingDeriv(true);
     try {
       const [accRes, ptRes] = await Promise.all([
-        fetch(`/api/review/deriv-account?api_token=${encodeURIComponent(apiToken)}`),
-        fetch(`/api/review/profit-table?api_token=${encodeURIComponent(apiToken)}&limit=50`),
+        fetch(`${API_BASE_URL}/api/review/deriv-account`, { headers: { Authorization: `Bearer ${apiToken}` } }),
+        fetch(`${API_BASE_URL}/api/review/profit-table?limit=50`, { headers: { Authorization: `Bearer ${apiToken}` } }),
       ]);
       if (accRes.ok)  setDerivAcc(await accRes.json() as DerivAccount);
       if (ptRes.ok)   setProfitTbl(await ptRes.json() as ProfitTable);

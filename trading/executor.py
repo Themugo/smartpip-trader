@@ -24,14 +24,18 @@ class TradeExecutor:
         current_price: float
     ) -> Optional[str]:
         """Execute trade based on prediction"""
-        # Map prediction to Deriv contract type
-        direction = None
-        if prediction.type == "RISE_FALL":
-            direction = "CALL" if prediction.direction == "RISE" else "PUT"
-        elif prediction.type == "EVEN_ODD":
-            direction = "CALL" if prediction.direction == "EVEN" else "PUT"
-        else:
-            direction = "CALL"
+        # Legacy executor retained only for compatibility. Do not silently
+        # convert digit outcomes into CALL/PUT; callers should use
+        # ``DerivExecutionAdapter`` instead.
+        mapping = {
+            "RISE": "CALL", "FALL": "PUT", "CALL": "CALL", "PUT": "PUT",
+            "EVEN": "DIGITEVEN", "ODD": "DIGITODD",
+            "OVER": "DIGITOVER", "UNDER": "DIGITUNDER",
+            "MATCH": "DIGITMATCH", "DIFF": "DIGITDIFF",
+        }
+        direction = mapping.get(str(prediction.direction).upper())
+        if not direction:
+            raise ValueError(f"Unsupported legacy prediction direction: {prediction.direction}")
         
         trade_msg = {
             "buy": 1,

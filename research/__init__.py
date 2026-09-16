@@ -1,22 +1,10 @@
-"""
-AI Research Lab - Experimentation and Benchmarking
-
-Comprehensive research environment:
-- Strategy comparison
-- AI model evaluation
-- Feature set analysis
-- Ensemble configuration
-- Parameter sweeps
-- Experiment tracking
-"""
-
-from research.lab import ResearchLab, Experiment, ExperimentResult
-from research.tracking import ExperimentTracker, MetricTracker
-
-__all__ = [
-    "ResearchLab",
-    "Experiment",
-    "ExperimentResult",
-    "ExperimentTracker",
-    "MetricTracker",
-]
+"""Research package: canonical historical laboratory plus existing research APIs."""
+try:
+    from .lab import ResearchLab
+except Exception:
+    ResearchLab = None
+try:
+    from .tracking import *
+except Exception:
+    pass
+from .historical_opportunity_engine import HistoricalOpportunityEngine, HistoricalTick, load_ticks

@@ -1,6 +1,8 @@
 import asyncio
 import json
+import time
 import logging
+import os
 from collections import deque
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional
@@ -13,8 +15,12 @@ from database import DatabaseManager, SupabaseManager
 from utils import CacheManager, PerformanceMetrics, system_logger, trade_logger, performance_logger
 from trading.trade_journal import TradeJournal
 from models import Prediction
+from trading.deriv_execution import DerivExecutionAdapter, expected_value_per_stake
+from ai_core.trade_approval import TradeApprover
+from phase5.live_gate import LiveCertificateGate
 from intelligence import IntelligenceOrchestrator, ResearchOrchestrator
 from intelligence.trade_memory import TradeRecord
+from intelligence.probability_calibration import ProbabilityCalibrator
 from strategies.registry import StrategyRegistry
 from strategies.marketplace import StrategyMarketplace
 
@@ -37,6 +43,20 @@ class TradingSystem:
         
         # ========== TRADING MODULES ==========
         self.executor = TradeExecutor()
+        self.deriv_execution = DerivExecutionAdapter(self.connection)
+        self.trade_approver = TradeApprover()
+        self.live_certificate_gate = LiveCertificateGate(
+            os.getenv("PRODUCTION_CERTIFICATE_PATH", "intelligence_data/production_certificate.json")
+        )
+        self.probability_calibrator = ProbabilityCalibrator(
+            path=os.getenv("CALIBRATION_ARTIFACT", "intelligence_data/calibration.json"),
+            min_context_samples=int(os.getenv("CALIBRATION_MIN_CONTEXT_SAMPLES", "200")),
+        )
+        self._last_trade_at_by_symbol = {}
+        self._decision_lock = asyncio.Lock()
+        self._pending_contract_tasks = {}
+        self._canonical_trades = {}
+        self._last_tick_epoch = 0.0
         self.monitor = TradeMonitor()
         self.risk_manager = RiskManager()
         self.zero_loss_risk_manager = ZeroLossRiskManager()
@@ -58,7 +78,7 @@ class TradingSystem:
             self.database = DatabaseManager()
         
         # ========== SETTINGS ==========
-        self.settings = Settings()
+        self.settings = Settings.from_env()
         # Load persisted settings from database
         try:
             db_settings = self.database.get_settings()
@@ -76,7 +96,7 @@ class TradingSystem:
         self.current_price = 0
         self.price_history = deque(maxlen=500)
         self.last_20_digits = []
-        self.digit_history = deque(maxlen=100)
+        self.digit_history = deque(maxlen=500)
         
         # ========== BOT STATUS ==========
         self.bot_status = "STOPPED"
@@ -123,6 +143,7 @@ class TradingSystem:
         # Setup connection callbacks
         self.connection.set_reconnect_callback(self._on_reconnect)
         self.connection.set_disconnect_callback(self._on_disconnect)
+        self.connection.add_handler("tick", self._handle_tick_message)
     
     def _configure_analyzers(self):
         """Configure analyzers based on settings"""
@@ -163,6 +184,11 @@ class TradingSystem:
             "registry": self.strategy_registry.get_state(),
         }
     
+    async def _handle_tick_message(self, message: Dict[str, Any]):
+        tick = message.get("tick") if isinstance(message, dict) else None
+        if tick:
+            await self.process_tick(tick)
+
     async def _on_reconnect(self):
         """Callback when connection is re-established"""
         system_logger.info("Reconnected to Deriv API", reconnect_attempts=self.connection.reconnect_attempts)
@@ -175,17 +201,22 @@ class TradingSystem:
         self.metrics.increment_counter("disconnections")
     
     async def connect(self) -> bool:
-        """Connect to Deriv API"""
+        """Connect, discover active markets, then hydrate account state."""
         if await self.connection.connect():
-            await self.account.update_balance(self.connection.websocket)
+            try:
+                await self.market.discover_markets(self.connection)
+            except Exception as exc:
+                logger.warning("Active market discovery failed: %s; retaining configured symbols", exc)
+            await self.account.update_balance(self.connection)
             return True
         return False
     
     async def subscribe_to_market(self):
-        """Subscribe to current market"""
-        await self.market.subscribe_to_market(
-            self.connection.websocket,
-            self.market.get_current_market()
+        """Subscribe the canonical Deriv connection to the active market."""
+        await self.connection.subscribe(
+            {"ticks": self.market.get_current_market(), "subscribe": 1},
+            "tick",
+            self._handle_tick_message,
         )
     
     def switch_market(self, market: str):
@@ -211,6 +242,9 @@ class TradingSystem:
         self.stats_manager.reset_stats()
         self.risk_manager.reset_consecutive_losses()
         self.monitor.trade_history = []
+        self.monitor.active_trades = {}
+        self._canonical_trades.clear()
+        self._pending_intel = {}
         logger.info("Session reset")
     
     async def process_tick(self, tick_data: Dict[str, Any]):
@@ -228,13 +262,16 @@ class TradingSystem:
         self.price_history.append(self.current_price)
         
         # Extract last digit for analysis
-        price_str = f"{self.current_price:.4f}"
-        last_digit = int(price_str[-1]) if price_str[-1].isdigit() else 0
+        price_str = format(self.current_price, ".8f").rstrip("0")
+        last_digit = int(price_str[-1]) if price_str and price_str[-1].isdigit() else 0
         self.last_20_digits.append(last_digit)
-        if len(self.last_20_digits) > 20:
-            self.last_20_digits = self.last_20_digits[-20:]
+        if len(self.last_20_digits) > 100:
+            self.last_20_digits = self.last_20_digits[-100:]
+        self.digit_history.append(last_digit)
+        self._last_tick_epoch = float(tick_data.get("epoch") or time.time())
         
-        # Run analysis with caching
+        # Run analysis without execution-result caching. A stale AI decision can
+        # become a real-money order within seconds on synthetic indices.
         analysis_data = {
             "last_20_digits": self.last_20_digits,
             "price_history": self.price_history,
@@ -243,19 +280,10 @@ class TradingSystem:
             "markets": self.market.get_all_markets()
         }
         
-        # Check cache first
-        cached_result = self.cache.get(analysis_data)
-        if cached_result:
-            self.analysis.analysis_result = cached_result
-            self.analysis.generate_best_prediction()
-            self.best_prediction = self.analysis.get_best_prediction()
-        else:
-            self.metrics.start_timer("analysis")
-            self.analysis.get_comprehensive_analysis(analysis_data)
-            self.best_prediction = self.analysis.get_best_prediction()
-            self.metrics.stop_timer("analysis")
-            # Cache the result
-            self.cache.set(analysis_data, self.analysis.analysis_result)
+        self.metrics.start_timer("analysis")
+        self.analysis.get_comprehensive_analysis(analysis_data)
+        self.best_prediction = self.analysis.get_best_prediction()
+        self.metrics.stop_timer("analysis")
         
         # Execute trade if auto-trading is on
         if self.settings.auto_trading and self.bot_status == "RUNNING":
@@ -271,138 +299,192 @@ class TradingSystem:
         )
     
     async def execute_intelligent_trade(self) -> Optional[str]:
-        """Execute trade based on intelligence pipeline (or legacy if intelligence disabled)."""
-        if not self.best_prediction:
-            return None
+        """Run the canonical AI -> quote -> risk -> buy path.
 
-        # ── Intelligence-gated execution (default: NO TRADE) ──────────
-        # Prefer research orchestrator if available, fallback to legacy intelligence
-        active_intel = self.research if self.research is not None else self.intelligence
-        if active_intel is not None:
+        Live execution fails closed: intelligence errors, stale ticks, missing
+        proposals, insufficient edge, or risk violations never fall back to a
+        legacy confidence-only trade.
+        """
+        async with self._decision_lock:
+            gate = self.live_certificate_gate.status(
+                live_enabled=self.settings.live_trading_enabled,
+                confirmation=os.getenv("LIVE_TRADING_CONFIRMATION", ""),
+            )
+            if not gate["allowed"]:
+                logger.info("Live trading blocked by Phase-5 certificate gate: %s", gate["reason"])
+                return None
+            if not self.connection.authorized or not self.connection.is_connected():
+                return None
+            if not self.best_prediction:
+                return None
+
+            symbol = self.market.get_current_market()
+            now = time.time()
+            if now - self._last_tick_epoch > self.settings.decision_ttl_seconds:
+                logger.info("Trade blocked: stale market data")
+                return None
+            last_trade = self._last_trade_at_by_symbol.get(symbol, 0.0)
+            if now - last_trade < self.settings.per_symbol_cooldown_seconds:
+                return None
+            if len(self.deriv_execution.get_open_contracts()) >= self.settings.max_open_contracts:
+                return None
+
+            active_intel = self.research if self.research is not None else self.intelligence
+            if active_intel is None:
+                logger.warning("Trade blocked: no intelligence pipeline loaded")
+                return None
+
             try:
                 hour = datetime.now(timezone.utc).hour
                 intel = active_intel.evaluate_tick(
                     price_history=list(self.price_history),
-                    digit_history=list(self.last_20_digits),
+                    digit_history=list(self.digit_history),
                     analyzer_output=self.analysis.analysis_result or {},
-                    market=self.market.get_current_market(),
+                    market=symbol,
                     hour=hour,
                 )
-
-                if intel["decision"] != "TRADE":
-                    logger.info(
-                        "Intelligence layer: %s — %s",
-                        intel["decision"],
-                        intel.get("rejection_reason", ""),
-                    )
-                    return None
-
-                # Use intelligence-computed size
-                trade_amount = intel.get("size") or self.settings.base_amount
-            except Exception as e:
-                logger.warning("Intelligence pipeline error: %s — using legacy gate", e)
-                # Fallback: legacy confidence gate
-                if self.best_prediction.confidence < self.settings.min_confidence:
-                    return None
-                trade_amount = self.settings.base_amount
-        else:
-            # Legacy: simple confidence threshold
-            if self.best_prediction.confidence < self.settings.min_confidence:
+            except Exception:
+                logger.exception("AI pipeline failed; live trading remains blocked")
                 return None
-            trade_amount = self.settings.base_amount
 
-        # ── Risk limits ────────────────────────────────────────────────
-        can_trade, reason = self.risk_manager.check_risk_limits(
-            self.stats_manager.get_stats()["session_pnl"],
-            self.risk_manager.get_consecutive_losses(),
-            self.settings.to_dict()
-        )
-        
-        if not can_trade:
-            logger.warning("Trade blocked: %s", reason)
-            if "kill switch" in reason.lower():
-                self.bot_status = "STOPPED"
-            return None
-        
-        # ── Execute trade ──────────────────────────────────────────────
-        contract_id = await self.executor.execute_trade(
-            self.connection.websocket,
-            self.best_prediction,
-            self.market.get_current_market(),
-            self.account.get_currency(),
-            trade_amount,
-            self.current_price
-        )
-        
-        if contract_id:
-            # Log trade entry to journal
+            if not intel or intel.get("decision") != "TRADE":
+                return None
+
+            # The analysis layer must nominate a real contract space.
+            contract_type = str(intel.get("contract_type") or self.best_prediction.get("type") or "").upper()
+            direction = str(intel.get("direction") or self.best_prediction.get("direction") or "").upper()
+            if contract_type in {"CONSENSUS", ""}:
+                # Legacy consensus is not a broker contract. Map only an explicit
+                # rise/fall directional result; digit contracts need explicit type.
+                if direction in {"CALL", "PUT"}:
+                    contract_type = direction
+                else:
+                    logger.info("Trade blocked: AI did not return an executable contract type")
+                    return None
+
+            trade_amount = float(intel.get("size") or self.settings.base_amount)
+            balance = float(self.account.get_balance() or 0.0)
+            max_stake = balance * self.settings.max_stake_pct_equity if balance > 0 else 0.0
+            if max_stake > 0:
+                trade_amount = min(trade_amount, max_stake)
+            if trade_amount <= 0:
+                logger.info("Trade blocked: computed stake is not positive")
+                return None
+
+            currency = self.account.get_currency()
+            prediction = str(intel.get("prediction") or direction or "") or None
+            barrier = intel.get("barrier")
+
+            # Ask Deriv for the real quote after applying the equity cap.
             try:
-                entry_conditions = []
-                if self.best_prediction:
-                    entry_conditions = [
-                        f"confidence: {self.best_prediction.confidence:.1f}%",
-                        f"type: {self.best_prediction.type}",
-                    ]
-                    if hasattr(self.best_prediction, 'reason') and self.best_prediction.reason:
-                        entry_conditions.append(f"reason: {self.best_prediction.reason}")
-
-                regime_str = "unknown"
-                if self.research and hasattr(self.research, 'current_regime') and self.research.current_regime:
-                    regime_str = self.research.current_regime.regime
-                elif self.intelligence and self.intelligence.current_regime:
-                    regime_str = self.intelligence.current_regime.regime
-                elif hasattr(self.analysis, "last_analysis"):
-                    regime_str = self.analysis.last_analysis.get("regime", "unknown")
-
-                balance = self.account.get_balance() if hasattr(self.account, "get_balance") else self.stats_manager.get_stats().get("total_profit", 1000) + 1000
-                self._pending_journal_ids = getattr(self, "_pending_journal_ids", {})
-                jid = self.trade_journal.log_trade(
-                    symbol=self.market.get_current_market(),
-                    contract_type=self.best_prediction.type,
-                    entry_price=self.current_price,
-                    amount=trade_amount,
-                    confidence=self.best_prediction.confidence,
-                    regime=regime_str,
-                    entry_conditions=entry_conditions,
-                    running_balance=float(balance),
+                proposal = await self.deriv_execution.get_proposal(
+                    symbol=symbol, contract_type=contract_type, amount=trade_amount,
+                    currency=currency, duration=int(intel.get("duration") or 1),
+                    duration_unit=str(intel.get("duration_unit") or "t"),
+                    barrier=str(barrier) if barrier is not None else None,
+                    prediction=prediction,
                 )
-                self._pending_journal_ids[contract_id] = jid
-            except Exception as je:
-                logger.warning("Journal log_trade failed: %s", je)
+            except Exception as exc:
+                logger.warning("Trade blocked: proposal failed: %s", exc)
+                return None
 
-            # Store pending intel for outcome recording
-            if self.intelligence:
-                if not hasattr(self, "_pending_intel"):
-                    self._pending_intel = {}
-                self._pending_intel[contract_id] = {
-                    "analyzer_output": self.analysis.analysis_result or {},
-                    "amount": trade_amount,
-                    "market": self.market.get_current_market(),
-                    "direction": self.best_prediction.direction,
-                    "type": self.best_prediction.type,
-                    "confidence": self.best_prediction.confidence,
-                    "entry_price": self.current_price,
-                    "regime": regime_str,
-                    "entropy": self.intelligence._extract_entropy(
-                        self.analysis.analysis_result or {}
-                    ),
-                    "volatility": self.intelligence._extract_volatility(
-                        list(self.price_history)
-                    ),
-                }
-
-            # Monitor the trade
-            asyncio.create_task(
-                self.monitor.monitor_trade(
-                    self.connection.websocket,
-                    contract_id,
-                    120,
-                    self._on_trade_complete
-                )
+            raw_conf = float(intel.get("win_probability") or intel.get("probability") or (float(self.best_prediction.get("confidence", 0)) / 100.0))
+            raw_conf = max(0.0, min(1.0, raw_conf))
+            calibration = self.probability_calibrator.transform(
+                raw_conf, market=symbol, contract_type=contract_type,
+                duration=int(intel.get("duration") or 1),
+                regime=str(intel.get("regime", {}).get("regime", "UNKNOWN")) if isinstance(intel.get("regime"), dict) else str(intel.get("regime", "UNKNOWN")),
             )
-        
-        return contract_id
-    
+            # Phase 2 live policy: no calibrated artifact means no live trade.
+            if self.settings.live_trading_enabled and getattr(self.settings, "require_calibrated_probability", True) and not calibration.calibrated:
+                logger.info("Trade blocked: no valid calibration artifact for %s", calibration.context)
+                return None
+            win_probability = calibration.probability
+            approval = self.trade_approver.approve(
+                win_probability=win_probability,
+                payout=proposal.payout,
+                stake=proposal.ask_price,
+                min_expected_value=self.settings.min_expected_value,
+                min_probability=self.settings.min_confidence / 100.0,
+                model_ready=bool(intel.get("pipeline_ok", True)),
+                market_data_fresh=(time.time() - self._last_tick_epoch) <= self.settings.decision_ttl_seconds,
+            )
+            if not approval.approved:
+                logger.info("Trade blocked by final approval gate: %s", "; ".join(approval.reasons))
+                return None
+            ev = approval.expected_value
+
+            can_trade, reason = self.risk_manager.check_risk_limits(
+                self.stats_manager.get_stats()["session_pnl"],
+                self.risk_manager.get_consecutive_losses(),
+                self.settings.to_dict(),
+            )
+            if not can_trade:
+                if "kill switch" in reason.lower():
+                    self.bot_status = "STOPPED"
+                return None
+
+            try:
+                trade = await self.deriv_execution.buy(proposal, max_price=proposal.ask_price)
+            except Exception as exc:
+                logger.warning("Buy failed: %s", exc)
+                return None
+
+            self._last_trade_at_by_symbol[symbol] = time.time()
+            contract_id = trade.contract_id
+
+            self._pending_intel = getattr(self, "_pending_intel", {})
+            self._pending_intel[contract_id] = {
+                "analyzer_output": self.analysis.analysis_result or {},
+                "amount": trade.buy_price, "market": symbol,
+                "direction": direction, "type": contract_type,
+                "prediction": prediction, "confidence": win_probability * 100,
+                "entry_price": self.current_price,
+                "regime": str(intel.get("regime", {}).get("regime", "unknown")) if isinstance(intel.get("regime"), dict) else str(intel.get("regime", "unknown")),
+                "entropy": float(intel.get("entropy", self.analysis.get_market_entropy())),
+                "volatility": 0.0,
+                "proposal": {"id": proposal.id, "ask_price": proposal.ask_price, "payout": proposal.payout, "ev": ev},
+                "calibration": {"raw_probability": raw_conf, "calibrated_probability": win_probability, "source": calibration.source, "sample_size": calibration.sample_size, "context": calibration.context},
+            }
+            self._canonical_trades[contract_id] = {
+                "id": contract_id,
+                "market": symbol,
+                "type": contract_type,
+                "direction": direction,
+                "amount": trade.buy_price,
+                "confidence": win_probability * 100,
+                "entry_price": trade.entry_spot if trade.entry_spot is not None else self.current_price,
+                "buy_price": trade.buy_price,
+                "payout": trade.payout,
+                "proposal_id": proposal.id,
+                "expected_value": ev,
+                "prediction": prediction,
+                "entry_time": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            self.monitor.add_trade(contract_id, self._canonical_trades[contract_id])
+
+            # Persistent monitoring is tied to the contract stream, not a fixed sleep.
+            self._pending_contract_tasks[contract_id] = asyncio.create_task(
+                self._monitor_deriv_contract(contract_id),
+                name=f"contract-{contract_id}",
+            )
+            logger.info(
+                "TRADE %s type=%s p=%.3f payout=%.4f stake=%.4f EV=%.5f",
+                contract_id, contract_type, win_probability, proposal.payout, trade.buy_price, ev,
+            )
+            return contract_id
+
+    async def _monitor_deriv_contract(self, contract_id: str):
+        try:
+            contract = await self.deriv_execution.watch_contract(contract_id)
+            profit = float(contract.get("profit", 0) or 0)
+            await self._on_trade_complete(contract_id, profit)
+        except Exception as exc:
+            logger.error("Contract monitoring failed for %s: %s", contract_id, exc)
+        finally:
+            self._pending_contract_tasks.pop(contract_id, None)
+
     async def _on_trade_complete(self, contract_id: str, profit: float):
         """Callback when trade completes with database persistence and structured logging"""
         self.metrics.start_timer("trade_completion")
@@ -414,13 +496,15 @@ class TradingSystem:
         # Update risk manager
         self.risk_manager.update_consecutive_losses(profit)
         
-        # Complete trade in monitor
-        trade_data = self.executor.get_trade(contract_id)
+        # Complete trade in the canonical monitor/store.
+        trade_data = self._canonical_trades.pop(contract_id, None) or self.executor.get_trade(contract_id)
         if trade_data:
-            self.monitor.complete_trade(contract_id, profit)
-            
-            # Save trade to database
+            if contract_id in self.monitor.active_trades:
+                self.monitor.complete_trade(contract_id, profit)
+
             trade_data["profit"] = profit
+            trade_data["exit_price"] = self.current_price
+            trade_data["completed_at"] = datetime.now(timezone.utc).isoformat()
             self.database.save_trade(trade_data)
 
             # Close trade in journal
@@ -507,10 +591,11 @@ class TradingSystem:
                 confidence=trade_data.get("confidence")
             )
             
-            self.executor.remove_trade(contract_id)
+            if self.executor.get_trade(contract_id):
+                self.executor.remove_trade(contract_id)
         
         # Update balance
-        await self.account.update_balance(self.connection.websocket)
+        await self.account.update_balance(self.connection)
         
         # Record performance metrics
         self.metrics.increment_counter("trades_completed")
@@ -530,23 +615,22 @@ class TradingSystem:
         self.metrics.stop_timer("trade_completion")
     
     async def listen_for_prices(self):
-        """Listen for price updates from WebSocket"""
-        while self.connection.connected and self.bot_status == "RUNNING":
-            try:
-                message = await self.connection.recv()
-                data = json.loads(message)
-                if "tick" in data:
-                    await self.process_tick(data["tick"])
-            except Exception as e:
-                logger.error(f"Listen error: {e}")
-                await asyncio.sleep(1)
-    
+        """Compatibility loop; DerivConnection owns socket receive handling."""
+        while self.connection.connected and not self.connection._stopping:
+            await asyncio.sleep(1)
+
     async def run(self):
-        """Main run loop"""
-        if await self.connect():
-            await self.subscribe_to_market()
-            await self.listen_for_prices()
-    
+        """Keep the canonical Deriv connection alive for the service lifetime."""
+        while not self.connection._stopping:
+            if not self.connection.is_connected():
+                connected = await self.connect()
+                if connected:
+                    await self.subscribe_to_market()
+                else:
+                    await asyncio.sleep(5)
+                    continue
+            await asyncio.sleep(1)
+
     def get_full_state(self) -> Dict[str, Any]:
         """Get full system state for API/dashboard with performance metrics"""
         analysis_result = self.analysis.analysis_result

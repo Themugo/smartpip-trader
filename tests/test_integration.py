@@ -276,8 +276,14 @@ class TestAPIIntegration:
     
     def test_api_zero_loss_metrics(self, client):
         """Test zero-loss risk metrics endpoint"""
-        # Skip this test as the endpoint doesn't exist
-        pytest.skip("Endpoint /api/risk/zero-loss not implemented")
+        response = client.get("/api/risk/zero-loss")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, dict)
+
+        reset = client.post("/api/risk/zero-loss/reset", json={})
+        assert reset.status_code == 200
+        assert reset.json()["success"] is True
     
     def test_rate_limiting(self, client):
         """Test rate limiting"""

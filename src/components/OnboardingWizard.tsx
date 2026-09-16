@@ -14,9 +14,17 @@ import {
   BarChart3
 } from 'lucide-react';
 
+export interface OnboardingProfile {
+  name: string;
+  tradingGoal: string;
+  experience: 'beginner' | 'intermediate' | 'advanced';
+  riskTolerance: 'conservative' | 'moderate' | 'aggressive';
+  preferredMarkets: string[];
+}
+
 interface OnboardingWizardProps {
-  onComplete: () => void;
-  onSkip?: () => void;
+  onComplete: (profile: OnboardingProfile) => void | Promise<void>;
+  onSkip?: () => void | Promise<void>;
 }
 
 type Step = 'welcome' | 'profile' | 'experience' | 'preferences' | 'recommendation' | 'tour';
@@ -41,6 +49,8 @@ const steps: { id: Step; title: string; description: string }[] = [
 export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [completedSteps, setCompletedSteps] = useState<Set<Step>>(new Set());
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [data, setData] = useState<ProfileData>({
     name: '',
     tradingGoal: '',
@@ -52,13 +62,21 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
   const currentIndex = steps.findIndex(s => s.id === currentStep);
   const progress = ((currentIndex + 1) / steps.length) * 100;
 
-  const goNext = () => {
+  const goNext = async () => {
+    setSaveError(null);
     setCompletedSteps(prev => new Set([...prev, currentStep]));
     const nextIndex = currentIndex + 1;
     if (nextIndex < steps.length) {
       setCurrentStep(steps[nextIndex].id);
-    } else {
-      onComplete();
+      return;
+    }
+    setSaving(true);
+    try {
+      await onComplete(data);
+    } catch (err: unknown) {
+      setSaveError(err instanceof Error ? err.message : 'Could not save your profile. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -71,7 +89,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
 
   const skip = () => {
     if (onSkip) onSkip();
-    else onComplete();
+    else onComplete(data);
   };
 
   const renderStep = () => {
@@ -79,7 +97,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
       case 'welcome':
         return (
           <div className="text-center py-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Rocket className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">
@@ -90,12 +108,12 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             </p>
             <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-8">
               {[
-                { icon: Sparkles, label: 'AI-Powered', desc: 'Smart predictions' },
-                { icon: Shield, label: 'Risk-Safe', desc: 'Protected trading' },
-                { icon: TrendingUp, label: 'Automated', desc: 'Set & forget' },
+                { icon: Sparkles, label: 'AI-Powered', desc: 'Evidence-based analysis' },
+                { icon: Shield, label: 'Risk-Safe', desc: 'Risk-aware decisions' },
+                { icon: TrendingUp, label: 'Automated', desc: 'Optional automation' },
               ].map((item, i) => (
                 <div key={i} className="bg-slate-800/50 rounded-xl p-4">
-                  <item.icon className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                  <item.icon className="w-6 h-6 text-teal-300 mx-auto mb-2" />
                   <p className="font-medium text-white text-sm">{item.label}</p>
                   <p className="text-xs text-slate-500">{item.desc}</p>
                 </div>
@@ -108,7 +126,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
         return (
           <div className="space-y-6">
             <div className="text-center mb-6">
-              <User className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+              <User className="w-12 h-12 text-teal-300 mx-auto mb-3" />
               <h2 className="text-xl font-bold text-white">Tell us about yourself</h2>
             </div>
 
@@ -140,12 +158,12 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     onClick={() => setData({ ...data, tradingGoal: goal.id })}
                     className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all ${
                       data.tradingGoal === goal.id
-                        ? 'border-blue-500 bg-blue-500/10'
+                        ? 'border-red-500 bg-red-500/10'
                         : 'border-slate-700 hover:border-slate-600'
                     }`}
                   >
                     <goal.icon className={`w-5 h-5 ${
-                      data.tradingGoal === goal.id ? 'text-blue-400' : 'text-slate-400'
+                      data.tradingGoal === goal.id ? 'text-teal-300' : 'text-slate-400'
                     }`} />
                     <span className={data.tradingGoal === goal.id ? 'text-white' : 'text-slate-400'}>
                       {goal.label}
@@ -161,7 +179,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
         return (
           <div className="space-y-6">
             <div className="text-center mb-6">
-              <Zap className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+              <Zap className="w-12 h-12 text-red-400 mx-auto mb-3" />
               <h2 className="text-xl font-bold text-white">Your trading experience</h2>
               <p className="text-slate-400 text-sm mt-1">This helps us customize your workspace</p>
             </div>
@@ -174,10 +192,10 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               ].map((exp) => (
                 <button
                   key={exp.id}
-                  onClick={() => setData({ ...data, experience: exp.id as any })}
+                  onClick={() => setData({ ...data, experience: exp.id as ProfileData['experience'] })}
                   className={`w-full text-left p-4 rounded-lg border transition-all ${
                     data.experience === exp.id
-                      ? 'border-purple-500 bg-purple-500/10'
+                      ? 'border-red-500 bg-red-500/10'
                       : 'border-slate-700 hover:border-slate-600'
                   }`}
                 >
@@ -202,17 +220,17 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
 
             <div className="space-y-3">
               {[
-                { id: 'conservative', label: 'Conservative', desc: 'Small, safe trades. Minimize losses above all.', color: 'emerald' },
-                { id: 'moderate', label: 'Moderate', desc: 'Balanced approach. Some risk for better returns.', color: 'blue' },
-                { id: 'aggressive', label: 'Aggressive', desc: 'Higher risk, higher potential rewards.', color: 'orange' },
+                { id: 'conservative', label: 'Conservative', desc: 'Lower exposure and stronger filters.', color: 'emerald' },
+                { id: 'moderate', label: 'Moderate', desc: 'Balanced exposure with explicit limits.', color: 'blue' },
+                { id: 'aggressive', label: 'Aggressive', desc: 'Higher exposure with tighter monitoring.', color: 'orange' },
               ].map((pref) => (
                 <button
                   key={pref.id}
-                  onClick={() => setData({ ...data, riskTolerance: pref.id as any })}
+                  onClick={() => setData({ ...data, riskTolerance: pref.id as ProfileData['riskTolerance'] })}
                   className={`w-full text-left p-4 rounded-lg border transition-all ${
                     data.riskTolerance === pref.id
                       ? pref.color === 'emerald' ? 'border-emerald-500 bg-emerald-500/10' :
-                        pref.color === 'blue' ? 'border-blue-500 bg-blue-500/10' :
+                        pref.color === 'blue' ? 'border-red-500 bg-red-500/10' :
                         'border-orange-500 bg-orange-500/10'
                       : 'border-slate-700 hover:border-slate-600'
                   }`}
@@ -269,7 +287,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 <>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-blue-400" />
+                      <Zap className="w-5 h-5 text-teal-300" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-white">Balanced Approach</h3>
@@ -344,7 +362,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#050914] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Progress bar */}
         <div className="mb-8">
@@ -354,14 +372,15 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
           <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-red-500 to-red-700 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* Step content */}
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+        <div className="bg-[#091321]/95 rounded-3xl border border-white/[0.08] p-6 shadow-2xl">
+          {saveError && <div role="alert" className="mb-4 rounded-xl border border-red-400/20 bg-red-400/[0.06] p-3 text-xs text-red-300">{saveError}</div>}
           {renderStep()}
         </div>
 
@@ -376,8 +395,9 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </button>
 
           <button
-            onClick={goNext}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
+            onClick={() => void goNext()}
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-2.5 bg-red-500 hover:bg-red-400 text-white rounded-lg font-medium transition-colors"
           >
             {currentStep === 'tour' ? (
               <>

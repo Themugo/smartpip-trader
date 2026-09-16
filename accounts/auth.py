@@ -16,9 +16,15 @@ import secrets
 import time
 from base64 import b64decode, b64encode
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlencode, urlparse, parse_qs
+
+try:
+    from cryptography.fernet import Fernet, InvalidToken
+except ImportError:
+    Fernet = None
+    InvalidToken = Exception
 
 try:
     import requests
@@ -314,7 +320,27 @@ class TokenManager:
         self._storage_path = storage_path
         os.makedirs(storage_path, exist_ok=True)
         
-        self._encryption_key = encryption_key or secrets.token_hex(32)
+        self._encryption_key = encryption_key or os.getenv("TOKEN_ENCRYPTION_KEY")
+        if not self._encryption_key:
+            key_path = os.path.expanduser("~/.smartpip/token.key")
+            os.makedirs(os.path.dirname(key_path), exist_ok=True)
+            if os.path.exists(key_path):
+                with open(key_path, "rb") as f:
+                    self._encryption_key = f.read().decode().strip()
+            else:
+                self._encryption_key = b64encode(secrets.token_bytes(32)).decode()
+                with open(key_path, "w") as f:
+                    f.write(self._encryption_key)
+                try:
+                    os.chmod(key_path, 0o600)
+                except OSError:
+                    pass
+        if Fernet is None:
+            raise RuntimeError("cryptography is required for secure token storage")
+        try:
+            Fernet(self._encryption_key.encode())
+        except Exception as exc:
+            raise ValueError("TOKEN_ENCRYPTION_KEY must be a valid Fernet key") from exc
         self._tokens: Dict[str, AuthToken] = {}
         self._oauth2 = DerivOAuth2()
         self._load_tokens()
@@ -328,8 +354,12 @@ class TokenManager:
             try:
                 with open(token_file, "r") as f:
                     encrypted = f.read()
-                    # Decrypt would happen here
-                    data = json.loads(encrypted)
+                    try:
+                        plaintext = Fernet(self._encryption_key.encode()).decrypt(encrypted.encode()).decode()
+                    except Exception as exc:
+                        logger.error("Failed to decrypt token store: %s", exc)
+                        return
+                    data = json.loads(plaintext)
                     for token_data in data.get("tokens", []):
                         token_type = TokenType(token_data["token_type"])
                         expires = None
@@ -365,8 +395,10 @@ class TokenManager:
         }
         
         try:
+            plaintext = json.dumps(data)
+            encrypted = Fernet(self._encryption_key.encode()).encrypt(plaintext.encode()).decode()
             with open(token_file, "w") as f:
-                json.dump(data, f)
+                f.write(encrypted)
         except Exception as e:
             logger.error(f"Failed to save tokens: {e}")
     

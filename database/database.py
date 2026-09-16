@@ -121,8 +121,8 @@ class DatabaseManager:
                     trade.get("confidence"),
                     trade.get("reason"),
                     trade.get("entry_price"),
-                    trade.get("entry_time"),
-                    trade.get("exit_time"),
+                    trade.get("entry_time") or trade.get("created_at") or datetime.now().isoformat(),
+                    trade.get("exit_time") or trade.get("completed_at"),
                     trade.get("profit")
                 ))
                 return True
