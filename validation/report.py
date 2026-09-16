@@ -391,18 +391,18 @@ class ReportGenerator:
         
         if format == ReportFormat.JSON:
             path = os.path.join(self.output_dir, f"{report_id}.json")
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 json.dump(report.to_dict(), f, indent=2)
         
         elif format == ReportFormat.MARKDOWN:
             path = os.path.join(self.output_dir, f"{report_id}.md")
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 f.write(report.to_markdown())
         
         else:
             # For PDF/HTML, just save markdown and note conversion needed
             path = os.path.join(self.output_dir, f"{report_id}.md")
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 f.write(report.to_markdown())
             logger.info(f"Export as {format.value} requires additional processing")
         

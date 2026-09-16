@@ -204,7 +204,7 @@ class SecurityModule:
         self._users: Dict[str, User] = {}
         self._sessions: Dict[str, Session] = {}
         self._audit_logs: List[AuditLog] = []
-        self._api_keys: Dict[str, str] = {}  # api_key -> user_id
+        self._api_keys: Dict[str, str] = {}  # hashed_api_key -> user_id
         
         # Rate limiting
         self._rate_limits: Dict[str, List[datetime]] = {}
@@ -222,17 +222,19 @@ class SecurityModule:
     def _create_default_admin(self) -> None:
         """Create default admin user if none exists"""
         if not self._users:
+            # Development-safe bootstrap. Production deployments should provision an admin
+            # explicitly rather than relying on a known password.
+            bootstrap_password = secrets.token_urlsafe(18)
             admin = User(
                 id=str(uuid.uuid4()),
                 username="admin",
                 email="admin@localhost",
                 role=Role.ADMIN,
             )
-            # Default password: admin123 (should be changed immediately)
-            admin.password_hash = self._hash_password("admin123")
+            admin.password_hash = self._hash_password(bootstrap_password)
             self._users[admin.id] = admin
             self._save_users()
-            logger.warning("Created default admin user - CHANGE PASSWORD IMMEDIATELY")
+            logger.warning("Created bootstrap admin user. Set a new password before production use: %s", bootstrap_password)
     
     # =========================================================================
     # User Management
@@ -447,6 +449,10 @@ class SecurityModule:
     # API Keys
     # =========================================================================
     
+    @staticmethod
+    def _api_key_fingerprint(api_key: str) -> str:
+        return hashlib.sha256(api_key.encode("utf-8")).hexdigest()
+
     def create_api_key(self, user_id: str) -> str:
         """Create an API key for a user"""
         user = self._users.get(user_id)
@@ -454,8 +460,9 @@ class SecurityModule:
             raise ValueError("User not found")
         
         api_key = f"sp_{secrets.token_urlsafe(32)}"
-        self._api_keys[api_key] = user_id
-        user.api_keys.append(api_key)
+        key_id = self._api_key_fingerprint(api_key)
+        self._api_keys[key_id] = user_id
+        user.api_keys.append(key_id)
         
         self._save_users()
         
@@ -464,28 +471,33 @@ class SecurityModule:
             username=user.username,
             action="api_key.create",
             resource_type="api_key",
-            resource_id=api_key[:16] + "...",
+            resource_id=key_id[:16] + "...",
         )
         
         return api_key
     
     def validate_api_key(self, api_key: str) -> Optional[str]:
         """Validate an API key and return user_id"""
-        return self._api_keys.get(api_key)
+        user_id = self._api_keys.get(self._api_key_fingerprint(api_key))
+        user = self._users.get(user_id) if user_id else None
+        if not user or not user.is_active or user.is_locked:
+            return None
+        return user_id
     
     def revoke_api_key(self, user_id: str, api_key: str) -> bool:
         """Revoke an API key"""
-        if api_key not in self._api_keys:
+        key_id = self._api_key_fingerprint(api_key)
+        if key_id not in self._api_keys:
             return False
         
         user = self._users.get(user_id)
         if not user:
             return False
         
-        if api_key in user.api_keys:
-            user.api_keys.remove(api_key)
+        if key_id in user.api_keys:
+            user.api_keys.remove(key_id)
         
-        del self._api_keys[api_key]
+        del self._api_keys[key_id]
         self._save_users()
         
         self._log_action(
@@ -493,7 +505,7 @@ class SecurityModule:
             username=user.username,
             action="api_key.revoke",
             resource_type="api_key",
-            resource_id=api_key[:16] + "...",
+            resource_id=key_id[:16] + "...",
         )
         
         return True
@@ -618,7 +630,7 @@ class SecurityModule:
                 100000
             )
             return hmac.compare_digest(hash_obj.hex(), hash_hex)
-        except:
+        except (TypeError, ValueError):
             return False
     
     # =========================================================================

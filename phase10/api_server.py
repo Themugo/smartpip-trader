@@ -195,7 +195,7 @@ class APIServer:
         if body:
             try:
                 data = json.loads(body)
-            except:
+            except (TypeError, ValueError, json.JSONDecodeError):
                 return APIResponse(
                     status=HTTPStatus.BAD_REQUEST,
                     data=None,
@@ -215,9 +215,21 @@ class APIServer:
             user = auth_result
         
         # Check permissions
-        if endpoint.permissions and user:
-            # Would check user permissions here
-            pass
+        if endpoint.permissions:
+            if not user or not self._security:
+                return APIResponse(
+                    status=HTTPStatus.FORBIDDEN,
+                    data=None,
+                    message="Forbidden",
+                )
+            for required in endpoint.permissions:
+                try:
+                    from phase10.security import Permission
+                    permission = Permission(required)
+                except ValueError:
+                    return APIResponse(status=HTTPStatus.FORBIDDEN, data=None, message="Forbidden")
+                if not self._security.has_permission(user["user_id"], permission):
+                    return APIResponse(status=HTTPStatus.FORBIDDEN, data=None, message="Forbidden")
         
         # Rate limiting
         if self._security:
@@ -255,7 +267,7 @@ class APIServer:
             return APIResponse(
                 status=HTTPStatus.INTERNAL_ERROR,
                 data=None,
-                message=str(e),
+                message="Internal server error",
             )
     
     def _find_endpoint(self, method: str, path: str) -> Optional[APIEndpoint]:
@@ -305,9 +317,13 @@ class APIServer:
         auth_header = headers.get("Authorization", "")
         
         if auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-            # Would validate session token here
-            pass
+            token = auth_header[7:].strip()
+            for session in self._security._sessions.values():
+                if session.token == token:
+                    valid = self._security.validate_session(session.id)
+                    if valid:
+                        return {"user_id": valid.user_id, "auth_type": "session", "session_id": valid.id}
+                    return None
         
         # Check for API key
         api_key = headers.get("X-API-Key", headers.get("Api-Key", ""))

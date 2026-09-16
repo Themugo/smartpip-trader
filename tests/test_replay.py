@@ -503,9 +503,9 @@ class TestEventSynchronizer:
         sync = EventSynchronizer()
         
         events = [
-            ReplayEvent("e1", ReplayEventType.TICK, datetime.now(), 1, {"tick": 1}),
-            ReplayEvent("e2", ReplayEventType.RISK_CHECK, datetime.now(), 2, {"risk": 1}),
-            ReplayEvent("e3", ReplayEventType.TICK, datetime.now(), 3, {"tick": 2}),
+            ReplayEvent("e1", ReplayEventType.TICK, datetime(2024, 1, 1, 12, 0, 1), 1, {"tick": 1}),
+            ReplayEvent("e2", ReplayEventType.RISK_CHECK, datetime(2024, 1, 1, 12, 0, 2), 2, {"risk": 1}),
+            ReplayEvent("e3", ReplayEventType.TICK, datetime(2024, 1, 1, 12, 0, 3), 3, {"tick": 2}),
         ]
         
         sync.build_timeline(events)

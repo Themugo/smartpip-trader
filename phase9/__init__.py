@@ -17,6 +17,7 @@ from phase9.explainer import DecisionExplainer, TradeExplanation
 from phase9.performance_lab import PerformanceLab, ModelMetrics
 from phase9.feature_market import FeatureMarketplace, Feature
 from phase9.analytics import AdvancedAnalytics, AnalyticsDashboard
+from phase9.governance import ResearchRun, ResearchLedger, stable_fingerprint
 
 __all__ = [
     "KnowledgeGraph",
@@ -30,4 +31,7 @@ __all__ = [
     "Feature",
     "AdvancedAnalytics",
     "AnalyticsDashboard",
+    "ResearchRun",
+    "ResearchLedger",
+    "stable_fingerprint",
 ]
