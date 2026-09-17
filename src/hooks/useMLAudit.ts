@@ -249,7 +249,11 @@ export function useMLAudit() {
     const allHaveWins = strategiesWithData.every(s => s.wins > 0);
     const failureRate = strategiesWithData.filter(s => s.pnl < 0).length / (strategiesWithData.length || 1);
     const reportedStrategies = strategyHistory.length;
-    const testedStrategies = reportedStrategies + Math.floor(reportedStrategies * 0.3); // estimate hidden failures
+    // NOTE: this estimates hidden/unreported strategy failures for
+    // survivorship-bias detection, but the survivor score below doesn't
+    // currently factor it in — worth a second look from whoever owns the
+    // audit scoring methodology.
+    const _testedStrategies = reportedStrategies + Math.floor(reportedStrategies * 0.3); // estimate hidden failures
 
     const survivorScore = Math.round((
       (allHaveLosses ? 30 : 0) +

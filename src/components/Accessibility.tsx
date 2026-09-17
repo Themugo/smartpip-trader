@@ -160,11 +160,15 @@ export function useRestoreFocus(triggerRef: React.RefObject<HTMLElement | null>)
 
   useEffect(() => {
     previousActiveElement.current = document.activeElement as HTMLElement;
-    
+    // Capture now, at effect-run (mount) time — triggerRef.current is
+    // stable for the lifetime of this effect, but the lint rule can't
+    // verify that, so capture explicitly per its own suggested pattern.
+    const trigger = triggerRef.current;
+
     return () => {
       // Delay to ensure trigger is available
       setTimeout(() => {
-        triggerRef.current?.focus();
+        trigger?.focus();
       }, 0);
     };
   }, [triggerRef]);

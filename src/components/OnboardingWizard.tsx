@@ -48,7 +48,7 @@ const steps: { id: Step; title: string; description: string }[] = [
 
 export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
-  const [completedSteps, setCompletedSteps] = useState<Set<Step>>(new Set());
+  const [, setCompletedSteps] = useState<Set<Step>>(new Set());
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [data, setData] = useState<ProfileData>({
@@ -245,7 +245,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
         );
 
-      case 'recommendation':
+      case 'recommendation': {
         const recommendedPlan = data.experience === 'beginner' ? 'paper_first' : 'balanced';
         
         return (
@@ -319,6 +319,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             </div>
           </div>
         );
+      }
 
       case 'tour':
         return (

@@ -64,7 +64,10 @@ const CONTRACT_TYPES: { type: ContractType; label: string; icon: React.ElementTy
   { type: 'DIGITDIFF', label: 'Diff', icon: Brain, color: 'text-cyan-400', desc: 'Last digit differs', strategyType: 'match_diff' },
 ];
 
-export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = false, onSignInRequired, regimeState, isStrategyAllowed, onBuildEvidence, onGenerateShadowSignal, onAddJournalEntry }: TradeExecutionPanelProps) {
+const DEFAULT_SIZING_CONFIG = { baseAmount: 1.0, maxRiskPerTrade: 0.02 };
+
+
+export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = false, onSignInRequired, regimeState, isStrategyAllowed, onBuildEvidence, onGenerateShadowSignal: _onGenerateShadowSignal, onAddJournalEntry }: TradeExecutionPanelProps) {
   const [selectedType, setSelectedType] = useState<ContractType>('DIGITEVEN');
   const [amount, setAmount] = useState(1);
   const [duration, setDuration] = useState(5);
@@ -74,7 +77,7 @@ export function TradeExecutionPanel({ tickData, apiToken, isAuthenticated = fals
 
   const analysis = useDigitAnalysis(tickData.digitHistory);
   const { executeTrade, executing, lastResult } = useTradeExecution(apiToken);
-  const sizing = useAdaptivePositionSizing({ baseAmount: 1.0, maxRiskPerTrade: 0.02 });
+  const sizing = useAdaptivePositionSizing(DEFAULT_SIZING_CONFIG);
 
   const needsBarrier = selectedType === 'DIGITOVER' || selectedType === 'DIGITUNDER';
   const needsPrediction = selectedType === 'DIGITMATCH' || selectedType === 'DIGITDIFF';

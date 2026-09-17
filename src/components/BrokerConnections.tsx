@@ -129,8 +129,8 @@ export function BrokerConnections({ onConnectionChange }: BrokerConnectionsProps
       setShowAddModal(false);
       setNewToken('');
       setLabel('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to add connection');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add connection');
     } finally {
       setSaving(false);
       setTestingConnection(null);

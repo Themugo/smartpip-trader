@@ -323,7 +323,7 @@ export function CommandPalette({ commands, isOpen, onClose }: CommandPaletteProp
                 <div className="px-4 py-2 text-xs font-medium text-slate-500 uppercase">
                   {category}
                 </div>
-                {cmds.map((cmd, cmdIndex) => {
+                {cmds.map((cmd, _cmdIndex) => {
                   const globalIndex = filteredCommands.findIndex((c) => c.id === cmd.id);
                   return (
                     <button

@@ -2,6 +2,45 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import type { RegimeType } from './useRegimeDetection';
 
+// Minimal row shapes for the two Supabase queries below (no generated
+// Database type exists for this client yet — see supabase/migrations/
+// 20260623055619_002_shadow_and_journal.sql and
+// 20260626000001_003_journal_enhanced.sql for the full schema).
+interface TradeJournalRow {
+  id: string;
+  timestamp: string;
+  symbol: string;
+  contract_type: string;
+  entry_price: number;
+  entry_digit?: number | null;
+  exit_price: number | null;
+  exit_digit: number | null;
+  amount: number;
+  confidence: number;
+  regime: string;
+  entry_conditions?: string[] | null;
+  exit_conditions?: string[] | null;
+  profit: number | null;
+  pnl: number | null;
+  drawdown_impact?: number | null;
+  running_balance?: number | null;
+  peak_balance?: number | null;
+  notes?: string | null;
+}
+
+interface WeeklyInsightRow {
+  week_start: string;
+  week_end: string;
+  total_trades: number;
+  win_rate: number;
+  profit_factor: number;
+  best_setup: { setup: string; trades: number; pnl: number } | null;
+  worst_setup: { setup: string; trades: number; pnl: number } | null;
+  time_of_day: Record<number, { trades: number; winRate: number; pnl: number }> | null;
+  regime_performance: Record<string, { trades: number; winRate: number; pnl: number }> | null;
+  recommendations?: string[] | null;
+}
+
 export interface JournalEntry {
   id: string;
   timestamp: number;
@@ -59,7 +98,7 @@ export function useTradeJournal() {
         .limit(500);
 
       if (data) {
-        const loaded: JournalEntry[] = data.map((j: any) => ({
+        const loaded: JournalEntry[] = data.map((j: TradeJournalRow) => ({
           id: j.id,
           timestamp: new Date(j.timestamp).getTime(),
           symbol: j.symbol,
@@ -75,9 +114,9 @@ export function useTradeJournal() {
           exitConditions: j.exit_conditions || [],
           profit: j.profit,
           pnl: j.pnl,
-          drawdownImpact: j.drawdown_impact,
-          runningBalance: j.running_balance,
-          peakBalance: j.peak_balance,
+          drawdownImpact: j.drawdown_impact ?? 0,
+          runningBalance: j.running_balance ?? 0,
+          peakBalance: j.peak_balance ?? 0,
           notes: j.notes || '',
         }));
         entriesRef.current = loaded;
@@ -93,7 +132,7 @@ export function useTradeJournal() {
         .limit(52);
 
       if (iData) {
-        setInsights(iData.map((w: any) => ({
+        setInsights(iData.map((w: WeeklyInsightRow) => ({
           weekStart: new Date(w.week_start).getTime(),
           weekEnd: new Date(w.week_end).getTime(),
           totalTrades: w.total_trades,
@@ -101,8 +140,8 @@ export function useTradeJournal() {
           profitFactor: w.profit_factor,
           bestSetup: w.best_setup,
           worstSetup: w.worst_setup,
-          timeOfDay: w.time_of_day,
-          regimePerformance: w.regime_performance,
+          timeOfDay: w.time_of_day ?? {},
+          regimePerformance: w.regime_performance ?? {},
           recommendations: w.recommendations || [],
         })));
       }

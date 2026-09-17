@@ -5,8 +5,7 @@
  */
 
 import { useState, type ReactNode } from 'react';
-import { cn } from '../ui/utils';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { Card, CardHeader, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Tabs } from '../ui/Tabs';
@@ -93,10 +92,6 @@ function formatCurrency(value: number): string {
 
 function formatPercent(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-}
-
-function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
 }
 
 // Generate mock report data

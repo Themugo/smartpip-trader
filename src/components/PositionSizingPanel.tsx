@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import {
-  Scale, TrendingUp, TrendingDown, Activity, DollarSign,
+  Scale,
   ShieldCheck, AlertTriangle, BarChart3, Play, RotateCcw,
-  ChevronDown, ChevronUp, Hash, Zap, Target
+  ChevronDown, ChevronUp, Target
 } from 'lucide-react';
 import { useAdaptivePositionSizing, type SizingConfig } from '../hooks/useAdaptivePositionSizing';
 import { useSizingSimulation, type SimulationResult } from '../hooks/useSizingSimulation';
-
-interface PositionSizingPanelProps {
-  currentBalance?: number;
-}
 
 function StatCard({ label, value, suffix = '', color = 'text-slate-300' }: {
   label: string; value: string | number; suffix?: string; color?: string;
@@ -22,7 +18,7 @@ function StatCard({ label, value, suffix = '', color = 'text-slate-300' }: {
   );
 }
 
-function EquityChart({ curves, labels }: { curves: number[][]; labels: string[] }) {
+function EquityChart({ curves }: { curves: number[][] }) {
   if (!curves.length || !curves[0].length) return null;
 
   const maxVal = Math.max(...curves.flat());
@@ -58,7 +54,7 @@ function EquityChart({ curves, labels }: { curves: number[][]; labels: string[] 
   );
 }
 
-export function PositionSizingPanel({ currentBalance }: PositionSizingPanelProps) {
+export function PositionSizingPanel() {
   const [config, setConfig] = useState<SizingConfig>({
     baseAmount: 1.0,
     maxRiskPerTrade: 0.02,
@@ -389,7 +385,6 @@ export function PositionSizingPanel({ currentBalance }: PositionSizingPanelProps
                       simResults.adaptive?.equityCurve || [],
                       simResults.fixed?.equityCurve || [],
                     ]}
-                    labels={['Adaptive', 'Fixed']}
                   />
                   <div className="flex gap-4 mt-2 flex-wrap">
                     <div className="flex items-center gap-1.5">
@@ -415,16 +410,16 @@ export function PositionSizingPanel({ currentBalance }: PositionSizingPanelProps
                       </tr>
                     </thead>
                     <tbody>
-                      {[
+                      {([
                         { label: 'Final Balance', key: 'finalBalance', fmt: (v: number) => `$${v.toFixed(2)}`, better: 'higher' },
                         { label: 'Total Return', key: 'totalReturn', fmt: (v: number) => `${v.toFixed(2)}%`, better: 'higher' },
                         { label: 'Max Drawdown', key: 'maxDrawdownPct', fmt: (v: number) => `${v.toFixed(2)}%`, better: 'lower' },
                         { label: 'Sharpe Ratio', key: 'sharpeRatio', fmt: (v: number) => v.toFixed(3), better: 'higher' },
                         { label: 'Profit Factor', key: 'profitFactor', fmt: (v: number) => v.toFixed(2), better: 'higher' },
                         { label: 'Win Rate', key: 'winRate', fmt: (v: number) => `${v.toFixed(1)}%`, better: 'higher' },
-                      ].map((row) => {
-                        const aVal = (simResults.adaptive as any)?.[row.key] ?? 0;
-                        const fVal = (simResults.fixed as any)?.[row.key] ?? 0;
+                      ] as const satisfies readonly { label: string; key: keyof SimulationResult; fmt: (v: number) => string; better: 'higher' | 'lower' }[]).map((row) => {
+                        const aVal = (simResults.adaptive?.[row.key] as number | undefined) ?? 0;
+                        const fVal = (simResults.fixed?.[row.key] as number | undefined) ?? 0;
                         const delta = aVal - fVal;
                         const isBetter = row.better === 'higher' ? delta > 0 : delta < 0;
 

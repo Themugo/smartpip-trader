@@ -101,15 +101,15 @@ export function AdminDashboard({ isAdmin = false }: AdminDashboardProps) {
       {/* Tabs */}
       <div className="border-b border-slate-800 px-6">
         <nav className="flex gap-6">
-          {[
+          {([
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'users', label: 'Users', icon: Users },
             { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
             { id: 'activity', label: 'Activity', icon: Activity },
-          ].map((tab) => (
+          ] as const).map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 py-4 border-b-2 transition-colors ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-400'

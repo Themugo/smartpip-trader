@@ -151,7 +151,7 @@ export function TabContent({
   journalInsights,
   journalLoading,
   journalError,
-  dataLoading,
+  dataLoading: _dataLoading,
   onStart,
   onStop,
   onReset,

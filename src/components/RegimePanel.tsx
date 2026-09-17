@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Activity, TrendingUp, TrendingDown, Waves, Zap, Ban,
+  Activity, TrendingUp, Waves, Zap, Ban,
   ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, BarChart3,
   Clock, Target, Hash, Shuffle
 } from 'lucide-react';

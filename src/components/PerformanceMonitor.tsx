@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Activity, Gauge, Zap, Clock } from 'lucide-react';
 import { measureWebVitals, reportMetrics } from '../lib/performance';
 
@@ -121,9 +121,7 @@ export function PerformanceMonitor({ showOnLoad = false }: PerformanceMonitorPro
       {/* Metrics */}
       <div className="p-3 space-y-2">
         {metricsList.map((metric) => {
-          const score = metric.isDecimal 
-            ? getScore(metric.value, metric.thresholds as any)
-            : getScore(metric.value, metric.thresholds);
+          const score = getScore(metric.value, metric.thresholds);
           
           return (
             <div key={metric.label} className="flex items-center justify-between">
@@ -157,13 +155,18 @@ interface PerformanceWrapperProps {
 }
 
 export function PerformanceWrapper({ children, name }: PerformanceWrapperProps) {
-  const startTime = performance.now();
+  // Captured once via ref so it reflects true mount time, not a value
+  // recomputed (and discarded) on every re-render.
+  const startTimeRef = useRef(performance.now());
 
   useEffect(() => {
-    const loadTime = performance.now() - startTime;
+    const loadTime = performance.now() - startTimeRef.current;
     if (import.meta.env.DEV) {
       console.log(`[Performance] ${name} loaded in ${loadTime.toFixed(2)}ms`);
     }
+    // Intentionally mount-only: this measures initial load time, so it
+    // should not re-run if `name` changes after mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{children}</>;

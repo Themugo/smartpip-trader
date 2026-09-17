@@ -46,7 +46,6 @@ export function StrategyMarketplace() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'downloads' | 'newest'>('rating');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
 
   const categories = [
     { id: 'all', label: 'All Strategies' },
@@ -225,7 +224,7 @@ export function StrategyMarketplace() {
 
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'rating' | 'downloads' | 'newest')}
             className="px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="rating">Top Rated</option>

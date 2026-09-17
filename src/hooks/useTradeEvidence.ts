@@ -229,7 +229,7 @@ export function useTradeEvidence() {
     setEvidenceLog([...evidenceRef.current]);
 
     return evidence;
-  }, [evidenceLog]);
+  }, []);
 
   const getEvidenceById = useCallback((id: string): TradeEvidence | undefined => {
     return evidenceRef.current.find(e => e.id === id);

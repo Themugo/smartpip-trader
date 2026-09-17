@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 
 export interface SizingConfig {
   baseAmount: number;
@@ -65,7 +65,7 @@ function calculateMean(data: number[]): number {
 export function useAdaptivePositionSizing(
   config: Partial<SizingConfig> = {}
 ) {
-  const cfg = { ...DEFAULT_CONFIG, ...config };
+  const cfg = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config]);
 
   const [balance, setBalance] = useState(1000);
   const [peakBalance, setPeakBalance] = useState(1000);

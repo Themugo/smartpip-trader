@@ -16,7 +16,6 @@ import {
   Bell,
   CheckCircle2,
   XCircle,
-  Maximize2,
   ChevronDown,
   Flame
 } from 'lucide-react';

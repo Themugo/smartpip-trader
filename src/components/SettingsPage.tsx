@@ -6,7 +6,6 @@ import {
   Palette, 
   Key, 
   LogOut,
-  ChevronRight,
   Moon,
   Sun,
   Monitor,
@@ -24,9 +23,10 @@ interface SettingsPageProps {
 
 type SettingsTab = 'profile' | 'broker' | 'notifications' | 'appearance' | 'security' | 'subscription';
 
-export function SettingsPage({ onClose }: SettingsPageProps) {
+export function SettingsPage({ onClose: _onClose }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('dark');
+  const [compactMode, setCompactMode] = useState(false);
   const [notifications, setNotifications] = useState({
     email: true,
     desktop: true,
@@ -178,14 +178,14 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-3">Theme</label>
                 <div className="grid grid-cols-3 gap-4">
-                  {[
+                  {([
                     { id: 'light', label: 'Light', icon: Sun },
                     { id: 'dark', label: 'Dark', icon: Moon },
                     { id: 'system', label: 'System', icon: Monitor },
-                  ].map((item) => (
+                  ] as const).map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => setTheme(item.id as any)}
+                      onClick={() => setTheme(item.id)}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         theme === item.id
                           ? 'border-blue-500 bg-blue-500/10'
@@ -219,12 +219,14 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-3">Compact Mode</label>
                 <button
+                  onClick={() => setCompactMode((v) => !v)}
+                  aria-pressed={compactMode}
                   className={`relative w-12 h-7 rounded-full transition-colors ${
-                    false ? 'bg-blue-600' : 'bg-slate-700'
+                    compactMode ? 'bg-blue-600' : 'bg-slate-700'
                   }`}
                 >
                   <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${
-                    false ? 'left-6' : 'left-1'
+                    compactMode ? 'left-6' : 'left-1'
                   }`} />
                 </button>
               </div>

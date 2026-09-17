@@ -262,7 +262,7 @@ export function TradeJournalPanel({
     } finally {
       setLoadingApi(false);
     }
-  }, []);
+  }, [API]);
 
   const loadHeatmap = useCallback(async () => {
     try {
@@ -277,7 +277,7 @@ export function TradeJournalPanel({
     } catch (_) {
       // API unavailable
     }
-  }, []);
+  }, [API]);
 
   useEffect(() => {
     if (tab === 'recommendations') void loadRecs();

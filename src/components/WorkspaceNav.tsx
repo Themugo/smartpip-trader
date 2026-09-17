@@ -7,8 +7,7 @@
  * - Quick access shortcuts
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { api } from '../lib/api';
+import React, { useState, useEffect } from 'react';
 
 interface Workspace {
   id: string;
@@ -137,7 +136,12 @@ export const WorkspaceNav: React.FC<WorkspaceNavProps> = ({
 }) => {
   const [workspaces, setWorkspaces] = useState<Workspace[]>(DEFAULT_WORKSPACES);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  // `loading` currently never transitions to true — workspaces are loaded
+  // synchronously from DEFAULT_WORKSPACES below since the backing API
+  // endpoints aren't implemented yet. Kept as state (rather than a plain
+  // constant) so the loading branch below is a ready hook for when that
+  // API lands.
+  const [loading] = useState(false);
 
   useEffect(() => {
     // Use default workspaces - API endpoints not yet implemented

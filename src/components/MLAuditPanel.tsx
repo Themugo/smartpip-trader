@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
-  Brain, CheckCircle, XCircle, AlertTriangle, ShieldCheck, ShieldAlert,
-  ChevronDown, ChevronUp, BarChart3, TrendingUp, TrendingDown, Activity,
+  Brain, CheckCircle, XCircle, AlertTriangle, ShieldCheck,
+  ChevronDown, ChevronUp, BarChart3, Activity,
   Lock, Unlock, Target, Clock, RefreshCw
 } from 'lucide-react';
 import type { MLAuditState, BiasCheck, CVFold, RollingWindow } from '../hooks/useMLAudit';

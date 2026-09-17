@@ -150,15 +150,15 @@ export function OperationalExcellence() {
 
         {/* Tabs */}
         <div className="flex gap-2 border-b border-slate-800 pb-4">
-          {[
+          {([
             { id: 'health', label: 'Service Health', icon: Server },
             { id: 'audit', label: 'Audit Trail', icon: FileText },
             { id: 'monitoring', label: 'Background Jobs', icon: Activity },
             { id: 'notifications', label: 'Notifications', icon: Bell },
-          ].map(tab => (
+          ] as const).map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white'

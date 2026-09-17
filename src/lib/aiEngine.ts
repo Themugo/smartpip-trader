@@ -565,7 +565,11 @@ ${performance.indicators.map(i => `- ${i}`).join('\n')}
     };
   }
 
-  private createSessionSummary(trades: Trade[], statistics: TradeStatistics) {
+  // NOTE: recomputes wins/losses/pnl directly from `trades` rather than
+  // using the pre-aggregated `statistics` passed in (unlike the sibling
+  // `analyzeStrategyPerformance`/`analyzePortfolio` methods below, which do
+  // use it) — worth confirming these two sources are expected to agree.
+  private createSessionSummary(trades: Trade[], _statistics: TradeStatistics) {
     const wins = trades.filter(t => (t.profit || 0) > 0);
     const losses = trades.filter(t => (t.profit || 0) <= 0);
     const totalPnL = trades.reduce((sum, t) => sum + (t.profit || 0), 0);

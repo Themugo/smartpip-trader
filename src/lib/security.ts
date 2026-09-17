@@ -457,8 +457,13 @@ export async function enrollMFA(): Promise<{ success: boolean; qrCode?: string; 
 
 /**
  * Verify and enable MFA
+ * SECURITY NOTE: this is an unwired placeholder — it currently returns
+ * `success: true` for any non-empty code/factorId without actually
+ * verifying anything against Supabase. Confirmed not called anywhere in
+ * the app yet; must not be wired into a real login/verification flow
+ * as-is, or it would be an authentication bypass.
  */
-export async function verifyMFA(code: string, factorId: string, challengeId?: string): Promise<{ success: boolean; error?: string }> {
+export async function verifyMFA(code: string, factorId: string, _challengeId?: string): Promise<{ success: boolean; error?: string }> {
   try {
     if (!code || !factorId) {
       return { success: false, error: 'Code and factor ID are required' };
@@ -476,8 +481,10 @@ export async function verifyMFA(code: string, factorId: string, challengeId?: st
 
 /**
  * Challenge MFA on login
+ * SECURITY NOTE: same caveat as verifyMFA() above — unwired placeholder,
+ * not currently used anywhere in the app.
  */
-export async function challengeMFA(factorId: string): Promise<{ success: boolean; challengeId?: string; error?: string }> {
+export async function challengeMFA(_factorId: string): Promise<{ success: boolean; challengeId?: string; error?: string }> {
   try {
     // Placeholder - Full MFA requires Supabase Pro with MFA configured
     // In production, this would call supabase.auth.mfa.challenge()

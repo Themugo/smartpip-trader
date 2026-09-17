@@ -16,7 +16,7 @@ interface WorkspaceComponentProps {
 interface WorkspaceState {
   loading: boolean;
   error: string | null;
-  data: any;
+  data: unknown;
 }
 
 // Loading State Component
@@ -48,35 +48,6 @@ function ErrorState({
         >
           <RefreshCw className="w-4 h-4" />
           Retry
-        </button>
-      )}
-    </div>
-  );
-}
-
-// Empty State Component
-function EmptyState({ 
-  title, 
-  description, 
-  action,
-  icon
-}: { 
-  title: string; 
-  description: string; 
-  action?: { label: string; onClick: () => void };
-  icon?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center h-96 gap-4">
-      {icon && <div className="text-slate-600">{icon}</div>}
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="text-slate-400 text-sm text-center max-w-md">{description}</p>
-      {action && (
-        <button
-          onClick={action.onClick}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          {action.label}
         </button>
       )}
     </div>
@@ -148,7 +119,7 @@ function PlaceholderWorkspace({
 }
 
 // Dashboard Workspace
-export function DashboardWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function DashboardWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -160,7 +131,7 @@ export function DashboardWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Live Trading Workspace
-export function LiveTradingWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function LiveTradingWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -172,7 +143,7 @@ export function LiveTradingWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Paper Trading Workspace
-export function PaperTradingWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function PaperTradingWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -184,7 +155,7 @@ export function PaperTradingWorkspace({ workspaceId }: WorkspaceComponentProps) 
 }
 
 // Backtesting Workspace
-export function BacktestingWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function BacktestingWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -196,7 +167,7 @@ export function BacktestingWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Strategy Builder Workspace
-export function StrategyBuilderWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function StrategyBuilderWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -208,7 +179,7 @@ export function StrategyBuilderWorkspace({ workspaceId }: WorkspaceComponentProp
 }
 
 // Replay Engine Workspace
-export function ReplayEngineWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function ReplayEngineWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -220,7 +191,7 @@ export function ReplayEngineWorkspace({ workspaceId }: WorkspaceComponentProps) 
 }
 
 // Research Lab Workspace
-export function ResearchLabWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function ResearchLabWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -232,7 +203,7 @@ export function ResearchLabWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Analytics Workspace
-export function AnalyticsWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function AnalyticsWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -244,7 +215,7 @@ export function AnalyticsWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Risk Center Workspace
-export function RiskCenterWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function RiskCenterWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -256,7 +227,7 @@ export function RiskCenterWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Portfolio Workspace
-export function PortfolioWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function PortfolioWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -268,7 +239,7 @@ export function PortfolioWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Journal Workspace
-export function JournalWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function JournalWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -280,7 +251,7 @@ export function JournalWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Marketplace Workspace
-export function MarketplaceWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function MarketplaceWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -292,7 +263,7 @@ export function MarketplaceWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // AI Command Center Workspace
-export function AICommandCenterWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function AICommandCenterWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -304,7 +275,7 @@ export function AICommandCenterWorkspace({ workspaceId }: WorkspaceComponentProp
 }
 
 // Notifications Workspace
-export function NotificationsWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function NotificationsWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -316,7 +287,7 @@ export function NotificationsWorkspace({ workspaceId }: WorkspaceComponentProps)
 }
 
 // Admin Workspace
-export function AdminWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function AdminWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -328,7 +299,7 @@ export function AdminWorkspace({ workspaceId }: WorkspaceComponentProps) {
 }
 
 // Settings Workspace
-export function SettingsWorkspace({ workspaceId }: WorkspaceComponentProps) {
+export function SettingsWorkspace({ workspaceId: _workspaceId }: WorkspaceComponentProps) {
   return (
     <WorkspaceWrapper loading={false} error={null}>
       <PlaceholderWorkspace 
@@ -341,7 +312,7 @@ export function SettingsWorkspace({ workspaceId }: WorkspaceComponentProps) {
 
 // Workspace router
 export function WorkspaceContainer({ workspaceId }: { workspaceId: string }) {
-  const [state, setState] = useState<WorkspaceState>({
+  const [, setState] = useState<WorkspaceState>({
     loading: false,
     error: null,
     data: null,

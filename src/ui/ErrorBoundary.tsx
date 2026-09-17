@@ -87,7 +87,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               We encountered an unexpected error. Please try again or refresh the page.
             </p>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <details className="text-left mb-6 p-4 bg-slate-800 rounded-lg">
                 <summary className="text-sm font-medium text-slate-300 cursor-pointer">
                   Error Details (Development Only)

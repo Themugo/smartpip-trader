@@ -65,7 +65,7 @@ export default function App() {
   const { regimeState, isStrategyAllowed } = useRegimeDetection(tickData.digitHistory, tickData.price);
   const { evidenceLog, buildEvidence } = useTradeEvidence();
   const { state: mlAuditState, error: mlAuditError, runAudit } = useMLAudit();
-  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, loading: shadowLoading, error: shadowError, generateSignal, refresh: refreshShadow } = useShadowMode();
+  const { signals: shadowSignals, metrics: shadowMetrics, dailyMetrics: shadowDailyMetrics, loading: shadowLoading, error: shadowError, generateSignal } = useShadowMode();
   const { entries: journalEntries, insights: journalInsights, loading: journalLoading, error: journalError, addEntry, generateWeeklyInsights } = useTradeJournal();
 
   // ── Journal entry wrapper ───────────────────────────────────

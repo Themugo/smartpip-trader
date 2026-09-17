@@ -78,10 +78,6 @@ export function TradingWorkspace() {
     currency: 'USD',
   });
 
-  const togglePanel = (id: string) => {
-    setPanels(prev => prev.map(p => p.id === id ? { ...p, visible: !p.visible } : p));
-  };
-
   const minimizePanel = (id: string) => {
     setPanels(prev => prev.map(p => p.id === id ? { ...p, minimized: !p.minimized } : p));
   };
@@ -347,8 +343,6 @@ export function TradingWorkspace() {
         return <p className="text-slate-500">Panel content</p>;
     }
   };
-
-  const visiblePanels = panels.filter(p => p.visible).sort((a, b) => a.order - b.order);
 
   return (
     <div className="h-full flex flex-col bg-slate-950">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Save, AlertTriangle, SlidersHorizontal } from 'lucide-react';
+import { Save, AlertTriangle, SlidersHorizontal } from 'lucide-react';
 import type { SystemSettings } from '../lib/supabase';
 
 interface SettingsPanelProps {
@@ -27,8 +27,8 @@ export function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
     try {
       await onUpdate(local);
       setLocal({});
-    } catch (e: any) {
-      setError(e.message || 'Failed to save settings');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save settings');
     } finally {
       setSaving(false);
     }

@@ -48,7 +48,15 @@ async function supabaseQuery(url: string, key: string, path: string, method: str
   return res.status === 204 ? null : await res.json();
 }
 
-async function verifyUser(req: Request): Promise<{ user: any; token: string } | null> {
+// Minimal shape of the Supabase Auth user object actually consumed here
+// (the full response has many more fields — see Supabase's GoTrue
+// /user endpoint docs for the complete shape).
+interface SupabaseAuthUser {
+  id?: string;
+  email?: string;
+}
+
+async function verifyUser(req: Request): Promise<{ user: SupabaseAuthUser; token: string } | null> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return null;
 
@@ -231,8 +239,8 @@ Deno.serve(async (req: Request) => {
       status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), {
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Internal server error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }

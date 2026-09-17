@@ -27,6 +27,10 @@ export function lazyLoad<T extends object>(
   return function LazyWrapper(props: T) {
     return (
       <Suspense fallback={fallback || <DefaultLoadingSkeleton />}>
+        {/* Generic T can't be assigned directly to JSX props due to a
+            TypeScript/JSX generic-prop-spreading limitation; T is already
+            constrained by the caller's importFn signature. */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <LazyComponent {...(props as any)} />
       </Suspense>
     );
@@ -276,6 +280,11 @@ export function useMemoCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
   deps: unknown[]
 ): T {
+  // This utility intentionally forwards a caller-supplied `deps` array so
+  // callers can control memoization explicitly (e.g. by value rather than
+  // by callback identity). Adding `callback` itself to the deps would
+  // defeat that purpose.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(callback, deps) as T;
 }
 

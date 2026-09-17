@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   ShieldCheck, ShieldAlert, TrendingUp, TrendingDown, Activity,
   BarChart3, Percent, DollarSign, AlertTriangle, CheckCircle,

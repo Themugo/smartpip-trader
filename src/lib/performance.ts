@@ -17,6 +17,18 @@ export interface ResourceTiming {
   type: string;
 }
 
+// Minimal shapes for newer Performance Observer entry types not (yet)
+// covered by TypeScript's bundled DOM lib.
+interface LargestContentfulPaintEntry extends PerformanceEntry {
+  renderTime: number;
+  loadTime: number;
+}
+
+interface LayoutShiftEntry extends PerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+}
+
 // Core Web Vitals measurement
 export function measureWebVitals(): Promise<PerformanceMetrics> {
   return new Promise((resolve) => {
@@ -27,22 +39,23 @@ export function measureWebVitals(): Promise<PerformanceMetrics> {
       // Largest Contentful Paint
       new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        const lastEntry = entries[entries.length - 1] as any;
+        const lastEntry = entries[entries.length - 1] as LargestContentfulPaintEntry | undefined;
         metrics.lcp = lastEntry?.renderTime || lastEntry?.loadTime || 0;
       }).observe({ type: 'largest-contentful-paint', buffered: true });
 
       // First Input Delay
       new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        metrics.fid = (entries[0] as any).processingStart - entries[0].startTime;
+        metrics.fid = (entries[0] as PerformanceEventTiming).processingStart - entries[0].startTime;
       }).observe({ type: 'first-input', buffered: true });
 
       // Cumulative Layout Shift
       new PerformanceObserver((list) => {
         let cls = 0;
-        list.getEntries().forEach((entry: any) => {
-          if (!entry.hadRecentInput) {
-            cls += entry.value;
+        list.getEntries().forEach((entry) => {
+          const layoutShift = entry as LayoutShiftEntry;
+          if (!layoutShift.hadRecentInput) {
+            cls += layoutShift.value;
           }
         });
         metrics.cls = cls;
@@ -118,9 +131,17 @@ function getResourceType(url: string): string {
   return 'other';
 }
 
-// Memory usage (if available)
+// Memory usage (if available) — `performance.memory` is a non-standard
+// Chrome-only extension not present in the DOM lib types.
+interface PerformanceMemory {
+  memory?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+  };
+}
+
 export function getMemoryUsage(): { used: number; total: number } | null {
-  const perf = performance as any;
+  const perf = performance as Performance & PerformanceMemory;
   if (perf.memory) {
     return {
       used: perf.memory.usedJSHeapSize,
@@ -148,15 +169,8 @@ export function reportMetrics(metrics: PerformanceMetrics): void {
   }
 }
 
-// Lazy load component helper
-export function lazyLoad<T>(
-  importFn: () => Promise<{ default: React.ComponentType<T> }>
-): React.LazyExoticComponent<React.ComponentType<T>> {
-  // Using dynamic import to avoid React UMD global issue
-  return { $$typeof: Symbol.for('react.lazy'), _payload: importFn, _result: undefined } as any;
-}
-
 // Debounce utility
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function-type constraint; `unknown[]` here breaks inference via contravariance, this is the standard TS idiom (matches @types/lodash etc.)
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -170,6 +184,7 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 // Throttle utility
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- see debounce() above
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number

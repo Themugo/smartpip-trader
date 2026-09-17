@@ -87,15 +87,15 @@ export function AnalyticsPlatform() {
 
         {/* Period Selector */}
         <div className="flex gap-2">
-          {[
+          {([
             { id: 'equity', label: 'Equity Curve' },
             { id: 'trades', label: 'Trade Analysis' },
             { id: 'strategy', label: 'Strategy' },
             { id: 'comparison', label: 'Comparison' },
-          ].map(view => (
+          ] as const).map(view => (
             <button
               key={view.id}
-              onClick={() => setSelectedView(view.id as any)}
+              onClick={() => setSelectedView(view.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedView === view.id
                   ? 'bg-blue-600 text-white'

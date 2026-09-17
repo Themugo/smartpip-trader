@@ -34,7 +34,7 @@ interface TradeAnnotation {
 export function ReplayIntelligence() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(3600); // 1 hour in seconds
+  const [duration] = useState(3600); // 1 hour in seconds
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [volume, setVolume] = useState(80);
   const [bookmarks, setBookmarks] = useState<{ time: number; label: string }[]>([
@@ -42,7 +42,7 @@ export function ReplayIntelligence() {
     { time: 1200, label: 'High volatility' },
     { time: 2400, label: 'Strategy change' },
   ]);
-  const [annotations, setAnnotations] = useState<TradeAnnotation[]>([
+  const [annotations] = useState<TradeAnnotation[]>([
     { id: '1', time: 450, type: 'ai_commentary', content: 'Strong buy signal detected. Pattern match at 94% confidence.', important: true },
     { id: '2', time: 900, type: 'trade_entry', content: 'Bought V-75 UP at 1845.32', important: true },
     { id: '3', time: 1350, type: 'trade_exit', content: 'Trade closed +$85.50 (4.2% profit)', important: false },
@@ -50,7 +50,6 @@ export function ReplayIntelligence() {
     { id: '5', time: 2100, type: 'regime_change', content: 'Market regime shifted from trending to ranging.', important: true },
   ]);
   const [showAnnotations, setShowAnnotations] = useState(true);
-  const [selectedBookmark, setSelectedBookmark] = useState<number | null>(null);
   const [comparisonMode, setComparisonMode] = useState(false);
   const videoRef = useRef<HTMLDivElement>(null);
 
@@ -108,10 +107,6 @@ export function ReplayIntelligence() {
         return <MessageSquare className="w-4 h-4 text-slate-400" />;
     }
   };
-
-  const visibleAnnotations = annotations.filter(a => 
-    Math.abs(a.time - currentTime) < 60 || showAnnotations
-  );
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
